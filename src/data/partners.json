@@ -1,0 +1,22 @@
+[
+  {
+    "partner": {
+      "id": "e457bff0-7d18-4085-81da-cf8ac9ca21a9",
+      "name": "Le Bon Revenu",
+      "logo": "",
+      "duration": "sept 2025 - mars 2026",
+      "startDate": "2025-12-23",
+      "endDate": "2026-12-23",
+      "commission": 20,
+      "commissionClient": 20,
+      "commissionConsulting": 20,
+      "isActive": true,
+      "type": "strategique"
+    },
+    "introductions": [],
+    "events": [],
+    "publications": [],
+    "statistics": [],
+    "quarterlyReports": []
+  }
+]

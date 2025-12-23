@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Suivi Partenariats - Application de Gestion
 
-## Getting Started
+Application Next.js pour gérer les partenariats d'entreprise avec design e=mc2 consulting.
 
-First, run the development server:
+## 🚀 Démarrage rapide
 
 ```bash
+# Installer les dépendances
+npm install
+
+# Lancer en développement
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Ouvrir http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📋 Fonctionnalités
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- ✅ Grille de partenaires avec design e=mc2 consulting
+- ✅ Détails des partenariats (introductions, événements, publications)
+- ✅ Ajout de nouveaux partenariats via formulaire
+- ✅ Suivi des commissions et dates de partenariat
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🎨 Design
 
-## Learn More
+- **Couleurs** : Fond bleu foncé `hsl(222 47% 7%)` + Émeraude `hsl(158 45% 50%)`
+- **Background** : Motif de points teal/vert (e=mc2 consulting)
+- **Style** : Cards avec hover effects, design épuré et professionnel
 
-To learn more about Next.js, take a look at the following resources:
+## 📁 Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+├── app/
+│   ├── page.tsx                    # Homepage avec grille de partenaires
+│   ├── partners/
+│   │   ├── page.tsx                # Liste des partenaires
+│   │   └── [id]/page.tsx           # Détails d'un partenaire
+│   ├── new-partnership/page.tsx    # Formulaire nouveau partenariat
+│   └── api/partners/route.ts       # API REST pour partenaires
+├── components/
+│   ├── PartnerGrid.tsx             # Grille de partenaires
+│   └── ui/                         # Composants UI réutilisables
+├── data/
+│   ├── partners.json               # Données des partenariats
+│   └── partnerships.ts             # Couche d'accès aux données
+└── globals.css                     # Design system e=mc2
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 💾 Données
 
-## Deploy on Vercel
+Actuellement, les données sont stockées dans `src/data/partners.json`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+⚠️ **Important** : Sur Vercel, les nouveaux partenariats ne seront PAS sauvegardés avec cette configuration.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Pour la persistance des données en production, voir [DATABASE_SETUP.md](./DATABASE_SETUP.md) pour migrer vers Supabase ou Vercel Postgres.
+
+## 🚢 Déploiement
+
+### Vercel (Recommandé)
+
+```bash
+# Installer Vercel CLI
+npm i -g vercel
+
+# Déployer
+vercel
+```
+
+**Note** : Pour sauvegarder les nouveaux partenariats, configurez une base de données (voir DATABASE_SETUP.md).
+
+### Autres plateformes
+
+L'application fonctionne sur toute plateforme supportant Next.js 15+ :
+- Netlify
+- Railway
+- Render
+- etc.
+
+## 🔧 Configuration
+
+Copier `.env.example` vers `.env.local` si nécessaire :
+
+```bash
+cp .env.example .env.local
+```
+
+## 📚 Documentation
+
+- [DATABASE_SETUP.md](./DATABASE_SETUP.md) - Guide de migration vers base de données
+- [walkthrough.md](/.gemini/antigravity/brain/.../walkthrough.md) - Documentation complète du projet
+
+## 🛠️ Technologies
+
+- **Framework** : Next.js 15.1.6
+- **Styling** : Tailwind CSS v4
+- **Language** : TypeScript
+- **Icons** : Lucide React
+
+## 📝 License
+
+Projet privé - E=MC² Consulting

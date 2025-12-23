@@ -1,0 +1,407 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: hsl(222 47% 7%);
+  --color-foreground: hsl(0 0% 100%);
+
+  --color-card: hsl(222 47% 10%);
+  --color-card-foreground: hsl(0 0% 100%);
+
+  --color-popover: hsl(222 47% 10%);
+  --color-popover-foreground: hsl(0 0% 100%);
+
+  --color-primary: hsl(158 45% 50%);
+  /* Sophisticated Emerald */
+  --color-primary-foreground: hsl(0 0% 100%);
+  /* White text for better contrast on this green */
+
+  --color-secondary: hsl(217 33% 17%);
+  --color-secondary-foreground: hsl(0 0% 100%);
+
+  --color-muted: hsl(217 33% 17%);
+  --color-muted-foreground: hsl(215 20% 85%);
+
+  --color-accent: hsl(217 33% 17%);
+  --color-accent-foreground: hsl(0 0% 100%);
+
+  --color-destructive: hsl(0 63% 31%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+
+  --color-border: hsl(217 33% 20%);
+  --color-input: hsl(217 33% 20%);
+  --color-ring: hsl(158 45% 50%);
+
+  --radius-lg: 0.5rem;
+  --radius-md: calc(0.5rem - 2px);
+  --radius-sm: calc(0.5rem - 4px);
+}
+
+@layer base {
+  :root {
+    --background: hsl(222 47% 7%);
+    --foreground: hsl(0 0% 100%);
+    --card: hsl(222 47% 10%);
+    --card-foreground: hsl(210 40% 98%);
+    --popover: hsl(222 47% 10%);
+    --popover-foreground: hsl(210 40% 98%);
+    --primary: hsl(158 45% 50%);
+    --primary-foreground: hsl(0 0% 100%);
+    --secondary: hsl(217 33% 17%);
+    --secondary-foreground: hsl(210 40% 98%);
+    --muted: hsl(217 33% 17%);
+    --muted-foreground: hsl(215 20% 65%);
+    --accent: hsl(217 33% 17%);
+    --accent-foreground: hsl(210 40% 98%);
+    --destructive: hsl(0 63% 31%);
+    --destructive-foreground: hsl(210 40% 98%);
+    --border: hsl(217 33% 20%);
+    --input: hsl(217 33% 20%);
+    --ring: hsl(158 45% 50%);
+    --radius: 0.5rem;
+  }
+
+  html {
+    background-color: var(--background);
+  }
+
+  body {
+    @apply bg-transparent text-foreground antialiased selection:bg-primary/20 selection:text-primary;
+    background-color: var(--background);
+    font-feature-settings: "rlig" 1, "calt" 1;
+    color: white;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Card styles */
+.card {
+  @apply bg-card text-card-foreground rounded-lg border border-border/50 p-6;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  @apply border-primary/50 shadow-lg;
+  transform: translateY(-2px);
+}
+
+/* Glassmorphism */
+.glass-card {
+  @apply rounded-xl border border-white/10 p-6;
+  background: rgba(17, 25, 40, 0.75);
+  /* Plus sombre pour meilleur contraste texte */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  @apply border-primary/50;
+  background: rgba(255, 255, 255, 0.07);
+  /* Légèrement plus visible au survol */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Partner Cards - Luminous & Premium */
+.partner-card {
+  @apply rounded-xl p-6 flex flex-col items-center justify-center gap-3 border transition-all duration-500 cursor-pointer h-full min-h-[160px];
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.partner-card:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 0 40px rgba(79, 209, 197, 0.3);
+  transform: translateY(-4px) scale(1.02);
+}
+
+/* Gradient Text */
+.gradient-text {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(135deg, #4FD1C5 0%, #63B3ED 100%);
+}
+
+/* Icon Glow Effect */
+.icon-glow {
+  filter: drop-shadow(0 0 8px rgba(79, 209, 197, 0.6));
+  transition: filter 0.3s ease;
+}
+
+.icon-glow:hover {
+  filter: drop-shadow(0 0 16px rgba(79, 209, 197, 0.8));
+}
+
+/* Premium Partner Button - Galaxy-Class Design */
+.premium-partner-button {
+  @apply relative rounded-2xl p-8 flex items-center justify-center cursor-pointer overflow-hidden;
+  @apply transition-all duration-500 ease-out;
+
+  /* Advanced Glassmorphism */
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.25) 0%,
+      rgba(255, 255, 255, 0.15) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  /* Gradient Border */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.premium-partner-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1rem;
+  padding: 2px;
+  background: linear-gradient(135deg,
+      rgba(79, 209, 197, 0.6),
+      rgba(99, 179, 237, 0.4),
+      rgba(79, 209, 197, 0.6));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.8;
+  transition: opacity 0.5s ease;
+}
+
+.premium-partner-button:hover {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.35) 0%,
+      rgba(255, 255, 255, 0.25) 100%);
+  transform: translateY(-6px) scale(1.03);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.18),
+    0 8px 16px rgba(0, 0, 0, 0.12),
+    0 0 60px rgba(79, 209, 197, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.premium-partner-button:hover::before {
+  opacity: 1;
+}
+
+.premium-partner-button:active {
+  transform: translateY(-4px) scale(1.01);
+}
+
+/* Gradient Text - Premium Typography */
+.text-gradient-primary {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(135deg, #4FD1C5 0%, #63B3ED 50%, #4FD1C5 100%);
+  background-size: 200% auto;
+}
+
+.text-gradient-primary-animated {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(135deg, #4FD1C5 0%, #63B3ED 50%, #4FD1C5 100%);
+  background-size: 200% auto;
+  animation: gradient-shift 4s ease infinite;
+}
+
+/* Premium Animations */
+@keyframes gradient-shift {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.6s ease-out forwards;
+}
+
+/* Premium Card Variants */
+.card-elevated {
+  @apply rounded-xl border border-white/10 p-6;
+  background: rgba(17, 25, 40, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-elevated:hover {
+  @apply border-primary/50;
+  background: rgba(255, 255, 255, 0.07);
+  transform: translateY(-4px);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.2),
+    0 8px 20px rgba(0, 0, 0, 0.15),
+    0 0 40px rgba(79, 209, 197, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.stat-card-premium {
+  @apply relative overflow-hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent);
+  transition: left 0.6s ease;
+}
+
+.stat-card-premium:hover::before {
+  left: 100%;
+}
+
+/* Badge Premium Styles */
+.badge-premium {
+  @apply relative overflow-hidden;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.badge-success {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+  border-color: rgba(34, 197, 94, 0.3);
+  color: rgb(134, 239, 172);
+}
+
+.badge-warning {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
+  border-color: rgba(251, 191, 36, 0.3);
+  color: rgb(253, 224, 71);
+}
+
+.badge-info {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+  border-color: rgba(59, 130, 246, 0.3);
+  color: rgb(147, 197, 253);
+}
+
+.glass-button {
+  @apply relative overflow-hidden rounded-lg px-6 py-3 font-medium transition-all duration-300;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Button styles */
+.btn {
+  @apply px-6 py-3 rounded-lg font-medium transition-all duration-300;
+}
+
+.btn-primary {
+  @apply px-6 py-3 rounded-lg font-semibold text-white transition-all duration-300;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  @apply px-6 py-3 rounded-lg font-semibold text-white transition-all duration-300;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Input styles */
+.input {
+  @apply bg-input border border-border rounded-lg px-4 py-2 text-foreground;
+  @apply focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent;
+}
