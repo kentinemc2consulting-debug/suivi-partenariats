@@ -133,22 +133,24 @@ export default function AddPartnerModal({ isOpen, onClose, onSave }: AddPartnerM
                                 <div>
                                     <label className="block text-sm font-medium text-white/80 mb-1">Date de début</label>
                                     <input
-                                        type="date"
+                                        type="text"
                                         name="startDate"
                                         value={formData.startDate}
                                         onChange={handleChange}
                                         className="input w-full"
+                                        placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
                                         required
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-white/80 mb-1">Date de fin</label>
                                     <input
-                                        type="date"
+                                        type="text"
                                         name="endDate"
                                         value={formData.endDate}
                                         onChange={handleChange}
                                         className="input w-full"
+                                        placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
                                         required
                                     />
                                 </div>

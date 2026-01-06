@@ -108,22 +108,24 @@ export default function EditPartnerModal({ isOpen, onClose, partner, onSave }: E
                                 <div>
                                     <label className="block text-sm font-medium text-white/80 mb-1">Date de début</label>
                                     <input
-                                        type="date"
+                                        type="text"
                                         name="startDate"
                                         value={formData.startDate}
                                         onChange={handleChange}
                                         className="input w-full"
+                                        placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
                                         required
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-white/80 mb-1">Date de fin</label>
                                     <input
-                                        type="date"
+                                        type="text"
                                         name="endDate"
                                         value={formData.endDate}
                                         onChange={handleChange}
                                         className="input w-full"
+                                        placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
                                         required
                                     />
                                 </div>
@@ -169,19 +171,23 @@ export default function EditPartnerModal({ isOpen, onClose, partner, onSave }: E
                                         placeholder="0"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-white/80 mb-1">Type de Partenariat</label>
-                                    <select
-                                        name="type"
-                                        value={formData.type || ''}
-                                        onChange={handleChange}
-                                        className="input w-full"
-                                    >
-                                        <option value="">Non défini</option>
-                                        <option value="ambassadeur">Ambassadeur</option>
-                                        <option value="strategique">Partenariat stratégique</option>
-                                    </select>
-                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-white/80 mb-1">Type de Partenariat</label>
+                                <select
+                                    name="type"
+                                    value={formData.type || ''}
+                                    onChange={handleChange}
+                                    className="input w-full"
+                                >
+                                    <option value="">Non défini</option>
+                                    <option value="ambassadeur">Ambassadeur</option>
+                                    <option value="strategique">Partenariat stratégique</option>
+                                </select>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-white/80 mb-1">Statut</label>
                                     <select

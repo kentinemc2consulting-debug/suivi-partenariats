@@ -109,11 +109,12 @@ export default function AddIntroductionModal({ isOpen, onClose, onSave, initialD
                             <div>
                                 <label className="block text-sm font-medium text-white/80 mb-1">Date</label>
                                 <input
-                                    type="date"
+                                    type="text"
                                     name="date"
                                     value={formData.date}
                                     onChange={handleChange}
                                     className="input w-full"
+                                    placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
                                     required
                                 />
                             </div>

@@ -94,7 +94,7 @@ export default function AddQuarterlyReportModal({ isOpen, onClose, onSave, initi
                                     <div>
                                         <label className="block text-sm text-white/60 mb-1">Date de rendu</label>
                                         <input
-                                            type="date"
+                                            type="text" placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
                                             required
                                             value={formData.reportDate}
                                             onChange={(e) => setFormData(prev => ({ ...prev, reportDate: e.target.value }))}

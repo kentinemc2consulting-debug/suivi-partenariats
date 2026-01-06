@@ -77,6 +77,10 @@ export default function PartnerDetailPage() {
     const [isAILoading, setIsAILoading] = useState(false);
     const [isPoInputOpen, setIsPoInputOpen] = useState(false);
 
+    // API Test State
+    const [isTestingAPI, setIsTestingAPI] = useState(false);
+    const [apiTestResult, setApiTestResult] = useState<string | null>(null);
+
     // PDF Generation State
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
@@ -749,6 +753,29 @@ export default function PartnerDetailPage() {
         }
     };
 
+    const handleTestAPI = async () => {
+        setIsTestingAPI(true);
+        setApiTestResult(null);
+        try {
+            const res = await fetch('/api/ai/summarize-po', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ poContent: 'Test de connexion API' }),
+            });
+            const data = await res.json();
+            if (res.ok && data.summary) {
+                setApiTestResult('✅ API fonctionnelle !');
+            } else {
+                throw new Error(data.error || 'Erreur inconnue');
+            }
+        } catch (error: any) {
+            setApiTestResult(`❌ Erreur : ${error.message}. Vérifiez votre clé GEMINI_API_KEY.`);
+        } finally {
+            setIsTestingAPI(false);
+            setTimeout(() => setApiTestResult(null), 5000);
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -814,11 +841,11 @@ export default function PartnerDetailPage() {
                     <div className="flex items-center justify-between">
                         <Button
                             variant="secondary"
-                            onClick={() => router.push('/')}
+                            onClick={() => router.push('/partners')}
                             className="flex items-center gap-2"
                         >
                             <ArrowLeft className="w-4 h-4" />
-                            Retour à l'accueil
+                            Gestion des partenariats
                         </Button>
 
                         <div className="flex gap-3">
@@ -872,8 +899,32 @@ export default function PartnerDetailPage() {
                                 <Trash2 className="w-4 h-4" />
                                 Supprimer
                             </Button>
+
+                            <Button
+                                variant="secondary"
+                                onClick={handleTestAPI}
+                                disabled={isTestingAPI}
+                                className="flex items-center gap-2"
+                                title="Tester la connexion à l'API Gemini"
+                            >
+                                {isTestingAPI ? (
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                ) : (
+                                    <Sparkles className="w-4 h-4" />
+                                )}
+                                Test API
+                            </Button>
                         </div>
                     </div>
+
+                    {apiTestResult && (
+                        <div className={`p-4 rounded-xl border animate-fadeIn ${apiTestResult.includes('✅')
+                                ? 'bg-green-500/10 border-green-500/30 text-green-300'
+                                : 'bg-red-500/10 border-red-500/30 text-red-300'
+                            }`}>
+                            {apiTestResult}
+                        </div>
+                    )}
 
                     <div className="flex items-center justify-between">
                         <div>

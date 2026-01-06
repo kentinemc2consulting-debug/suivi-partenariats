@@ -118,7 +118,7 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                             <div>
                                 <label className="block text-sm font-medium text-white/80 mb-1">Date de publication</label>
                                 <input
-                                    type="date"
+                                    type="text" placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
                                     name="publicationDate"
                                     value={formData.publicationDate}
                                     onChange={handleChange}
@@ -129,7 +129,7 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                             <div>
                                 <label className="block text-sm font-medium text-white/80 mb-1">Date rapport stats (facultatif)</label>
                                 <input
-                                    type="date"
+                                    type="text" placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
                                     name="statsReportDate"
                                     value={formData.statsReportDate || ''}
                                     onChange={handleChange}

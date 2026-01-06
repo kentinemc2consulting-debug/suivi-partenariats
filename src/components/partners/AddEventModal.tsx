@@ -124,7 +124,7 @@ export default function AddEventModal({ isOpen, onClose, onSave, initialData, pa
                             <div>
                                 <label className="block text-sm font-medium text-white/80 mb-1">Date de proposition</label>
                                 <input
-                                    type="date"
+                                    type="text" placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
                                     name="proposalDate"
                                     value={formData.proposalDate}
                                     onChange={handleChange}
@@ -135,7 +135,7 @@ export default function AddEventModal({ isOpen, onClose, onSave, initialData, pa
                             <div>
                                 <label className="block text-sm font-medium text-white/80 mb-1">Date de l'événement (Optionnel)</label>
                                 <input
-                                    type="date"
+                                    type="text" placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
                                     name="eventDate"
                                     value={formData.eventDate}
                                     onChange={handleChange}

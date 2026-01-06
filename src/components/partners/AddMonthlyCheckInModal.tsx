@@ -94,7 +94,7 @@ export default function AddMonthlyCheckInModal({ isOpen, onClose, onSave, initia
                                     <div>
                                         <label className="block text-sm text-white/60 mb-1">Date du point mensuel *</label>
                                         <input
-                                            type="date"
+                                            type="text" placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
                                             required
                                             value={formData.checkInDate}
                                             onChange={(e) => setFormData(prev => ({ ...prev, checkInDate: e.target.value }))}
