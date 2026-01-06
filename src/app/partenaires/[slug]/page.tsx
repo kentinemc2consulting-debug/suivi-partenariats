@@ -1356,7 +1356,6 @@ export default function PartnerDetailPage() {
                                 </Card>
                             ))}
                         </div>
-}
             </div >
             ) : (
             <div className="relative group cursor-pointer" onClick={() => { setEditingPublication(null); setIsPubModalOpen(true); }}>
