@@ -24,7 +24,7 @@ export default function Home() {
         fetchPartners();
     }, []);
 
-    const activePartnerships = partnerships.filter(p => p.partner.isActive);
+    const activePartnerships = partnerships.filter(p => p.partner.isActive && !p.partner.deletedAt);
 
     return (
         <main className="min-h-screen flex items-center justify-center relative overflow-hidden">

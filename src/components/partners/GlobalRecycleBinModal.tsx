@@ -110,7 +110,7 @@ export default function GlobalRecycleBinModal({
                                             variant="secondary"
                                             onClick={handleEmptyBin}
                                             disabled={actionLoading === 'empty'}
-                                            className="text-red-400 hover:text-red-300 border-red-500/20 hover:bg-red-500/10"
+                                            className="flex items-center gap-2 text-red-400 hover:text-red-300 border-red-500/20 hover:bg-red-500/10"
                                         >
                                             <Trash2 className="w-4 h-4 mr-2" />
                                             {actionLoading === 'empty' ? 'Vidage...' : 'Vider la corbeille'}
