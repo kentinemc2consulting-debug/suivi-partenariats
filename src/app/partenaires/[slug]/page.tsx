@@ -1356,151 +1356,150 @@ export default function PartnerDetailPage() {
                                 </Card>
                             ))}
                         </div>
-            </div >
-            ) : (
-            <div className="relative group cursor-pointer" onClick={() => { setEditingPublication(null); setIsPubModalOpen(true); }}>
-                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/20 to-primary/20 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-                <div className="relative flex flex-col items-center justify-center p-12 rounded-2xl border-2 border-dashed border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all">
-                    <FileText className="w-12 h-12 text-white/10 mb-4 group-hover:text-cyan-400/40 transition-colors" />
-                    <p className="text-white/40 font-medium mb-6">Aucune publication pour le moment</p>
-                    <Button
-                        variant="secondary"
-                        className="pointer-events-none group-hover:scale-105 transition-all flex items-center gap-2"
-                    >
-                        <Plus className="w-4 h-4" />
-                        Ajouter une publication
-                    </Button>
-                </div>
-            </div>
-)}
-        </section >
-
-    {/* Visual Separator */ }
-    < div className = "h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" ></div >
-
-        <section id="events" className="space-y-6 pt-4">
-            <div className="flex items-center justify-between">
-                <h2 className="text-3xl font-bold text-white flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-orange-500/10">
-                        <Calendar className="w-7 h-7 text-orange-400" />
-                    </div>
-                    Événements
-                </h2>
-                <Button
-                    variant="secondary"
-                    onClick={() => {
-                        setEditingEvent(null);
-                        setIsEventModalOpen(true);
-                    }}
-                    className="flex items-center gap-2"
-                >
-                    <Plus className="w-4 h-4" />
-                    Ajouter
-                </Button>
-            </div>
-            {activeEvents.length > 0 ? (
-                <div className="grid gap-4">
-                    {activeEvents.map((event) => (
-                        <Card key={event.id} className="p-6 card-elevated">
-                            <div className="flex items-start justify-between">
-                                <div className="flex-1 space-y-4">
-                                    {/* Event Name - Prominent */}
-                                    <h3 className="text-2xl font-bold text-white">{event.eventName}</h3>
-
-                                    {/* Dates Grid - Clear Labels */}
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <span className="text-xs text-white/50 uppercase tracking-wide">Date de proposition</span>
-                                            <p className="text-white font-medium mt-1">
-                                                {formatDate(event.proposalDate, {
-                                                    day: 'numeric',
-                                                    month: 'long',
-                                                    year: 'numeric'
-                                                })}
-                                            </p>
-                                        </div>
-                                        {event.eventDate && (
-                                            <div>
-                                                <span className="text-xs text-white/50 uppercase tracking-wide">Date de l'événement</span>
-                                                <p className="text-white font-medium mt-1 flex items-center gap-2">
-                                                    <Calendar className="w-4 h-4 text-primary" />
-                                                    {formatDate(event.eventDate, {
-                                                        day: 'numeric',
-                                                        month: 'long',
-                                                        year: 'numeric'
-                                                    })}
-                                                </p>
-                                            </div>
-                                        )}
-                                        {event.eventLocation && (
-                                            <div>
-                                                <span className="text-xs text-white/50 uppercase tracking-wide">Lieu</span>
-                                                <p className="text-white font-medium mt-1 flex items-center gap-2">
-                                                    <MapPin className="w-4 h-4 text-primary" />
-                                                    {event.eventLocation}
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    {/* Status Badge */}
-                                    {event.status === 'accepted' && (
-                                        <div className="px-4 py-2 rounded-full text-sm font-semibold badge-premium badge-success">
-                                            Accepté
-                                        </div>
-                                    )}
-                                    {event.status === 'declined' && (
-                                        <div className="px-4 py-2 rounded-full text-sm font-semibold badge-premium bg-red-500/20 text-red-400 border-red-500/30">
-                                            Refusé
-                                        </div>
-                                    )}
-                                    {(event.status === 'pending' || !event.status) && (
-                                        <div className="px-4 py-2 rounded-full text-sm font-semibold badge-premium bg-orange-500/20 text-orange-400 border-orange-500/30">
-                                            En attente
-                                        </div>
-                                    )}
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => {
-                                            setEditingEvent(event);
-                                            setIsEventModalOpen(true);
-                                        }}
-                                    >
-                                        <Edit className="w-4 h-4" />
-                                    </Button>
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => handleDeleteIntent('event', event.id, event.eventName)}
-                                        className="hover:bg-red-500/10 hover:border-red-500/30 group"
-                                    >
-                                        <Trash2 className="w-4 h-4 text-white/40 group-hover:text-red-400 transition-colors" />
-                                    </Button>
-                                </div>
+                    ) : (
+                        <div className="relative group cursor-pointer" onClick={() => { setEditingPublication(null); setIsPubModalOpen(true); }}>
+                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/20 to-primary/20 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                            <div className="relative flex flex-col items-center justify-center p-12 rounded-2xl border-2 border-dashed border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all">
+                                <FileText className="w-12 h-12 text-white/10 mb-4 group-hover:text-cyan-400/40 transition-colors" />
+                                <p className="text-white/40 font-medium mb-6">Aucune publication pour le moment</p>
+                                <Button
+                                    variant="secondary"
+                                    className="pointer-events-none group-hover:scale-105 transition-all flex items-center gap-2"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    Ajouter une publication
+                                </Button>
                             </div>
-                        </Card>
-                    ))}
-                </div>
-            ) : (
-                <div className="relative group cursor-pointer" onClick={() => { setEditingEvent(null); setIsEventModalOpen(true); }}>
-                    <div className="absolute -inset-1 bg-gradient-to-r from-orange-400/20 to-primary/20 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-                    <div className="relative flex flex-col items-center justify-center p-12 rounded-2xl border-2 border-dashed border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all">
-                        <Calendar className="w-12 h-12 text-white/10 mb-4 group-hover:text-orange-400/40 transition-colors" />
-                        <p className="text-white/40 font-medium mb-6">Aucun événement pour le moment</p>
+                        </div>
+                    )}
+                </section >
+
+                {/* Visual Separator */}
+                < div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" ></div >
+
+                <section id="events" className="space-y-6 pt-4">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-orange-500/10">
+                                <Calendar className="w-7 h-7 text-orange-400" />
+                            </div>
+                            Événements
+                        </h2>
                         <Button
                             variant="secondary"
-                            className="pointer-events-none group-hover:scale-105 transition-all flex items-center gap-2"
+                            onClick={() => {
+                                setEditingEvent(null);
+                                setIsEventModalOpen(true);
+                            }}
+                            className="flex items-center gap-2"
                         >
                             <Plus className="w-4 h-4" />
-                            Ajouter un événement
+                            Ajouter
                         </Button>
                     </div>
-                </div>
-            )}
-        </section>
+                    {activeEvents.length > 0 ? (
+                        <div className="grid gap-4">
+                            {activeEvents.map((event) => (
+                                <Card key={event.id} className="p-6 card-elevated">
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1 space-y-4">
+                                            {/* Event Name - Prominent */}
+                                            <h3 className="text-2xl font-bold text-white">{event.eventName}</h3>
 
-    {/* Visual Separator */ }
+                                            {/* Dates Grid - Clear Labels */}
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <span className="text-xs text-white/50 uppercase tracking-wide">Date de proposition</span>
+                                                    <p className="text-white font-medium mt-1">
+                                                        {formatDate(event.proposalDate, {
+                                                            day: 'numeric',
+                                                            month: 'long',
+                                                            year: 'numeric'
+                                                        })}
+                                                    </p>
+                                                </div>
+                                                {event.eventDate && (
+                                                    <div>
+                                                        <span className="text-xs text-white/50 uppercase tracking-wide">Date de l'événement</span>
+                                                        <p className="text-white font-medium mt-1 flex items-center gap-2">
+                                                            <Calendar className="w-4 h-4 text-primary" />
+                                                            {formatDate(event.eventDate, {
+                                                                day: 'numeric',
+                                                                month: 'long',
+                                                                year: 'numeric'
+                                                            })}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                                {event.eventLocation && (
+                                                    <div>
+                                                        <span className="text-xs text-white/50 uppercase tracking-wide">Lieu</span>
+                                                        <p className="text-white font-medium mt-1 flex items-center gap-2">
+                                                            <MapPin className="w-4 h-4 text-primary" />
+                                                            {event.eventLocation}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            {/* Status Badge */}
+                                            {event.status === 'accepted' && (
+                                                <div className="px-4 py-2 rounded-full text-sm font-semibold badge-premium badge-success">
+                                                    Accepté
+                                                </div>
+                                            )}
+                                            {event.status === 'declined' && (
+                                                <div className="px-4 py-2 rounded-full text-sm font-semibold badge-premium bg-red-500/20 text-red-400 border-red-500/30">
+                                                    Refusé
+                                                </div>
+                                            )}
+                                            {(event.status === 'pending' || !event.status) && (
+                                                <div className="px-4 py-2 rounded-full text-sm font-semibold badge-premium bg-orange-500/20 text-orange-400 border-orange-500/30">
+                                                    En attente
+                                                </div>
+                                            )}
+                                            <Button
+                                                variant="secondary"
+                                                onClick={() => {
+                                                    setEditingEvent(event);
+                                                    setIsEventModalOpen(true);
+                                                }}
+                                            >
+                                                <Edit className="w-4 h-4" />
+                                            </Button>
+                                            <Button
+                                                variant="secondary"
+                                                onClick={() => handleDeleteIntent('event', event.id, event.eventName)}
+                                                className="hover:bg-red-500/10 hover:border-red-500/30 group"
+                                            >
+                                                <Trash2 className="w-4 h-4 text-white/40 group-hover:text-red-400 transition-colors" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="relative group cursor-pointer" onClick={() => { setEditingEvent(null); setIsEventModalOpen(true); }}>
+                            <div className="absolute -inset-1 bg-gradient-to-r from-orange-400/20 to-primary/20 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                            <div className="relative flex flex-col items-center justify-center p-12 rounded-2xl border-2 border-dashed border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all">
+                                <Calendar className="w-12 h-12 text-white/10 mb-4 group-hover:text-orange-400/40 transition-colors" />
+                                <p className="text-white/40 font-medium mb-6">Aucun événement pour le moment</p>
+                                <Button
+                                    variant="secondary"
+                                    className="pointer-events-none group-hover:scale-105 transition-all flex items-center gap-2"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    Ajouter un événement
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </section>
+
+                {/* Visual Separator */}
                 <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
 
                 <section id="reports" className="space-y-6 pt-4">
@@ -1577,7 +1576,7 @@ export default function PartnerDetailPage() {
                     )}
                 </section>
 
-    {/* Visual Separator */ }
+                {/* Visual Separator */}
                 <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
 
                 <section id="checkIns" className="space-y-6 pt-4">
@@ -1711,15 +1710,15 @@ export default function PartnerDetailPage() {
                 />
             </div >
 
-        {/* Back to Top Button */ }
-        < button
-    onClick = {() => window.scrollTo({ top: 0, behavior: 'smooth' })
-}
-className = {`fixed bottom-8 right-8 p-4 rounded-full bg-primary-500 text-white shadow-2xl shadow-primary-500/40 transition-all duration-300 z-50 hover:scale-110 active:scale-95 ${showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
-    }`}
-title = "Retour en haut"
-    >
-    <ArrowUp className="w-6 h-6" />
+            {/* Back to Top Button */}
+            < button
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })
+                }
+                className={`fixed bottom-8 right-8 p-4 rounded-full bg-primary-500 text-white shadow-2xl shadow-primary-500/40 transition-all duration-300 z-50 hover:scale-110 active:scale-95 ${showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
+                    }`}
+                title="Retour en haut"
+            >
+                <ArrowUp className="w-6 h-6" />
             </button >
         </main >
     );
