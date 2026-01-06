@@ -108,7 +108,6 @@ export default function GlobalRecycleBinModal({
                                     {(deletedPartners.length > 0 || allDeletedItems.length > 0) && (
                                         <Button
                                             variant="secondary"
-                                            size="sm"
                                             onClick={handleEmptyBin}
                                             disabled={actionLoading === 'empty'}
                                             className="text-red-400 hover:text-red-300 border-red-500/20 hover:bg-red-500/10"
@@ -162,7 +161,6 @@ export default function GlobalRecycleBinModal({
                                                         <div className="flex gap-2">
                                                             <Button
                                                                 variant="secondary"
-                                                                size="sm"
                                                                 onClick={() => handleAction(p.partner.id, () => onRestorePartner(p.partner.id))}
                                                                 disabled={!!actionLoading}
                                                                 className="flex items-center gap-2"
@@ -172,7 +170,6 @@ export default function GlobalRecycleBinModal({
                                                             </Button>
                                                             <Button
                                                                 variant="secondary"
-                                                                size="sm"
                                                                 onClick={() => {
                                                                     if (confirm('Supprimer définitivement ce partenaire ?'))
                                                                         handleAction(p.partner.id + 'del', () => onPermanentDeletePartner(p.partner.id))
@@ -219,7 +216,6 @@ export default function GlobalRecycleBinModal({
                                                         </div>
                                                         <Button
                                                             variant="secondary"
-                                                            size="sm"
                                                             onClick={() => handleAction(entry.item.id, () => onRestoreItem(entry.partnershipId, entry.type, entry.item.id))}
                                                             disabled={!!actionLoading}
                                                             className="flex items-center gap-2"
