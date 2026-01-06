@@ -58,6 +58,9 @@ export async function PUT(request: Request) {
         const body = await request.json();
         const { id, ...updates } = body;
 
+        console.log('[API PUT] Updating partner:', id);
+        console.log('[API PUT] USE_SUPABASE:', USE_SUPABASE);
+
         if (!id) {
             return NextResponse.json(
                 { error: 'Partner ID is required' },
@@ -67,8 +70,14 @@ export async function PUT(request: Request) {
 
         if (USE_SUPABASE) {
             // Use Supabase
-            await updatePartnership(id, updates);
-            return NextResponse.json({ success: true }, { status: 200 });
+            try {
+                await updatePartnership(id, updates);
+                console.log('[API PUT] Success with Supabase');
+                return NextResponse.json({ success: true }, { status: 200 });
+            } catch (err) {
+                console.error('[API PUT] Supabase Update Error:', err);
+                throw err;
+            }
         } else {
             // Fallback to JSON file
             const fileContents = await fs.readFile(PARTNERS_FILE, 'utf8');
@@ -88,6 +97,7 @@ export async function PUT(request: Request) {
             };
 
             await fs.writeFile(PARTNERS_FILE, JSON.stringify(partners, null, 2));
+            console.log('[API PUT] Success with JSON File');
             return NextResponse.json(partners[partnerIndex], { status: 200 });
         }
 

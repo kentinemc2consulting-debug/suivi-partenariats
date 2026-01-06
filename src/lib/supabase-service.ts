@@ -216,9 +216,14 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
 
     // Update introductions if provided
     if (updates.introductions) {
-        await client.from('introductions').delete().eq('partner_id', partnerId)
+        const { error: deleteError } = await client.from('introductions').delete().eq('partner_id', partnerId)
+        if (deleteError) {
+            console.error('Error deleting introductions:', deleteError)
+            throw deleteError
+        }
+
         if (updates.introductions.length > 0) {
-            await client.from('introductions').insert(
+            const { error: insertError } = await client.from('introductions').insert(
                 updates.introductions.map((intro) => ({
                     id: intro.id,
                     partner_id: partnerId,
@@ -230,14 +235,23 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
                     deleted_at: intro.deletedAt,
                 }))
             )
+            if (insertError) {
+                console.error('Error inserting introductions:', insertError)
+                throw insertError
+            }
         }
     }
 
     // Update events if provided
     if (updates.events) {
-        await client.from('events').delete().eq('partner_id', partnerId)
+        const { error: deleteError } = await client.from('events').delete().eq('partner_id', partnerId)
+        if (deleteError) {
+            console.error('Error deleting events:', deleteError)
+            throw deleteError
+        }
+
         if (updates.events.length > 0) {
-            await client.from('events').insert(
+            const { error: insertError } = await client.from('events').insert(
                 updates.events.map((event) => ({
                     id: event.id,
                     partner_id: partnerId,
@@ -250,14 +264,23 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
                     deleted_at: event.deletedAt,
                 }))
             )
+            if (insertError) {
+                console.error('Error inserting events:', insertError)
+                throw insertError
+            }
         }
     }
 
     // Update publications if provided
     if (updates.publications) {
-        await client.from('publications').delete().eq('partner_id', partnerId)
+        const { error: deleteError } = await client.from('publications').delete().eq('partner_id', partnerId)
+        if (deleteError) {
+            console.error('Error deleting publications:', deleteError)
+            throw deleteError
+        }
+
         if (updates.publications.length > 0) {
-            await client.from('publications').insert(
+            const { error: insertError } = await client.from('publications').insert(
                 updates.publications.map((pub) => ({
                     id: pub.id,
                     partner_id: partnerId,
@@ -269,14 +292,23 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
                     deleted_at: pub.deletedAt,
                 }))
             )
+            if (insertError) {
+                console.error('Error inserting publications:', insertError)
+                throw insertError
+            }
         }
     }
 
     // Update quarterly reports if provided
     if (updates.quarterlyReports) {
-        await client.from('quarterly_reports').delete().eq('partner_id', partnerId)
+        const { error: deleteError } = await client.from('quarterly_reports').delete().eq('partner_id', partnerId)
+        if (deleteError) {
+            console.error('Error deleting quarterly_reports:', deleteError)
+            throw deleteError
+        }
+
         if (updates.quarterlyReports.length > 0) {
-            await client.from('quarterly_reports').insert(
+            const { error: insertError } = await client.from('quarterly_reports').insert(
                 updates.quarterlyReports.map((report) => ({
                     id: report.id,
                     partner_id: partnerId,
@@ -285,6 +317,10 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
                     deleted_at: report.deletedAt,
                 }))
             )
+            if (insertError) {
+                console.error('Error inserting quarterly_reports:', insertError)
+                throw insertError
+            }
         }
     }
 
