@@ -1,0 +1,132 @@
+import { Fragment, useState, useEffect } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
+import { X } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { MonthlyCheckIn } from '@/types';
+
+interface AddMonthlyCheckInModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSave: (checkIn: MonthlyCheckIn) => Promise<void>;
+    initialData?: MonthlyCheckIn | null;
+    partnerId: string;
+}
+
+export default function AddMonthlyCheckInModal({ isOpen, onClose, onSave, initialData, partnerId }: AddMonthlyCheckInModalProps) {
+    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        checkInDate: new Date().toISOString().split('T')[0],
+        notes: '',
+    });
+
+    useEffect(() => {
+        if (isOpen && initialData) {
+            setFormData({
+                checkInDate: new Date(initialData.checkInDate).toISOString().split('T')[0],
+                notes: initialData.notes || ''
+            });
+        } else if (isOpen && !initialData) {
+            setFormData({
+                checkInDate: new Date().toISOString().split('T')[0],
+                notes: '',
+            });
+        }
+    }, [isOpen, initialData]);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+
+        const checkIn: MonthlyCheckIn = {
+            id: initialData?.id || crypto.randomUUID(),
+            partnerId: partnerId,
+            checkInDate: formData.checkInDate,
+            notes: formData.notes || undefined,
+        };
+
+        try {
+            await onSave(checkIn);
+            onClose();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <Transition show={isOpen} as={Fragment}>
+            <Dialog onClose={onClose} className="relative z-50">
+                <Transition.Child
+                    as={Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="ease-in duration-200"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                >
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
+                </Transition.Child>
+
+                <div className="fixed inset-0 flex items-center justify-center p-4">
+                    <Transition.Child
+                        as={Fragment}
+                        enter="ease-out duration-300"
+                        enterFrom="opacity-0 scale-95"
+                        enterTo="opacity-100 scale-100"
+                        leave="ease-in duration-200"
+                        leaveFrom="opacity-100 scale-100"
+                        leaveTo="opacity-0 scale-95"
+                    >
+                        <Dialog.Panel className="w-full max-w-md glass-card rounded-2xl border border-white/10 flex flex-col max-h-[90vh] shadow-xl">
+                            <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
+                                <Dialog.Title className="text-xl font-bold text-white">
+                                    {initialData ? 'Modifier le Point Mensuel' : 'Ajouter un Point Mensuel'}
+                                </Dialog.Title>
+                                <button onClick={onClose} className="text-white/60 hover:text-white">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <div className="p-6 overflow-y-auto">
+                                <form onSubmit={handleSubmit} className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm text-white/60 mb-1">Date du point mensuel *</label>
+                                        <input
+                                            type="date"
+                                            required
+                                            value={formData.checkInDate}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, checkInDate: e.target.value }))}
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-400"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm text-white/60 mb-1">Notes (facultatif)</label>
+                                        <textarea
+                                            value={formData.notes}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                                            placeholder="Sujets abordés, actions à suivre, etc."
+                                            rows={4}
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-400 resize-none"
+                                        />
+                                    </div>
+
+                                    <div className="flex justify-end gap-3 pt-4">
+                                        <Button type="button" variant="secondary" onClick={onClose}>
+                                            Annuler
+                                        </Button>
+                                        <Button type="submit" variant="primary" disabled={loading}>
+                                            {loading ? 'Sauvegarde...' : (initialData ? 'Enregistrer' : 'Ajouter')}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </div>
+                        </Dialog.Panel>
+                    </Transition.Child>
+                </div>
+            </Dialog>
+        </Transition>
+    );
+}

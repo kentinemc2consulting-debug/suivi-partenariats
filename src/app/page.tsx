@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Building2, TrendingUp, Users, Loader2 } from 'lucide-react';
+import { ArrowRight, Building2, TrendingUp, Users, Loader2, Calendar } from 'lucide-react';
 import { PartnershipData } from '@/types';
 
 export default function Home() {
@@ -82,8 +82,19 @@ export default function Home() {
                         </div>
                     )}
 
-                    {/* CTA Button */}
-                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+                    {/* CTA Buttons */}
+                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 flex flex-col sm:flex-row gap-4 justify-center">
+                        <Link
+                            href="/global-events"
+                            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full text-lg font-medium transition-all hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/25"
+                        >
+                            <Calendar className="w-5 h-5" />
+                            <span>Événements Globaux</span>
+
+                            {/* Glow effect */}
+                            <div className="absolute inset-0 rounded-full ring-2 ring-white/20 group-hover:ring-white/40 transition-all" />
+                        </Link>
+
                         <Link
                             href="/partners"
                             className="group relative inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-white rounded-full text-lg font-medium transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/25"

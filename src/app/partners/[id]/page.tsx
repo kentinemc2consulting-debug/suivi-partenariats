@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { PartnershipData, Publication, Partner, QualifiedIntroduction, Event, QuarterlyReport } from '@/types';
+import { PartnershipData, Publication, Partner, QualifiedIntroduction, Event, QuarterlyReport, MonthlyCheckIn } from '@/types';
 import EditPartnerModal from '@/components/partners/EditPartnerModal';
 import AddIntroductionModal from '@/components/partners/AddIntroductionModal';
 import AddPublicationModal from '@/components/partners/AddPublicationModal';
 import AddEventModal from '@/components/partners/AddEventModal';
 import AddQuarterlyReportModal from '@/components/partners/AddQuarterlyReportModal';
+import AddMonthlyCheckInModal from '@/components/partners/AddMonthlyCheckInModal';
 import * as XLSX from 'xlsx';
 import {
     Plus,
@@ -28,10 +29,10 @@ import {
 } from 'lucide-react';
 import ConfirmDeleteModal from '@/components/partners/ConfirmDeleteModal';
 import RecycleBinModal from '@/components/partners/RecycleBinModal';
-import { PartnerReportTemplate } from '@/components/partners/PartnerReportTemplate';
-import html2canvas from 'html2canvas';
+
 import jsPDF from 'jspdf';
-import { useRef } from 'react';
+import autoTable from 'jspdf-autotable';
+
 
 
 export default function PartnerDetailPage() {
@@ -54,11 +55,14 @@ export default function PartnerDetailPage() {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [editingReport, setEditingReport] = useState<QuarterlyReport | null>(null);
 
+    const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
+    const [editingCheckIn, setEditingCheckIn] = useState<MonthlyCheckIn | null>(null);
+
     // Delete & Recycle Bin State
     const [isRecycleBinOpen, setIsRecycleBinOpen] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState<{
         isOpen: boolean;
-        type: 'introduction' | 'event' | 'publication' | 'report';
+        type: 'introduction' | 'event' | 'publication' | 'report' | 'checkIn';
         id: string;
         title: string;
     }>({
@@ -70,7 +74,7 @@ export default function PartnerDetailPage() {
 
     // PDF Generation State
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-    const reportRef = useRef<HTMLDivElement>(null);
+
 
     // Scroll to Top State
     const [showScrollTop, setShowScrollTop] = useState(false);
@@ -90,80 +94,163 @@ export default function PartnerDetailPage() {
         }
     };
 
-    const handleExportPDF = async () => {
+    const handleExportPDF = () => {
         if (!partnership) return;
         setIsGeneratingPDF(true);
 
         try {
-            // Give time for any background rendering
-            await new Promise(resolve => setTimeout(resolve, 800));
+            const doc = new jsPDF();
+            const partner = partnership.partner;
 
-            if (reportRef.current) {
-                console.log('Found report container, capturing pages...');
+            // 1. Header & Branding
+            doc.setFillColor(0, 82, 84); // Teal #005254
+            doc.rect(0, 0, 210, 40, 'F');
 
-                // Find all pages within the template
-                const pages = reportRef.current.querySelectorAll('.pdf-page');
+            // Title
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(22);
+            doc.setFont('helvetica', 'bold');
+            doc.text(partner.name, 14, 20);
 
-                if (pages.length === 0) {
-                    throw new Error("No pages found to export");
+            // Subtitle
+            doc.setFontSize(10);
+            doc.setTextColor(255, 255, 255);
+            let subtitle = `${partner.type === 'strategique' ? 'Partenaire Stratégique' : 'Ambassadeur'}`;
+            if (partner.startDate) {
+                subtitle += ` • Depuis le ${new Date(partner.startDate).toLocaleDateString('fr-FR')}`;
+            }
+            doc.text(subtitle, 14, 30);
+
+            let yPos = 50;
+
+            // Helper for Section Headers
+            const addSectionHeader = (title: string) => {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
                 }
+                doc.setTextColor(60, 60, 60);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text(title, 14, yPos);
+                yPos += 10;
+            };
 
-                // Initialize PDF
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const pdfWidth = 210;
-                const pdfHeight = 297;
-
-                for (let i = 0; i < pages.length; i++) {
-                    const pageElement = pages[i] as HTMLElement;
-
-                    // Capture individual page
-                    const canvas = await html2canvas(pageElement, {
-                        scale: 2,
-                        useCORS: true,
-                        backgroundColor: '#050505',
-                        logging: false,
-                        windowWidth: 794, // Standard A4 width at 96 DPI
-                        width: 794,
-                        onclone: (clonedDoc) => {
-                            // Ensure the cloned element is visible and positioned correctly
-                            const element = clonedDoc.querySelector(`.pdf-page:nth-child(${i + 1})`) as HTMLElement;
-                            if (element) {
-                                element.style.display = 'block';
-                                element.style.visibility = 'visible';
-                            }
-                        }
-                    });
-
-                    const imgData = canvas.toDataURL('image/png', 1.0);
-
-                    // Add to PDF
-                    if (i > 0) {
-                        pdf.addPage();
-                    }
-
-                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
-                }
-
-                // Save locally
-                const pdfBase64 = pdf.output('datauristring').split(',')[1];
-                const fileName = `${partnership.partner.name.replace(/\s+/g, '_')}_Rapport_Activite.pdf`;
-
-                const saveResponse = await fetch('/api/save-file', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fileName, fileData: pdfBase64 })
+            // Helper for Tables
+            const createTable = (head: string[], body: any[][]) => {
+                autoTable(doc, {
+                    startY: yPos,
+                    head: [head],
+                    body: body,
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [0, 82, 84], // Teal header
+                        textColor: [255, 255, 255],
+                        fontStyle: 'bold'
+                    },
+                    styles: {
+                        fontSize: 9,
+                        cellPadding: 3
+                    },
+                    margin: { top: 20 },
+                    pageBreak: 'auto'
                 });
 
-                const saveData = await saveResponse.json();
-                if (saveData.success) {
-                    alert(`PDF sauvegardé : ${saveData.path}`);
-                } else {
-                    throw new Error(saveData.error);
+                // Update yPos for next element
+                // @ts-ignore
+                yPos = doc.lastAutoTable.finalY + 15;
+            };
+
+            // --- 1. Introductions ---
+            if (partnership.introductions && partnership.introductions.length > 0) {
+                const activeIntros = partnership.introductions.filter(i => !i.deletedAt);
+                if (activeIntros.length > 0) {
+                    addSectionHeader('Mises en relation');
+                    const introData = activeIntros.map(i => [
+                        new Date(i.date).toLocaleDateString('fr-FR'),
+                        i.contactName,
+                        i.company,
+                        i.status === 'signed' ? 'Signé' :
+                            i.status === 'negotiating' ? 'En négo.' :
+                                i.status === 'not_interested' ? 'Refusé' : 'En attente'
+                    ]);
+                    createTable(['Date', 'Contact', 'Entreprise', 'Statut'], introData);
                 }
             }
+
+            // --- 2. Événements ---
+            if (partnership.events && partnership.events.length > 0) {
+                const activeEvents = partnership.events.filter(e => !e.deletedAt);
+                if (activeEvents.length > 0) {
+                    addSectionHeader('Événements');
+                    const eventData = activeEvents.map(e => [
+                        e.eventDate ? new Date(e.eventDate).toLocaleDateString('fr-FR') : '-',
+                        e.eventName,
+                        e.eventLocation || '-',
+                        e.status === 'accepted' ? 'Accepté' : e.status === 'declined' ? 'Refusé' : 'En attente'
+                    ]);
+                    createTable(['Date', 'Événement', 'Lieu', 'Statut'], eventData);
+                }
+            }
+
+            // --- 3. Publications ---
+            if (partnership.publications && partnership.publications.length > 0) {
+                const activePubs = partnership.publications.filter(p => !p.deletedAt);
+                if (activePubs.length > 0) {
+                    addSectionHeader('Publications');
+                    const pubData = activePubs.map(p => [
+                        new Date(p.publicationDate).toLocaleDateString('fr-FR'),
+                        p.platform,
+                        p.link
+                    ]);
+                    createTable(['Date', 'Plateforme', 'Lien'], pubData);
+                }
+            }
+
+            // --- 4. Rapports Trimestriels ---
+            if (partnership.quarterlyReports && partnership.quarterlyReports.length > 0) {
+                const activeReports = partnership.quarterlyReports.filter(r => !r.deletedAt);
+                if (activeReports.length > 0) {
+                    addSectionHeader('Rapports Trimestriels');
+                    const reportData = activeReports.map(r => [
+                        new Date(r.reportDate).toLocaleDateString('fr-FR'),
+                        r.link
+                    ]);
+                    createTable(['Date', 'Lien'], reportData);
+                }
+            }
+
+            // --- 5. Points Mensuels ---
+            if (partnership.monthlyCheckIns && partnership.monthlyCheckIns.length > 0) {
+                const activeCheckIns = partnership.monthlyCheckIns.filter(c => !c.deletedAt);
+                if (activeCheckIns.length > 0) {
+                    addSectionHeader('Points Mensuels');
+                    const checkInData = activeCheckIns.map(c => [
+                        new Date(c.checkInDate).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }),
+                        c.notes || '-'
+                    ]);
+                    createTable(['Mois', 'Notes'], checkInData);
+                }
+            }
+
+            // Footer
+            const pageCount = (doc as any).internal.getNumberOfPages();
+            const now = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(150, 150, 150);
+                doc.text(`Généré le ${now} • Suivi Partenariats - E=MC2 Consulting`, 14, doc.internal.pageSize.height - 10);
+                doc.text(`Page ${i} / ${pageCount}`, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 10, { align: 'right' });
+            }
+
+            // Save
+            const fileName = `${partnership.partner.name.replace(/\s+/g, '_')}_Rapport.pdf`;
+            doc.save(fileName);
+
         } catch (error) {
             console.error('PDF Generation failed:', error);
-            alert("Erreur lors de la génération du PDF multi-pages");
+            alert("Erreur lors de la génération du PDF");
         } finally {
             setIsGeneratingPDF(false);
         }
@@ -174,7 +261,7 @@ export default function PartnerDetailPage() {
         setPartnership(prev => prev ? { ...prev, ...updates } : null);
     };
 
-    const handleDeleteIntent = (type: 'introduction' | 'event' | 'publication' | 'report', id: string, title: string) => {
+    const handleDeleteIntent = (type: 'introduction' | 'event' | 'publication' | 'report' | 'checkIn', id: string, title: string) => {
         setDeleteConfirmation({
             isOpen: true,
             type,
@@ -231,6 +318,16 @@ export default function PartnerDetailPage() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: partnership.partner.id, quarterlyReports: newReports }),
                 });
+            } else if (type === 'checkIn') {
+                const newCheckIns = (partnership.monthlyCheckIns || []).map(c =>
+                    c.id === id ? { ...c, deletedAt: now } : c
+                );
+                updates = { monthlyCheckIns: newCheckIns };
+                await fetch('/api/partners', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: partnership.partner.id, monthlyCheckIns: newCheckIns }),
+                });
             }
 
             updatePartnershipState(updates);
@@ -241,7 +338,7 @@ export default function PartnerDetailPage() {
         }
     };
 
-    const handleRestore = async (type: 'introduction' | 'event' | 'publication' | 'report', id: string) => {
+    const handleRestore = async (type: 'introduction' | 'event' | 'publication' | 'report' | 'checkIn', id: string) => {
         if (!partnership) return;
 
         try {
@@ -286,6 +383,16 @@ export default function PartnerDetailPage() {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: partnership.partner.id, quarterlyReports: newReports }),
+                });
+            } else if (type === 'checkIn') {
+                const newCheckIns = (partnership.monthlyCheckIns || []).map(c =>
+                    c.id === id ? { ...c, deletedAt: undefined } : c
+                );
+                updates = { monthlyCheckIns: newCheckIns };
+                await fetch('/api/partners', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: partnership.partner.id, monthlyCheckIns: newCheckIns }),
                 });
             }
 
@@ -448,6 +555,32 @@ export default function PartnerDetailPage() {
         }
     };
 
+    const handleSaveMonthlyCheckIn = async (checkIn: MonthlyCheckIn) => {
+        if (!partnership) return;
+
+        let updatedCheckIns = partnership.monthlyCheckIns ? [...partnership.monthlyCheckIns] : [];
+        const index = updatedCheckIns.findIndex(c => c.id === checkIn.id);
+
+        if (index >= 0) {
+            updatedCheckIns[index] = checkIn;
+        } else {
+            updatedCheckIns = [...updatedCheckIns, checkIn];
+        }
+
+        try {
+            const res = await fetch('/api/partners', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: partnership.partner.id, monthlyCheckIns: updatedCheckIns }),
+            });
+            if (!res.ok) throw new Error('Failed to save monthly check-in');
+            setPartnership(prev => prev ? { ...prev, monthlyCheckIns: updatedCheckIns } : null);
+        } catch (error) {
+            console.error('Error saving monthly check-in:', error);
+            alert('Erreur lors de la sauvegarde');
+        }
+    };
+
     const handleExportExcel = async () => {
         if (!partnership) return;
 
@@ -497,6 +630,16 @@ export default function PartnerDetailPage() {
             }));
         const wsReports = XLSX.utils.json_to_sheet(reportsData);
         XLSX.utils.book_append_sheet(wb, wsReports, "Compte rendu trimestriel");
+
+        // 5. Points Mensuels (exclude deleted items)
+        const checkInsData = (partnership.monthlyCheckIns || [])
+            .filter(c => !c.deletedAt)
+            .map(c => ({
+                "Date du point": new Date(c.checkInDate).toLocaleDateString('fr-FR'),
+                "Notes": c.notes || 'N/A'
+            }));
+        const wsCheckIns = XLSX.utils.json_to_sheet(checkInsData);
+        XLSX.utils.book_append_sheet(wb, wsCheckIns, "Points Mensuels");
 
         const fileName = `${partnership.partner.name.replace(/\\s+/g, '_')}_Suivi_Partenariat.xlsx`;
 
@@ -569,6 +712,7 @@ export default function PartnerDetailPage() {
     const activeEvents = partnership.events.filter(e => !e.deletedAt);
     const activePublications = partnership.publications.filter(p => !p.deletedAt);
     const activeReports = (partnership.quarterlyReports || []).filter(r => !r.deletedAt);
+    const activeCheckIns = (partnership.monthlyCheckIns || []).filter(c => !c.deletedAt);
 
     return (
         <main className="min-h-screen p-8">
@@ -716,7 +860,7 @@ export default function PartnerDetailPage() {
                 </div >
 
                 {/* Stats Overview */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 animate-fadeInUp">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-6 animate-fadeInUp">
                     <Card
                         className="p-6 stat-card-premium card-elevated cursor-pointer hover:scale-[1.02] transition-transform"
                         onClick={() => scrollToSection('introductions')}
@@ -771,6 +915,20 @@ export default function PartnerDetailPage() {
                         </div>
                         <div className="text-4xl font-bold text-gradient-primary">
                             {activeReports.length}
+                        </div>
+                    </Card>
+                    <Card
+                        className="p-6 stat-card-premium card-elevated cursor-pointer hover:scale-[1.02] transition-transform"
+                        onClick={() => scrollToSection('checkIns')}
+                    >
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="p-2 rounded-lg bg-primary/10">
+                                <Calendar className="w-5 h-5 text-primary" />
+                            </div>
+                            <span className="text-white/70 text-sm font-medium">Points Mensuels</span>
+                        </div>
+                        <div className="text-4xl font-bold text-gradient-primary">
+                            {activeCheckIns.length}
                         </div>
                     </Card>
                 </div>
@@ -1187,6 +1345,89 @@ export default function PartnerDetailPage() {
                     )}
                 </section>
 
+                {/* Visual Separator */}
+                <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+                <section id="checkIns" className="space-y-6 pt-4">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-primary/10">
+                                <Calendar className="w-7 h-7 text-primary" />
+                            </div>
+                            Points Mensuels
+                        </h2>
+                        <Button
+                            variant="secondary"
+                            onClick={() => {
+                                setEditingCheckIn(null);
+                                setIsCheckInModalOpen(true);
+                            }}
+                            className="flex items-center gap-2"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Ajouter
+                        </Button>
+                    </div>
+                    {activeCheckIns.length > 0 ? (
+                        <div className="grid gap-4">
+                            {activeCheckIns
+                                .sort((a, b) => new Date(b.checkInDate).getTime() - new Date(a.checkInDate).getTime())
+                                .map((checkIn) => (
+                                    <Card key={checkIn.id} className="p-6">
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex-1">
+                                                <h3 className="text-lg font-semibold text-white">
+                                                    Point du {new Date(checkIn.checkInDate).toLocaleDateString('fr-FR', {
+                                                        day: 'numeric',
+                                                        month: 'long',
+                                                        year: 'numeric'
+                                                    })}
+                                                </h3>
+                                                {checkIn.notes && (
+                                                    <p className="text-sm text-white/60 mt-2 whitespace-pre-wrap">{checkIn.notes}</p>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Calendar className="w-5 h-5 text-white/40" />
+                                                <Button
+                                                    variant="secondary"
+                                                    onClick={() => {
+                                                        setEditingCheckIn(checkIn);
+                                                        setIsCheckInModalOpen(true);
+                                                    }}
+                                                >
+                                                    <Edit className="w-4 h-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="secondary"
+                                                    onClick={() => handleDeleteIntent('checkIn', checkIn.id, `Point du ${new Date(checkIn.checkInDate).toLocaleDateString('fr-FR')}`)}
+                                                    className="hover:bg-red-500/10 hover:border-red-500/30 group"
+                                                >
+                                                    <Trash2 className="w-4 h-4 text-white/40 group-hover:text-red-400 transition-colors" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                ))}
+                        </div>
+                    ) : (
+                        <div className="relative group cursor-pointer" onClick={() => { setEditingCheckIn(null); setIsCheckInModalOpen(true); }}>
+                            <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-cyan-400/20 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                            <div className="relative flex flex-col items-center justify-center p-12 rounded-2xl border-2 border-dashed border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all">
+                                <Calendar className="w-12 h-12 text-white/10 mb-4 group-hover:text-primary/40 transition-colors" />
+                                <p className="text-white/40 font-medium mb-6">Aucun point mensuel pour le moment</p>
+                                <Button
+                                    variant="secondary"
+                                    className="pointer-events-none group-hover:scale-105 transition-all flex items-center gap-2"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    Ajouter un point mensuel
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </section>
+
                 <EditPartnerModal
                     isOpen={isEditModalOpen}
                     onClose={() => setIsEditModalOpen(false)}
@@ -1221,6 +1462,13 @@ export default function PartnerDetailPage() {
                     initialData={editingReport}
                     partnerId={partnership.partner.id}
                 />
+                <AddMonthlyCheckInModal
+                    isOpen={isCheckInModalOpen}
+                    onClose={() => setIsCheckInModalOpen(false)}
+                    onSave={handleSaveMonthlyCheckIn}
+                    initialData={editingCheckIn}
+                    partnerId={partnership.partner.id}
+                />
 
                 <ConfirmDeleteModal
                     isOpen={deleteConfirmation.isOpen}
@@ -1241,16 +1489,7 @@ export default function PartnerDetailPage() {
                     )
                 }
 
-                {/* Hidden Template for PDF Generation */}
-                <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-                    <PartnerReportTemplate
-                        ref={reportRef}
-                        partner={partnership.partner}
-                        introductions={activeIntroductions}
-                        events={activeEvents}
-                        publications={activePublications}
-                    />
-                </div>
+
             </div>
 
             {/* Back to Top Button */}

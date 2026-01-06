@@ -4,14 +4,14 @@ import { Fragment, useState } from 'react';
 import { Dialog, Tab, Transition } from '@headlessui/react';
 import { X, RefreshCcw, Trash2, FileText, Calendar, Users, Linkedin } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { PartnershipData, QualifiedIntroduction, Event, Publication, QuarterlyReport } from '@/types';
+import { PartnershipData, QualifiedIntroduction, Event, Publication, QuarterlyReport, MonthlyCheckIn } from '@/types';
 import { Card } from '@/components/ui/Card';
 
 interface RecycleBinModalProps {
     isOpen: boolean;
     onClose: () => void;
     partnership: PartnershipData;
-    onRestore: (type: 'introduction' | 'event' | 'publication' | 'report', id: string) => Promise<void>;
+    onRestore: (type: 'introduction' | 'event' | 'publication' | 'report' | 'checkIn', id: string) => Promise<void>;
 }
 
 export default function RecycleBinModal({ isOpen, onClose, partnership, onRestore }: RecycleBinModalProps) {
@@ -21,10 +21,11 @@ export default function RecycleBinModal({ isOpen, onClose, partnership, onRestor
     const deletedEvents = partnership.events.filter(e => e.deletedAt);
     const deletedPublications = partnership.publications.filter(p => p.deletedAt);
     const deletedReports = (partnership.quarterlyReports || []).filter(r => r.deletedAt);
+    const deletedCheckIns = (partnership.monthlyCheckIns || []).filter(c => c.deletedAt);
 
-    const totalDeleted = deletedIntroductions.length + deletedEvents.length + deletedPublications.length + deletedReports.length;
+    const totalDeleted = deletedIntroductions.length + deletedEvents.length + deletedPublications.length + deletedReports.length + deletedCheckIns.length;
 
-    const handleRestore = async (type: 'introduction' | 'event' | 'publication' | 'report', id: string) => {
+    const handleRestore = async (type: 'introduction' | 'event' | 'publication' | 'report' | 'checkIn', id: string) => {
         setRestoringId(id);
         await onRestore(type, id);
         setRestoringId(null);
@@ -121,6 +122,31 @@ export default function RecycleBinModal({ isOpen, onClose, partnership, onRestor
                     <Button
                         variant="secondary"
                         onClick={() => handleRestore('report', item.id)}
+                        disabled={restoringId === item.id}
+                        className="flex items-center gap-2"
+                    >
+                        <RefreshCcw className="w-4 h-4" />
+                        <span className="sr-only sm:not-sr-only">Restaurer</span>
+                    </Button>
+                </div>
+            )
+        },
+        {
+            id: 'check-ins',
+            name: 'Points Mensuels',
+            icon: Calendar,
+            count: deletedCheckIns.length,
+            items: deletedCheckIns,
+            renderItem: (item: MonthlyCheckIn) => (
+                <div key={item.id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/5">
+                    <div>
+                        <div className="font-medium text-white">Point du {new Date(item.checkInDate).toLocaleDateString('fr-FR')}</div>
+                        {item.notes && <div className="text-sm text-white/60 mt-1 line-clamp-1">{item.notes}</div>}
+                        <div className="text-xs text-red-300 mt-1">Supprimé le {new Date(item.deletedAt!).toLocaleDateString('fr-FR')}</div>
+                    </div>
+                    <Button
+                        variant="secondary"
+                        onClick={() => handleRestore('checkIn', item.id)}
                         disabled={restoringId === item.id}
                         className="flex items-center gap-2"
                     >

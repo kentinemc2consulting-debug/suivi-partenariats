@@ -13,10 +13,33 @@
       "isActive": true,
       "type": "strategique"
     },
-    "introductions": [],
-    "events": [],
+    "introductions": [
+      {
+        "id": "2ec511fc-8e11-4b7e-a486-46c999854a64",
+        "partnerId": "e457bff0-7d18-4085-81da-cf8ac9ca21a9",
+        "contactName": "ff",
+        "company": "fff",
+        "date": "2026-01-06",
+        "status": "signed",
+        "contractSigned": true
+      }
+    ],
+    "events": [
+      {
+        "id": "5dd94448-1fcb-421e-8c13-748cf41bce3e",
+        "partnerId": "e457bff0-7d18-4085-81da-cf8ac9ca21a9",
+        "proposalDate": "2026-01-06T11:21:23.767Z",
+        "eventDate": "2026-02-27",
+        "eventName": "PAUC",
+        "eventLocation": "Aix",
+        "status": "pending",
+        "globalEventId": "9d5edcc5-c414-40b1-949f-902444e09475",
+        "isSyncedFromGlobal": true
+      }
+    ],
     "publications": [],
     "statistics": [],
-    "quarterlyReports": []
+    "quarterlyReports": [],
+    "monthlyCheckIns": []
   }
 ]

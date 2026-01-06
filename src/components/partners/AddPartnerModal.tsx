@@ -207,9 +207,8 @@ export default function AddPartnerModal({ isOpen, onClose, onSave }: AddPartnerM
                                 </div>
                             </div>
 
-                            {/* Contact Info */}
                             <div className="space-y-4 pt-4 border-t border-white/5">
-                                <h3 className="text-sm font-semibold text-white/90">Informations Contact</h3>
+                                <h3 className="text-sm font-semibold text-white/90">Informations Contact & HubSpot (facultatif)</h3>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-white/80 mb-1">Nom du Contact</label>
@@ -231,6 +230,28 @@ export default function AddPartnerModal({ isOpen, onClose, onSave }: AddPartnerM
                                             onChange={handleContactChange}
                                             className="input w-full"
                                             placeholder="email@exemple.com"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-white/80 mb-1">Lien HubSpot Entreprise</label>
+                                        <input
+                                            type="url"
+                                            name="companyHubspotUrl"
+                                            value={formData.companyHubspotUrl || ''}
+                                            onChange={handleChange}
+                                            className="input w-full"
+                                            placeholder="https://app.hubspot.com/..."
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-white/80 mb-1">Lien HubSpot Contact</label>
+                                        <input
+                                            type="url"
+                                            name="hubspotUrl"
+                                            value={formData.contactPerson?.hubspotUrl || ''}
+                                            onChange={handleContactChange}
+                                            className="input w-full"
+                                            placeholder="https://app.hubspot.com/..."
                                         />
                                     </div>
                                 </div>

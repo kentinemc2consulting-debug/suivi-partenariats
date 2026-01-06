@@ -40,6 +40,10 @@ export interface Event {
   attended?: boolean; // deprecated
   status: 'pending' | 'accepted' | 'declined';
   deletedAt?: string;
+
+  // Champs pour synchronisation avec événements globaux
+  globalEventId?: string;
+  isSyncedFromGlobal?: boolean;
 }
 
 export interface Publication {
@@ -69,6 +73,14 @@ export interface QuarterlyReport {
   deletedAt?: string;
 }
 
+export interface MonthlyCheckIn {
+  id: string;
+  partnerId: string;
+  checkInDate: string;
+  notes?: string;
+  deletedAt?: string;
+}
+
 export interface GitHubStats {
   followers: number;
   publicRepos: number;
@@ -91,4 +103,47 @@ export interface PartnershipData {
   publications: Publication[];
   statistics: Statistics[];
   quarterlyReports: QuarterlyReport[];
+  monthlyCheckIns: MonthlyCheckIn[];
+}
+
+// Partenaire léger (pour événements sans fiche complète)
+export interface LightweightPartner {
+  id: string;
+  name: string;
+  email?: string;
+  company?: string;
+  isLightweight: true;
+}
+
+// Statut d'invitation pour un événement
+export type InvitationStatus = 'proposed' | 'accepted' | 'declined' | 'pending';
+
+// Invitation d'un partenaire à un événement global
+export interface GlobalEventInvitation {
+  partnerId: string; // ID du partenaire (réel ou léger)
+  partnerName: string; // Nom du partenaire pour affichage rapide
+  status: InvitationStatus;
+  proposalDate: string;
+  responseDate?: string;
+  notes?: string;
+  guests?: string[]; // Liste des personnes invitées
+}
+
+// Événement global
+export interface GlobalEvent {
+  id: string;
+  eventName: string;
+  eventDate?: string;
+  eventLocation?: string;
+  description?: string;
+  createdAt: string;
+  updatedAt?: string;
+  invitations: GlobalEventInvitation[];
+  deletedAt?: string;
+}
+
+// Structure de données globale
+export interface GlobalData {
+  globalEvents: GlobalEvent[];
+  lightweightPartners: LightweightPartner[];
 }

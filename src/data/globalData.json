@@ -1,0 +1,35 @@
+{
+  "globalEvents": [
+    {
+      "id": "9d5edcc5-c414-40b1-949f-902444e09475",
+      "eventName": "PAUC",
+      "eventDate": "2026-02-27",
+      "eventLocation": "Aix",
+      "description": "test",
+      "createdAt": "2026-01-06T11:05:46.724Z",
+      "invitations": [
+        {
+          "partnerId": "e457bff0-7d18-4085-81da-cf8ac9ca21a9",
+          "partnerName": "Le Bon Revenu",
+          "status": "pending",
+          "proposalDate": "2026-01-06T11:21:23.767Z",
+          "notes": "test",
+          "guests": [
+            "yoan sartre"
+          ],
+          "responseDate": "2026-01-06T11:23:31.859Z"
+        }
+      ],
+      "updatedAt": "2026-01-06T11:23:31.875Z"
+    }
+  ],
+  "lightweightPartners": [
+    {
+      "id": "d4926c45-c683-43a9-9dca-076e59516e7c",
+      "name": "dd",
+      "email": "ddd@ff.com",
+      "company": "dd",
+      "isLightweight": true
+    }
+  ]
+}
