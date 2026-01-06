@@ -152,7 +152,7 @@ export default function EditPartnerModal({ isOpen, onClose, partner, onSave }: E
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-white/80 mb-1">Commission Conseil (%)</label>
+                                    <label className="block text-sm font-medium text-white/80 mb-1">Commission E=MC2 Consulting (%)</label>
                                     <input
                                         type="text"
                                         inputMode="numeric"
