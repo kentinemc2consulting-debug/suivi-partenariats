@@ -1,4 +1,3 @@
-import { formatDate } from '@/lib/date-utils';
 'use client';
 
 import { useEffect, useState } from 'react';

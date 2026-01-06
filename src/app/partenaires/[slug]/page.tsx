@@ -1,4 +1,3 @@
-import { formatDate } from '@/lib/date-utils';
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -177,7 +176,7 @@ export default function PartnerDetailPage() {
                 if (activeIntros.length > 0) {
                     addSectionHeader('Mises en relation');
                     const introData = activeIntros.map(i => [
-                        formatDate(i.date,
+                        formatDate(i.date),
                         i.contactName,
                         i.company,
                         i.status === 'signed' ? 'Signé' :
@@ -194,7 +193,7 @@ export default function PartnerDetailPage() {
                 if (activeEvents.length > 0) {
                     addSectionHeader('Événements');
                     const eventData = activeEvents.map(e => [
-                        e.eventDate ? formatDate(e.eventDate : '-',
+                        e.eventDate ? formatDate(e.eventDate) : '-',
                         e.eventName,
                         e.eventLocation || '-',
                         e.status === 'accepted' ? 'Accepté' : e.status === 'declined' ? 'Refusé' : 'En attente'
@@ -209,7 +208,7 @@ export default function PartnerDetailPage() {
                 if (activePubs.length > 0) {
                     addSectionHeader('Publications');
                     const pubData = activePubs.map(p => [
-                        formatDate(p.publicationDate,
+                        formatDate(p.publicationDate),
                         p.platform,
                         p.link
                     ]);
@@ -223,7 +222,7 @@ export default function PartnerDetailPage() {
                 if (activeReports.length > 0) {
                     addSectionHeader('Rapports Trimestriels');
                     const reportData = activeReports.map(r => [
-                        formatDate(r.reportDate,
+                        formatDate(r.reportDate),
                         r.link
                     ]);
                     createTable(['Date', 'Lien'], reportData);
@@ -236,7 +235,7 @@ export default function PartnerDetailPage() {
                 if (activeCheckIns.length > 0) {
                     addSectionHeader('Points Mensuels');
                     const checkInData = activeCheckIns.map(c => [
-                        formatDate(c.checkInDate,
+                        formatDate(c.checkInDate),
                         c.notes || '-'
                     ]);
                     createTable(['Mois', 'Notes'], checkInData);
@@ -273,7 +272,7 @@ export default function PartnerDetailPage() {
 
             // Footer
             const pageCount = (doc as any).internal.getNumberOfPages();
-            const now = formatDate(;
+            const now = formatDate(new Date());
             for (let i = 1; i <= pageCount; i++) {
                 doc.setPage(i);
                 doc.setFontSize(8);
@@ -628,7 +627,7 @@ export default function PartnerDetailPage() {
         const introsData = partnership.introductions
             .filter(i => !i.deletedAt)
             .map(i => ({
-                "Date d'introduction": formatDate(i.date,
+                "Date d'introduction": formatDate(i.date),
                 "Nom et prénom": i.contactName,
                 "Entreprise": i.company,
                 "Contrat signé": i.contractSigned ? 'Oui' : 'Non'
@@ -640,8 +639,8 @@ export default function PartnerDetailPage() {
         const eventsData = partnership.events
             .filter(e => !e.deletedAt)
             .map(e => ({
-                "Date de proposition": formatDate(e.proposalDate,
-                "Date évènement": e.eventDate ? formatDate(e.eventDate : 'N/A',
+                "Date de proposition": formatDate(e.proposalDate),
+                "Date évènement": e.eventDate ? formatDate(e.eventDate) : 'N/A',
                 "Nom évènement": e.eventName,
                 "Présent à l'évènement": e.attended ? 'Oui' : 'Non'
             }));
@@ -652,10 +651,10 @@ export default function PartnerDetailPage() {
         const pubsData = partnership.publications
             .filter(p => !p.deletedAt)
             .map(p => ({
-                "Date publication": formatDate(p.publicationDate,
+                "Date publication": formatDate(p.publicationDate),
                 "Plateforme": p.platform,
                 "Lien": p.link,
-                "Date de rapport statistiques": p.statsReportDate ? formatDate(p.statsReportDate : 'Non renseigné'
+                "Date de rapport statistiques": p.statsReportDate ? formatDate(p.statsReportDate) : 'Non renseigné'
             }));
         const wsPubs = XLSX.utils.json_to_sheet(pubsData);
         XLSX.utils.book_append_sheet(wb, wsPubs, "Publications");
@@ -664,7 +663,7 @@ export default function PartnerDetailPage() {
         const reportsData = (partnership.quarterlyReports || [])
             .filter(r => !r.deletedAt)
             .map(r => ({
-                "Date de rendu": formatDate(r.reportDate,
+                "Date de rendu": formatDate(r.reportDate),
             }));
         const wsReports = XLSX.utils.json_to_sheet(reportsData);
         XLSX.utils.book_append_sheet(wb, wsReports, "Compte rendu trimestriel");
@@ -673,7 +672,7 @@ export default function PartnerDetailPage() {
         const checkInsData = (partnership.monthlyCheckIns || [])
             .filter(c => !c.deletedAt)
             .map(c => ({
-                "Date du point": formatDate(c.checkInDate,
+                "Date du point": formatDate(c.checkInDate),
                 "Notes": c.notes || 'N/A'
             }));
         const wsCheckIns = XLSX.utils.json_to_sheet(checkInsData);
