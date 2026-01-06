@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import type { PartnershipData, Partner, QualifiedIntroduction, Event, Publication, QuarterlyReport, MonthlyCheckIn, GlobalEvent, LightweightPartner, GlobalEventInvitation } from '@/types'
+import { generateSlug } from './slug-utils'
 
 /**
  * Fetch all partners with their related data
@@ -52,6 +53,7 @@ export async function getAllPartnerships(): Promise<PartnershipData[]> {
                     },
                     deletedAt: partner.deleted_at,
                     servicesSummary: partner.services_summary,
+                    slug: partner.slug,
                 },
                 introductions: introductions.data?.map(mapIntroduction) || [],
                 events: events.data?.map(mapEvent) || [],
@@ -95,6 +97,7 @@ export async function createPartnership(partnershipData: PartnershipData): Promi
             contact_person_email: partner.contactPerson?.email,
             contact_person_hubspot_url: partner.contactPerson?.hubspotUrl,
             services_summary: partner.servicesSummary,
+            slug: partner.slug || generateSlug(partner.name),
         })
         .select()
         .single()
@@ -201,6 +204,7 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
                 contact_person_email: updates.partner.contactPerson?.email,
                 contact_person_hubspot_url: updates.partner.contactPerson?.hubspotUrl,
                 services_summary: updates.partner.servicesSummary,
+                slug: updates.partner.slug || (updates.partner.name ? generateSlug(updates.partner.name) : undefined),
             })
             .eq('id', partnerId)
 
