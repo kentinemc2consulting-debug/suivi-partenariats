@@ -1,3 +1,4 @@
+import { formatDate } from '@/lib/date-utils';
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -126,7 +127,7 @@ export default function PartnerDetailPage() {
             doc.setTextColor(255, 255, 255);
             let subtitle = `${partner.type === 'strategique' ? 'Partenaire Stratégique' : 'Ambassadeur'}`;
             if (partner.startDate) {
-                subtitle += ` • Depuis le ${new Date(partner.startDate).toLocaleDateString('fr-FR')}`;
+                subtitle += ` • Depuis le ${formatDate(partner.startDate}`;
             }
             doc.text(subtitle, 14, 30);
 
@@ -176,7 +177,7 @@ export default function PartnerDetailPage() {
                 if (activeIntros.length > 0) {
                     addSectionHeader('Mises en relation');
                     const introData = activeIntros.map(i => [
-                        new Date(i.date).toLocaleDateString('fr-FR'),
+                        formatDate(i.date,
                         i.contactName,
                         i.company,
                         i.status === 'signed' ? 'Signé' :
@@ -193,7 +194,7 @@ export default function PartnerDetailPage() {
                 if (activeEvents.length > 0) {
                     addSectionHeader('Événements');
                     const eventData = activeEvents.map(e => [
-                        e.eventDate ? new Date(e.eventDate).toLocaleDateString('fr-FR') : '-',
+                        e.eventDate ? formatDate(e.eventDate : '-',
                         e.eventName,
                         e.eventLocation || '-',
                         e.status === 'accepted' ? 'Accepté' : e.status === 'declined' ? 'Refusé' : 'En attente'
@@ -208,7 +209,7 @@ export default function PartnerDetailPage() {
                 if (activePubs.length > 0) {
                     addSectionHeader('Publications');
                     const pubData = activePubs.map(p => [
-                        new Date(p.publicationDate).toLocaleDateString('fr-FR'),
+                        formatDate(p.publicationDate,
                         p.platform,
                         p.link
                     ]);
@@ -222,7 +223,7 @@ export default function PartnerDetailPage() {
                 if (activeReports.length > 0) {
                     addSectionHeader('Rapports Trimestriels');
                     const reportData = activeReports.map(r => [
-                        new Date(r.reportDate).toLocaleDateString('fr-FR'),
+                        formatDate(r.reportDate,
                         r.link
                     ]);
                     createTable(['Date', 'Lien'], reportData);
@@ -235,7 +236,7 @@ export default function PartnerDetailPage() {
                 if (activeCheckIns.length > 0) {
                     addSectionHeader('Points Mensuels');
                     const checkInData = activeCheckIns.map(c => [
-                        new Date(c.checkInDate).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }),
+                        formatDate(c.checkInDate,
                         c.notes || '-'
                     ]);
                     createTable(['Mois', 'Notes'], checkInData);
@@ -272,7 +273,7 @@ export default function PartnerDetailPage() {
 
             // Footer
             const pageCount = (doc as any).internal.getNumberOfPages();
-            const now = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+            const now = formatDate(;
             for (let i = 1; i <= pageCount; i++) {
                 doc.setPage(i);
                 doc.setFontSize(8);
@@ -627,7 +628,7 @@ export default function PartnerDetailPage() {
         const introsData = partnership.introductions
             .filter(i => !i.deletedAt)
             .map(i => ({
-                "Date d'introduction": new Date(i.date).toLocaleDateString('fr-FR'),
+                "Date d'introduction": formatDate(i.date,
                 "Nom et prénom": i.contactName,
                 "Entreprise": i.company,
                 "Contrat signé": i.contractSigned ? 'Oui' : 'Non'
@@ -639,8 +640,8 @@ export default function PartnerDetailPage() {
         const eventsData = partnership.events
             .filter(e => !e.deletedAt)
             .map(e => ({
-                "Date de proposition": new Date(e.proposalDate).toLocaleDateString('fr-FR'),
-                "Date évènement": e.eventDate ? new Date(e.eventDate).toLocaleDateString('fr-FR') : 'N/A',
+                "Date de proposition": formatDate(e.proposalDate,
+                "Date évènement": e.eventDate ? formatDate(e.eventDate : 'N/A',
                 "Nom évènement": e.eventName,
                 "Présent à l'évènement": e.attended ? 'Oui' : 'Non'
             }));
@@ -651,10 +652,10 @@ export default function PartnerDetailPage() {
         const pubsData = partnership.publications
             .filter(p => !p.deletedAt)
             .map(p => ({
-                "Date publication": new Date(p.publicationDate).toLocaleDateString('fr-FR'),
+                "Date publication": formatDate(p.publicationDate,
                 "Plateforme": p.platform,
                 "Lien": p.link,
-                "Date de rapport statistiques": p.statsReportDate ? new Date(p.statsReportDate).toLocaleDateString('fr-FR') : 'Non renseigné'
+                "Date de rapport statistiques": p.statsReportDate ? formatDate(p.statsReportDate : 'Non renseigné'
             }));
         const wsPubs = XLSX.utils.json_to_sheet(pubsData);
         XLSX.utils.book_append_sheet(wb, wsPubs, "Publications");
@@ -663,7 +664,7 @@ export default function PartnerDetailPage() {
         const reportsData = (partnership.quarterlyReports || [])
             .filter(r => !r.deletedAt)
             .map(r => ({
-                "Date de rendu": new Date(r.reportDate).toLocaleDateString('fr-FR'),
+                "Date de rendu": formatDate(r.reportDate,
             }));
         const wsReports = XLSX.utils.json_to_sheet(reportsData);
         XLSX.utils.book_append_sheet(wb, wsReports, "Compte rendu trimestriel");
@@ -672,7 +673,7 @@ export default function PartnerDetailPage() {
         const checkInsData = (partnership.monthlyCheckIns || [])
             .filter(c => !c.deletedAt)
             .map(c => ({
-                "Date du point": new Date(c.checkInDate).toLocaleDateString('fr-FR'),
+                "Date du point": formatDate(c.checkInDate,
                 "Notes": c.notes || 'N/A'
             }));
         const wsCheckIns = XLSX.utils.json_to_sheet(checkInsData);
@@ -1306,7 +1307,7 @@ export default function PartnerDetailPage() {
                                             <div className="flex items-center gap-2 text-white/70">
                                                 <Calendar className="w-4 h-4" />
                                                 <span className="text-sm font-medium">
-                                                    Publié le {new Date(pub.publicationDate).toLocaleDateString('fr-FR')}
+                                                    Publié le {formatDate(pub.publicationDate}
                                                 </span>
                                             </div>
 
@@ -1314,12 +1315,12 @@ export default function PartnerDetailPage() {
                                                 <div className="space-y-1">
                                                     {pub.lastUpdated && (
                                                         <p className="text-xs text-white/50">
-                                                            Dernière mise à jour: {new Date(pub.lastUpdated).toLocaleDateString('fr-FR')}
+                                                            Dernière mise à jour: {formatDate(pub.lastUpdated}
                                                         </p>
                                                     )}
                                                     {pub.statsReportDate && (
                                                         <p className="text-xs text-white/50">
-                                                            📅 Rapport stats: {new Date(pub.statsReportDate).toLocaleDateString('fr-FR')}
+                                                            📅 Rapport stats: {formatDate(pub.statsReportDate}
                                                         </p>
                                                     )}
                                                 </div>
@@ -1337,7 +1338,7 @@ export default function PartnerDetailPage() {
                                             </Button>
                                             <Button
                                                 variant="secondary"
-                                                onClick={() => handleDeleteIntent('publication', pub.id, `${pub.platform} (${new Date(pub.publicationDate).toLocaleDateString('fr-FR')})`)}
+                                                onClick={() => handleDeleteIntent('publication', pub.id, `${pub.platform} (${formatDate(pub.publicationDate})`)}
                                                 className="hover:bg-red-500/10 hover:border-red-500/30 group"
                                             >
                                                 <Trash2 className="w-4 h-4 text-white/40 group-hover:text-red-400 transition-colors" />
@@ -1527,7 +1528,7 @@ export default function PartnerDetailPage() {
                                 <Card key={report.id} className="p-6">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <h3 className="text-lg font-semibold text-white">Rapport du {new Date(report.reportDate).toLocaleDateString('fr-FR')}</h3>
+                                            <h3 className="text-lg font-semibold text-white">Rapport du {formatDate(report.reportDate}</h3>
                                             {report.link && (
                                                 <a href={report.link} target="_blank" rel="noreferrer" className="text-sm text-primary-400 hover:text-primary-300 transition-colors mt-1 inline-block">
                                                     Voir le document
@@ -1547,7 +1548,7 @@ export default function PartnerDetailPage() {
                                             </Button>
                                             <Button
                                                 variant="secondary"
-                                                onClick={() => handleDeleteIntent('report', report.id, `Rapport du ${new Date(report.reportDate).toLocaleDateString('fr-FR')}`)}
+                                                onClick={() => handleDeleteIntent('report', report.id, `Rapport du ${formatDate(report.reportDate}`)}
                                                 className="hover:bg-red-500/10 hover:border-red-500/30 group"
                                             >
                                                 <Trash2 className="w-4 h-4 text-white/40 group-hover:text-red-400 transition-colors" />
@@ -1630,7 +1631,7 @@ export default function PartnerDetailPage() {
                                                 </Button>
                                                 <Button
                                                     variant="secondary"
-                                                    onClick={() => handleDeleteIntent('checkIn', checkIn.id, `Point du ${new Date(checkIn.checkInDate).toLocaleDateString('fr-FR')}`)}
+                                                    onClick={() => handleDeleteIntent('checkIn', checkIn.id, `Point du ${formatDate(checkIn.checkInDate}`)}
                                                     className="hover:bg-red-500/10 hover:border-red-500/30 group"
                                                 >
                                                     <Trash2 className="w-4 h-4 text-white/40 group-hover:text-red-400 transition-colors" />
