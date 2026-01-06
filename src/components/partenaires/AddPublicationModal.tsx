@@ -5,6 +5,7 @@ import { Dialog } from '@headlessui/react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Publication } from '@/types';
+import DatePicker from '@/components/ui/DatePicker';
 
 interface AddPublicationModalProps {
     isOpen: boolean;
@@ -74,7 +75,7 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
         <Dialog open={isOpen} onClose={onClose} className="relative z-50">
             <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="mx-auto max-w-lg w-full rounded-2xl glass-card border border-white/10 shadow-xl flex flex-col max-h-[90vh]">
+                <Dialog.Panel className="mx-auto max-w-2xl w-full rounded-2xl glass-card border border-white/10 shadow-xl flex flex-col max-h-[90vh]">
                     <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
                         <Dialog.Title className="text-xl font-bold text-white">
                             {initialData ? 'Modifier la Publication' : 'Ajouter une Publication'}
@@ -115,27 +116,17 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                                     placeholder="https://..."
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-white/80 mb-1">Date de publication</label>
-                                <input
-                                    type="text" placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
-                                    name="publicationDate"
-                                    value={formData.publicationDate}
-                                    onChange={handleChange}
-                                    className="input w-full"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-white/80 mb-1">Date rapport stats (facultatif)</label>
-                                <input
-                                    type="text" placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
-                                    name="statsReportDate"
-                                    value={formData.statsReportDate || ''}
-                                    onChange={handleChange}
-                                    className="input w-full"
-                                />
-                            </div>
+                            <DatePicker
+                                label="Date de publication"
+                                value={formData.publicationDate}
+                                onChange={(date) => setFormData(prev => ({ ...prev, publicationDate: date }))}
+                                required
+                            />
+                            <DatePicker
+                                label="Date rapport stats (facultatif)"
+                                value={formData.statsReportDate || ''}
+                                onChange={(date) => setFormData(prev => ({ ...prev, statsReportDate: date }))}
+                            />
 
                             <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/5">
                                 <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>

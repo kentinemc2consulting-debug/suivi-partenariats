@@ -3,6 +3,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { GlobalEvent } from '@/types';
+import DatePicker from '@/components/ui/DatePicker';
 
 interface CreateGlobalEventModalProps {
     isOpen: boolean;
@@ -90,7 +91,7 @@ export default function CreateGlobalEventModal({ isOpen, onClose, onSave, eventT
                         leaveFrom="opacity-100 scale-100"
                         leaveTo="opacity-0 scale-95"
                     >
-                        <Dialog.Panel className="w-full max-w-md glass-card rounded-2xl border border-white/10 flex flex-col max-h-[90vh] shadow-xl">
+                        <Dialog.Panel className="w-full max-w-2xl glass-card rounded-2xl border border-white/10 flex flex-col max-h-[90vh] shadow-xl">
                             <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
                                 <Dialog.Title className="text-xl font-bold text-white">
                                     {eventToEdit ? 'Modifier l\'événement' : 'Créer un Événement Global'}
@@ -114,15 +115,11 @@ export default function CreateGlobalEventModal({ isOpen, onClose, onSave, eventT
                                         />
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm text-white/60 mb-1">Date de l'événement</label>
-                                        <input
-                                            type="date"
-                                            value={formData.eventDate}
-                                            onChange={(e) => setFormData(prev => ({ ...prev, eventDate: e.target.value }))}
-                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-400"
-                                        />
-                                    </div>
+                                    <DatePicker
+                                        label="Date de l'événement"
+                                        value={formData.eventDate}
+                                        onChange={(date) => setFormData(prev => ({ ...prev, eventDate: date }))}
+                                    />
 
                                     <div>
                                         <label className="block text-sm text-white/60 mb-1">Lieu</label>

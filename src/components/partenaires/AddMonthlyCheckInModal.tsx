@@ -3,6 +3,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { MonthlyCheckIn } from '@/types';
+import DatePicker from '@/components/ui/DatePicker';
 
 interface AddMonthlyCheckInModalProps {
     isOpen: boolean;
@@ -79,7 +80,7 @@ export default function AddMonthlyCheckInModal({ isOpen, onClose, onSave, initia
                         leaveFrom="opacity-100 scale-100"
                         leaveTo="opacity-0 scale-95"
                     >
-                        <Dialog.Panel className="w-full max-w-md glass-card rounded-2xl border border-white/10 flex flex-col max-h-[90vh] shadow-xl">
+                        <Dialog.Panel className="w-full max-w-2xl glass-card rounded-2xl border border-white/10 flex flex-col max-h-[90vh] shadow-xl">
                             <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
                                 <Dialog.Title className="text-xl font-bold text-white">
                                     {initialData ? 'Modifier le Point Mensuel' : 'Ajouter un Point Mensuel'}
@@ -91,16 +92,12 @@ export default function AddMonthlyCheckInModal({ isOpen, onClose, onSave, initia
 
                             <div className="p-6 overflow-y-auto">
                                 <form onSubmit={handleSubmit} className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm text-white/60 mb-1">Date du point mensuel *</label>
-                                        <input
-                                            type="text" placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
-                                            required
-                                            value={formData.checkInDate}
-                                            onChange={(e) => setFormData(prev => ({ ...prev, checkInDate: e.target.value }))}
-                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-400"
-                                        />
-                                    </div>
+                                    <DatePicker
+                                        label="Date du point mensuel"
+                                        value={formData.checkInDate}
+                                        onChange={(date) => setFormData(prev => ({ ...prev, checkInDate: date }))}
+                                        required
+                                    />
 
                                     <div>
                                         <label className="block text-sm text-white/60 mb-1">Notes (facultatif)</label>

@@ -171,7 +171,7 @@ export default function AddInvitationModal({
                         leaveFrom="opacity-100 scale-100"
                         leaveTo="opacity-0 scale-95"
                     >
-                        <Dialog.Panel className="w-full max-w-lg glass-card rounded-2xl border border-white/10 flex flex-col max-h-[90vh] shadow-xl">
+                        <Dialog.Panel className="w-full max-w-2xl glass-card rounded-2xl border border-white/10 flex flex-col max-h-[90vh] shadow-xl">
                             <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
                                 <Dialog.Title className="text-xl font-bold text-white">
                                     {editingInvitation ? 'Modifier l\'Invitation' : 'Inviter un Partenaire'}

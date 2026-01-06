@@ -5,6 +5,7 @@ import { Dialog } from '@headlessui/react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Event } from '@/types';
+import DatePicker from '@/components/ui/DatePicker';
 
 interface AddEventModalProps {
     isOpen: boolean;
@@ -73,7 +74,7 @@ export default function AddEventModal({ isOpen, onClose, onSave, initialData, pa
         <Dialog open={isOpen} onClose={onClose} className="relative z-50">
             <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="mx-auto max-w-lg w-full rounded-2xl glass-card border border-white/10 shadow-xl flex flex-col max-h-[90vh]">
+                <Dialog.Panel className="mx-auto max-w-2xl w-full rounded-2xl glass-card border border-white/10 shadow-xl flex flex-col max-h-[90vh]">
                     <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
                         <Dialog.Title className="text-xl font-bold text-white">
                             {initialData ? 'Modifier l\'Événement' : 'Ajouter un Événement'}
@@ -121,27 +122,17 @@ export default function AddEventModal({ isOpen, onClose, onSave, initialData, pa
                                     <option value="declined">Refusé</option>
                                 </select>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-white/80 mb-1">Date de proposition</label>
-                                <input
-                                    type="text" placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
-                                    name="proposalDate"
-                                    value={formData.proposalDate}
-                                    onChange={handleChange}
-                                    className="input w-full"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-white/80 mb-1">Date de l'événement (Optionnel)</label>
-                                <input
-                                    type="text" placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
-                                    name="eventDate"
-                                    value={formData.eventDate}
-                                    onChange={handleChange}
-                                    className="input w-full"
-                                />
-                            </div>
+                            <DatePicker
+                                label="Date de proposition"
+                                value={formData.proposalDate}
+                                onChange={(date) => setFormData(prev => ({ ...prev, proposalDate: date }))}
+                                required
+                            />
+                            <DatePicker
+                                label="Date de l'événement (Optionnel)"
+                                value={formData.eventDate}
+                                onChange={(date) => setFormData(prev => ({ ...prev, eventDate: date }))}
+                            />
 
                             <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/5">
                                 <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>

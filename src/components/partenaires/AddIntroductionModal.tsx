@@ -5,6 +5,7 @@ import { Dialog } from '@headlessui/react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { QualifiedIntroduction } from '@/types';
+import DatePicker from '@/components/ui/DatePicker';
 
 interface AddIntroductionModalProps {
     isOpen: boolean;
@@ -70,7 +71,7 @@ export default function AddIntroductionModal({ isOpen, onClose, onSave, initialD
         <Dialog open={isOpen} onClose={onClose} className="relative z-50">
             <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="mx-auto max-w-lg w-full rounded-2xl glass-card border border-white/10 shadow-xl flex flex-col max-h-[90vh]">
+                <Dialog.Panel className="mx-auto max-w-2xl w-full rounded-2xl glass-card border border-white/10 shadow-xl flex flex-col max-h-[90vh]">
                     <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
                         <Dialog.Title className="text-xl font-bold text-white">
                             {initialData ? 'Modifier l\'Introduction' : 'Ajouter une Introduction'}
@@ -106,18 +107,12 @@ export default function AddIntroductionModal({ isOpen, onClose, onSave, initialD
                                     placeholder="Ex: Entreprise XYZ"
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-white/80 mb-1">Date</label>
-                                <input
-                                    type="text"
-                                    name="date"
-                                    value={formData.date}
-                                    onChange={handleChange}
-                                    className="input w-full"
-                                    placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
-                                    required
-                                />
-                            </div>
+                            <DatePicker
+                                label="Date"
+                                value={formData.date}
+                                onChange={(date) => setFormData(prev => ({ ...prev, date }))}
+                                required
+                            />
                             <div>
                                 <label className="block text-sm font-medium text-white/80 mb-1">Statut</label>
                                 <select
