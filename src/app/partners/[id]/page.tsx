@@ -28,7 +28,6 @@ import {
     ExternalLink
 } from 'lucide-react';
 import ConfirmDeleteModal from '@/components/partners/ConfirmDeleteModal';
-import RecycleBinModal from '@/components/partners/RecycleBinModal';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
