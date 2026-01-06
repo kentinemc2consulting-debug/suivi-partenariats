@@ -91,6 +91,7 @@ export async function PUT(request: Request) {
             return NextResponse.json(partners[partnerIndex], { status: 200 });
         }
 
+    } catch (error) {
         console.error('Error updating partnership:', error);
         return NextResponse.json(
             { error: 'Failed to update partnership', details: error instanceof Error ? error.message : String(error) },
