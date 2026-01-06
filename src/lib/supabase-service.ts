@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { PartnershipData, Partner, QualifiedIntroduction, Event, Publication, QuarterlyReport } from '@/types'
+import type { PartnershipData, Partner, QualifiedIntroduction, Event, Publication, QuarterlyReport, MonthlyCheckIn } from '@/types'
 
 /**
  * Fetch all partners with their related data
@@ -24,12 +24,13 @@ export async function getAllPartnerships(): Promise<PartnershipData[]> {
     // Fetch related data for each partner
     const partnershipsData: PartnershipData[] = await Promise.all(
         partners.map(async (partner) => {
-            const [introductions, events, publications, statistics, quarterlyReports] = await Promise.all([
+            const [introductions, events, publications, statistics, quarterlyReports, monthlyCheckIns] = await Promise.all([
                 client.from('introductions').select('*').eq('partner_id', partner.id),
                 client.from('events').select('*').eq('partner_id', partner.id),
                 client.from('publications').select('*').eq('partner_id', partner.id),
                 client.from('statistics').select('*').eq('partner_id', partner.id),
                 client.from('quarterly_reports').select('*').eq('partner_id', partner.id),
+                client.from('monthly_check_ins').select('*').eq('partner_id', partner.id),
             ])
 
             return {
@@ -55,6 +56,7 @@ export async function getAllPartnerships(): Promise<PartnershipData[]> {
                 publications: publications.data?.map(mapPublication) || [],
                 statistics: statistics.data || [],
                 quarterlyReports: quarterlyReports.data?.map(mapQuarterlyReport) || [],
+                monthlyCheckIns: monthlyCheckIns.data?.map(mapMonthlyCheckIn) || [],
             }
         })
     )
@@ -71,7 +73,7 @@ export async function createPartnership(partnershipData: PartnershipData): Promi
     }
 
     const client = supabase // Non-null assertion after check
-    const { partner, introductions, events, publications, quarterlyReports } = partnershipData
+    const { partner, introductions, events, publications, quarterlyReports, monthlyCheckIns } = partnershipData
 
     // Insert partner
     const { data: insertedPartner, error: partnerError } = await client
@@ -150,6 +152,17 @@ export async function createPartnership(partnershipData: PartnershipData): Promi
                 partner_id: partner.id,
                 report_date: report.reportDate,
                 link: report.link,
+            }))
+        )
+    }
+
+    if (monthlyCheckIns && monthlyCheckIns.length > 0) {
+        await client.from('monthly_check_ins').insert(
+            monthlyCheckIns.map((checkIn) => ({
+                id: checkIn.id,
+                partner_id: partner.id,
+                check_in_date: checkIn.checkInDate,
+                notes: checkIn.notes,
             }))
         )
     }
@@ -267,6 +280,22 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
             )
         }
     }
+
+    // Update monthly check-ins if provided
+    if (updates.monthlyCheckIns) {
+        await client.from('monthly_check_ins').delete().eq('partner_id', partnerId)
+        if (updates.monthlyCheckIns.length > 0) {
+            await client.from('monthly_check_ins').insert(
+                updates.monthlyCheckIns.map((checkIn) => ({
+                    id: checkIn.id,
+                    partner_id: partnerId,
+                    check_in_date: checkIn.checkInDate,
+                    notes: checkIn.notes,
+                    deleted_at: checkIn.deletedAt,
+                }))
+            )
+        }
+    }
 }
 
 // Helper mapping functions
@@ -316,6 +345,16 @@ function mapQuarterlyReport(data: any): QuarterlyReport {
         partnerId: data.partner_id,
         reportDate: data.report_date,
         link: data.link,
+        deletedAt: data.deleted_at,
+    }
+}
+
+function mapMonthlyCheckIn(data: any): MonthlyCheckIn {
+    return {
+        id: data.id,
+        partnerId: data.partner_id,
+        checkInDate: data.check_in_date,
+        notes: data.notes,
         deletedAt: data.deleted_at,
     }
 }
