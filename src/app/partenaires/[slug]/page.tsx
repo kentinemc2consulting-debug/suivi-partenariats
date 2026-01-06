@@ -1606,7 +1606,7 @@ export default function PartnerDetailPage() {
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
                                                 <h3 className="text-lg font-semibold text-white">
-                                                    Point du {new Date(checkIn.checkInDate).toLocaleDateString('fr-FR', {
+                                                    Point du {formatDate(checkIn.checkInDate, {
                                                         day: 'numeric',
                                                         month: 'long',
                                                         year: 'numeric'
