@@ -144,7 +144,7 @@ export default function PartnersPage() {
                             </p>
                         </div>
                         <Button
-                            variant="accent"
+                            variant="primary"
                             onClick={() => setIsAddModalOpen(true)}
                             className="flex items-center gap-2"
                         >
@@ -154,10 +154,10 @@ export default function PartnersPage() {
                         <Button
                             variant="secondary"
                             onClick={() => setIsRecycleBinOpen(true)}
-                            className="flex items-center gap-2"
+                            className="flex items-center justify-center p-2"
+                            title="Corbeille"
                         >
                             <Trash2 className="w-5 h-5" />
-                            Corbeille
                         </Button>
                     </div>
                 </div>
