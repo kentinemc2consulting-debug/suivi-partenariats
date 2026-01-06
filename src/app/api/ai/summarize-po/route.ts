@@ -27,6 +27,7 @@ export async function POST(request: Request) {
             2. Sois concis.
             3. Si des limitations (ex: nombre de posts, durée) sont mentionnées, inclus-les.
             4. Réponds en français.
+            5. N'utilise AUCUN astérisque (*) ni formatage markdown (pas de gras, italique, etc.). Utilise uniquement du texte brut avec des tirets (-) pour les puces.
             
             Texte du bon de commande :
             ${poContent}
