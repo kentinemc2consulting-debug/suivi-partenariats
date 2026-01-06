@@ -5,6 +5,7 @@ import { Dialog } from '@headlessui/react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Partner, PartnershipData } from '@/types';
+import { formatDate } from '@/lib/date-utils';
 
 interface AddPartnerModalProps {
     isOpen: boolean;
@@ -41,13 +42,16 @@ export default function AddPartnerModal({ isOpen, onClose, onSave }: AddPartnerM
 
     useEffect(() => {
         if (formData.startDate && formData.endDate) {
-            const start = new Date(formData.startDate);
-            const end = new Date(formData.endDate);
-            const fmt = (d: Date) => d.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }).replace('.', '');
-            setFormData(prev => ({
-                ...prev,
-                duration: `${fmt(start)} - ${fmt(end)}`
-            }));
+            const options: Intl.DateTimeFormatOptions = { month: 'short', year: 'numeric' };
+            const startStr = formatDate(formData.startDate, options).replace('.', '');
+            const endStr = formatDate(formData.endDate, options).replace('.', '');
+
+            if (startStr !== 'Invalid Date' && endStr !== 'Invalid Date') {
+                setFormData(prev => ({
+                    ...prev,
+                    duration: `${startStr} - ${endStr}`
+                }));
+            }
         }
     }, [formData.startDate, formData.endDate]);
 
