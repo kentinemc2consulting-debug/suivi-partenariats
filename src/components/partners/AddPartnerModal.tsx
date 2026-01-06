@@ -90,7 +90,8 @@ export default function AddPartnerModal({ isOpen, onClose, onSave }: AddPartnerM
                 events: [],
                 publications: [],
                 statistics: [],
-                quarterlyReports: []
+                quarterlyReports: [],
+                monthlyCheckIns: []
             };
             await onSave(newPartnership);
             onClose();
