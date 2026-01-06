@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Partner, PartnershipData } from '@/types';
 import { formatDate, toDateString } from '@/lib/date-utils';
+import DatePicker from '@/components/ui/DatePicker';
 
 interface AddPartnerModalProps {
     isOpen: boolean;
@@ -141,30 +142,18 @@ export default function AddPartnerModal({ isOpen, onClose, onSave }: AddPartnerM
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-white/80 mb-1">Date de début</label>
-                                    <input
-                                        type="text"
-                                        name="startDate"
-                                        value={formData.startDate}
-                                        onChange={handleChange}
-                                        className="input w-full"
-                                        placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-white/80 mb-1">Date de fin</label>
-                                    <input
-                                        type="text"
-                                        name="endDate"
-                                        value={formData.endDate}
-                                        onChange={handleChange}
-                                        className="input w-full"
-                                        placeholder="AAAA-MM-JJ ou JJ/MM/AAAA"
-                                        required
-                                    />
-                                </div>
+                                <DatePicker
+                                    label="Date de début"
+                                    value={formData.startDate}
+                                    onChange={(date) => setFormData(prev => ({ ...prev, startDate: date }))}
+                                    required
+                                />
+                                <DatePicker
+                                    label="Date de fin"
+                                    value={formData.endDate}
+                                    onChange={(date) => setFormData(prev => ({ ...prev, endDate: date }))}
+                                    required
+                                />
                             </div>
 
                             <div>
