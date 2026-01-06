@@ -5,9 +5,10 @@ import { PartnerCard } from '@/components/partners/PartnerCard';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { PartnershipData } from '@/types';
-import { Briefcase, Plus, Filter, ArrowLeft, Loader2 } from 'lucide-react';
+import { Briefcase, Plus, Filter, ArrowLeft, Loader2, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import AddPartnerModal from '@/components/partners/AddPartnerModal';
+import GlobalRecycleBinModal from '@/components/partners/GlobalRecycleBinModal';
 
 export default function PartnersPage() {
     const router = useRouter();
@@ -15,6 +16,7 @@ export default function PartnersPage() {
     const [filter, setFilter] = useState<'all' | 'active' | 'archived'>('all');
     const [loading, setLoading] = useState(true);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isRecycleBinOpen, setIsRecycleBinOpen] = useState(false);
 
     const fetchPartnerships = async () => {
         try {
@@ -47,7 +49,60 @@ export default function PartnersPage() {
         }
     };
 
-    const filteredPartnerships = partnerships.filter(p => {
+    const handleRestorePartner = async (id: string) => {
+        try {
+            const res = await fetch(`/api/partners?action=restore&id=${id}`, { method: 'PATCH' });
+            if (res.ok) await fetchPartnerships();
+        } catch (error) {
+            console.error('Error restoring partner:', error);
+        }
+    };
+
+    const handlePermanentDeletePartner = async (id: string) => {
+        try {
+            const res = await fetch(`/api/partners?action=permanent&id=${id}`, { method: 'DELETE' });
+            if (res.ok) await fetchPartnerships();
+        } catch (error) {
+            console.error('Error permanently deleting partner:', error);
+        }
+    };
+
+    const handleEmptyBin = async () => {
+        try {
+            const res = await fetch(`/api/partners?action=empty`, { method: 'DELETE' });
+            if (res.ok) await fetchPartnerships();
+        } catch (error) {
+            console.error('Error emptying bin:', error);
+        }
+    };
+
+    const handleRestoreItem = async (partnershipId: string, type: string, itemId: string) => {
+        const p = partnerships.find(p => p.partner.id === partnershipId);
+        if (!p) return;
+
+        let updates: any = {};
+        if (type === 'introduction') updates.introductions = p.introductions.map(i => i.id === itemId ? { ...i, deletedAt: undefined } : i);
+        if (type === 'event') updates.events = p.events.map(e => e.id === itemId ? { ...e, deletedAt: undefined } : e);
+        if (type === 'publication') updates.publications = p.publications.map(pub => pub.id === itemId ? { ...pub, deletedAt: undefined } : pub);
+        if (type === 'report') updates.quarterlyReports = (p.quarterlyReports || []).map(r => r.id === itemId ? { ...r, deletedAt: undefined } : r);
+        if (type === 'checkIn') updates.monthlyCheckIns = (p.monthlyCheckIns || []).map(c => c.id === itemId ? { ...c, deletedAt: undefined } : c);
+
+        try {
+            const res = await fetch('/api/partners', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: partnershipId, ...updates }),
+            });
+            if (res.ok) await fetchPartnerships();
+        } catch (error) {
+            console.error('Error restoring item:', error);
+        }
+    };
+
+    const activePartnerships = partnerships.filter(p => !p.partner.deletedAt);
+    const deletedPartnerships = partnerships.filter(p => p.partner.deletedAt);
+
+    const filteredPartnerships = activePartnerships.filter(p => {
         if (filter === 'active') return p.partner.isActive;
         if (filter === 'archived') return !p.partner.isActive;
         return true;
@@ -96,6 +151,19 @@ export default function PartnersPage() {
                             <Plus className="w-5 h-5" />
                             Nouveau partenariat
                         </Button>
+                        <Button
+                            variant="secondary"
+                            onClick={() => setIsRecycleBinOpen(true)}
+                            className="flex items-center gap-2"
+                        >
+                            <Trash2 className="w-5 h-5" />
+                            Corbeille
+                            {deletedPartnerships.length > 0 && (
+                                <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold">
+                                    {deletedPartnerships.length}
+                                </span>
+                            )}
+                        </Button>
                     </div>
                 </div>
 
@@ -103,6 +171,16 @@ export default function PartnersPage() {
                     isOpen={isAddModalOpen}
                     onClose={() => setIsAddModalOpen(false)}
                     onSave={handleAddPartner}
+                />
+
+                <GlobalRecycleBinModal
+                    isOpen={isRecycleBinOpen}
+                    onClose={() => setIsRecycleBinOpen(false)}
+                    partnerships={partnerships}
+                    onRestorePartner={handleRestorePartner}
+                    onPermanentDeletePartner={handlePermanentDeletePartner}
+                    onEmptyBin={handleEmptyBin}
+                    onRestoreItem={handleRestoreItem}
                 />
 
                 {/* Filters */}

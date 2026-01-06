@@ -1,11 +1,11 @@
 'use client';
 
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { GlobalData, GlobalEvent, InvitationStatus } from '@/types';
-import { Calendar, Plus, ArrowLeft, Users, CheckCircle, XCircle, Clock, Download } from 'lucide-react';
+import { Calendar, Plus, ArrowLeft, Users, CheckCircle, XCircle, Clock, Download, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import CreateGlobalEventModal from '@/components/global-events/CreateGlobalEventModal';
 import Link from 'next/link';
 import jsPDF from 'jspdf';
@@ -16,10 +16,27 @@ export default function GlobalEventsPage() {
     const [globalData, setGlobalData] = useState<GlobalData>({ globalEvents: [], lightweightPartners: [] });
     const [loading, setLoading] = useState(true);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+    const [selectedEventToEdit, setSelectedEventToEdit] = useState<GlobalEvent | undefined>(undefined);
+    const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         fetchGlobalData();
     }, []);
+
+    // Close menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (activeMenuId && menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setActiveMenuId(null);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [activeMenuId]);
 
     const fetchGlobalData = async () => {
         try {
@@ -33,22 +50,71 @@ export default function GlobalEventsPage() {
         }
     };
 
-    const handleCreateEvent = async (event: GlobalEvent) => {
+    const handleSaveEvent = async (eventData: Partial<GlobalEvent>) => {
         try {
+            const method = eventData.id ? 'PUT' : 'POST';
             const res = await fetch('/api/global-events', {
-                method: 'POST',
+                method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(event)
+                body: JSON.stringify(eventData)
             });
 
-            if (!res.ok) throw new Error('Failed to create event');
+            if (!res.ok) throw new Error('Failed to save event');
 
-            const newEvent = await res.json();
-            router.push(`/global-events/${newEvent.id}`);
+            const savedEvent = await res.json();
+
+            if (eventData.id) {
+                await fetchGlobalData(); // Refresh list on edit
+            } else {
+                router.push(`/global-events/${savedEvent.id}`); // Navigate on create
+            }
+
+            setIsCreateModalOpen(false);
+            setSelectedEventToEdit(undefined);
         } catch (error) {
-            console.error('Error creating event:', error);
-            alert('Erreur lors de la création de l\'événement');
+            console.error('Error saving event:', error);
+            alert('Erreur lors de la sauvegarde de l\'événement');
         }
+    };
+
+    const handleDeleteEvent = async (id: string, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) return;
+
+        try {
+            const res = await fetch(`/api/global-events?id=${id}`, {
+                method: 'DELETE'
+            });
+
+            if (!res.ok) throw new Error('Failed to delete event');
+
+            fetchGlobalData();
+            setActiveMenuId(null);
+        } catch (error) {
+            console.error('Error deleting event:', error);
+            alert('Erreur lors de la suppression de l\'événement');
+        }
+    };
+
+    const handleEditClick = (event: GlobalEvent, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setSelectedEventToEdit(event);
+        setIsCreateModalOpen(true);
+        setActiveMenuId(null);
+    };
+
+    const handleCreateClick = () => {
+        setSelectedEventToEdit(undefined);
+        setIsCreateModalOpen(true);
+    };
+
+    const toggleMenu = (id: string, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setActiveMenuId(activeMenuId === id ? null : id);
     };
 
     const generatePDF = (event: GlobalEvent, e: React.MouseEvent) => {
@@ -76,6 +142,12 @@ export default function GlobalEventsPage() {
             subtitle += (subtitle ? ' - ' : '') + event.eventLocation;
         }
         doc.text(subtitle, 14, 30);
+
+        if (event.description) {
+            doc.setFontSize(9);
+            doc.setTextColor(180, 180, 180);
+            doc.text(event.description, 14, 38, { maxWidth: 180 });
+        }
 
         // 2. Stats Summary
         const stats = {
@@ -198,7 +270,7 @@ export default function GlobalEventsPage() {
 
                         <Button
                             variant="primary"
-                            onClick={() => setIsCreateModalOpen(true)}
+                            onClick={handleCreateClick}
                             className="flex items-center gap-2"
                         >
                             <Plus className="w-4 h-4" />
@@ -267,7 +339,7 @@ export default function GlobalEventsPage() {
 
                             return (
                                 <Link key={event.id} href={`/global-events/${event.id}`} className="block">
-                                    <Card className="p-6 hover:bg-white/[0.03] transition-colors cursor-pointer group relative overflow-hidden">
+                                    <Card className="p-6 hover:bg-white/[0.03] transition-colors cursor-pointer group relative overflow-visible">
                                         <div className="flex items-start justify-between relative z-10">
                                             <div className="flex-1">
                                                 <h3 className="text-2xl font-bold text-white mb-2">{event.eventName}</h3>
@@ -328,12 +400,40 @@ export default function GlobalEventsPage() {
                                                 </div>
                                             </div>
 
-                                            <div className="flex flex-col items-end gap-3">
+                                            <div className="flex items-center gap-2 relative">
                                                 <Button variant="secondary" className="pointer-events-none">
                                                     Gérer →
                                                 </Button>
 
+                                                <button
+                                                    onClick={(e) => toggleMenu(event.id, e)}
+                                                    className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                                                >
+                                                    <MoreVertical className="w-5 h-5" />
+                                                </button>
 
+                                                {activeMenuId === event.id && (
+                                                    <div
+                                                        ref={menuRef}
+                                                        className="absolute top-12 right-0 w-48 bg-[#0F172A] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        <button
+                                                            onClick={(e) => handleEditClick(event, e)}
+                                                            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:bg-white/5 hover:text-white transition-colors text-left"
+                                                        >
+                                                            <Edit className="w-4 h-4" />
+                                                            Modifier
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => handleDeleteEvent(event.id, e)}
+                                                            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors text-left border-t border-white/5"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                            Supprimer
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </Card>
@@ -362,7 +462,8 @@ export default function GlobalEventsPage() {
                 <CreateGlobalEventModal
                     isOpen={isCreateModalOpen}
                     onClose={() => setIsCreateModalOpen(false)}
-                    onSave={handleCreateEvent}
+                    onSave={handleSaveEvent}
+                    eventToEdit={selectedEventToEdit}
                 />
             </div>
         </main>

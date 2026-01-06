@@ -7,10 +7,11 @@ import { GlobalEvent } from '@/types';
 interface CreateGlobalEventModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (event: GlobalEvent) => Promise<void>;
+    onSave: (event: Partial<GlobalEvent>) => Promise<void>;
+    eventToEdit?: GlobalEvent;
 }
 
-export default function CreateGlobalEventModal({ isOpen, onClose, onSave }: CreateGlobalEventModalProps) {
+export default function CreateGlobalEventModal({ isOpen, onClose, onSave, eventToEdit }: CreateGlobalEventModalProps) {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         eventName: '',
@@ -21,28 +22,41 @@ export default function CreateGlobalEventModal({ isOpen, onClose, onSave }: Crea
 
     useEffect(() => {
         if (isOpen) {
-            setFormData({
-                eventName: '',
-                eventDate: '',
-                eventLocation: '',
-                description: ''
-            });
+            if (eventToEdit) {
+                setFormData({
+                    eventName: eventToEdit.eventName,
+                    eventDate: eventToEdit.eventDate || '',
+                    eventLocation: eventToEdit.eventLocation || '',
+                    description: eventToEdit.description || ''
+                });
+            } else {
+                setFormData({
+                    eventName: '',
+                    eventDate: '',
+                    eventLocation: '',
+                    description: ''
+                });
+            }
         }
-    }, [isOpen]);
+    }, [isOpen, eventToEdit]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
-        const newEvent: Partial<GlobalEvent> = {
+        const eventData: Partial<GlobalEvent> = {
             eventName: formData.eventName,
             eventDate: formData.eventDate || undefined,
             eventLocation: formData.eventLocation || undefined,
             description: formData.description || undefined
         };
 
+        if (eventToEdit) {
+            eventData.id = eventToEdit.id;
+        }
+
         try {
-            await onSave(newEvent as GlobalEvent);
+            await onSave(eventData);
             onClose();
         } catch (error) {
             console.error(error);
@@ -79,7 +93,7 @@ export default function CreateGlobalEventModal({ isOpen, onClose, onSave }: Crea
                         <Dialog.Panel className="w-full max-w-md glass-card rounded-2xl border border-white/10 flex flex-col max-h-[90vh] shadow-xl">
                             <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
                                 <Dialog.Title className="text-xl font-bold text-white">
-                                    Créer un Événement Global
+                                    {eventToEdit ? 'Modifier l\'événement' : 'Créer un Événement Global'}
                                 </Dialog.Title>
                                 <button onClick={onClose} className="text-white/60 hover:text-white">
                                     <X className="w-5 h-5" />
@@ -137,7 +151,7 @@ export default function CreateGlobalEventModal({ isOpen, onClose, onSave }: Crea
                                             Annuler
                                         </Button>
                                         <Button type="submit" variant="primary" disabled={loading}>
-                                            {loading ? 'Création...' : 'Créer l\'événement'}
+                                            {loading ? 'Enregistrement...' : (eventToEdit ? 'Enregistrer' : 'Créer l\'événement')}
                                         </Button>
                                     </div>
                                 </form>

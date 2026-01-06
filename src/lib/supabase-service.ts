@@ -50,6 +50,7 @@ export async function getAllPartnerships(): Promise<PartnershipData[]> {
                         email: partner.contact_person_email,
                         hubspotUrl: partner.contact_person_hubspot_url,
                     },
+                    deletedAt: partner.deleted_at,
                 },
                 introductions: introductions.data?.map(mapIntroduction) || [],
                 events: events.data?.map(mapEvent) || [],
@@ -373,6 +374,65 @@ export async function deleteGlobalEvent(id: string): Promise<void> {
     if (error) {
         console.error('Error deleting global event:', error)
         throw new Error('Failed to delete global event')
+    }
+}
+
+// Partner Deletion & Restoration Functions
+
+export async function softDeletePartner(id: string): Promise<void> {
+    if (!supabase) throw new Error('Supabase not initialized')
+    const { error } = await supabase
+        .from('partners')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', id)
+
+    if (error) {
+        console.error('Error soft deleting partner:', error)
+        throw new Error('Failed to soft delete partner')
+    }
+}
+
+export async function restorePartner(id: string): Promise<void> {
+    if (!supabase) throw new Error('Supabase not initialized')
+    const { error } = await supabase
+        .from('partners')
+        .update({ deleted_at: null })
+        .eq('id', id)
+
+    if (error) {
+        console.error('Error restoring partner:', error)
+        throw new Error('Failed to restore partner')
+    }
+}
+
+export async function permanentDeletePartner(id: string): Promise<void> {
+    if (!supabase) throw new Error('Supabase not initialized')
+
+    // We rely on CASCADE delete in Supabase if configured, or manually delete related data
+    // For safety, let's just delete the partner. 
+    // If FK constraints are set to CASCADE, related records will be gone.
+    const { error } = await supabase
+        .from('partners')
+        .delete()
+        .eq('id', id)
+
+    if (error) {
+        console.error('Error permanently deleting partner:', error)
+        throw new Error('Failed to permanently delete partner')
+    }
+}
+
+export async function emptyRecycleBin(): Promise<void> {
+    if (!supabase) throw new Error('Supabase not initialized')
+
+    const { error } = await supabase
+        .from('partners')
+        .delete()
+        .not('deleted_at', 'is', null)
+
+    if (error) {
+        console.error('Error emptying recycle bin:', error)
+        throw new Error('Failed to empty recycle bin')
     }
 }
 

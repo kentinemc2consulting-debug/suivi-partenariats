@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { PartnershipData } from '@/types';
-import { getAllPartnerships, createPartnership, updatePartnership } from '@/lib/supabase-service';
+import { getAllPartnerships, createPartnership, updatePartnership, softDeletePartner, restorePartner, permanentDeletePartner, emptyRecycleBin } from '@/lib/supabase-service';
 
 const PARTNERS_FILE = path.join(process.cwd(), 'src/data/partners.json');
 const USE_SUPABASE = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -97,5 +97,57 @@ export async function PUT(request: Request) {
             { error: 'Failed to update partnership' },
             { status: 500 }
         );
+    }
+}
+
+export async function DELETE(request: Request) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+        const action = searchParams.get('action'); // 'permanent', 'empty' or undefined (soft)
+
+        if (action === 'empty') {
+            if (USE_SUPABASE) {
+                await emptyRecycleBin();
+            }
+            return NextResponse.json({ success: true });
+        }
+
+        if (!id) {
+            return NextResponse.json({ error: 'ID required' }, { status: 400 });
+        }
+
+        if (USE_SUPABASE) {
+            if (action === 'permanent') {
+                await permanentDeletePartner(id);
+            } else {
+                await softDeletePartner(id);
+            }
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Error in DELETE partner:', error);
+        return NextResponse.json({ error: 'Failed' }, { status: 500 });
+    }
+}
+
+export async function PATCH(request: Request) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+        const action = searchParams.get('action'); // 'restore'
+
+        if (action === 'restore' && id) {
+            if (USE_SUPABASE) {
+                await restorePartner(id);
+            }
+            return NextResponse.json({ success: true });
+        }
+
+        return NextResponse.json({ error: 'Invalid action or ID' }, { status: 400 });
+    } catch (error) {
+        console.error('Error in PATCH partner:', error);
+        return NextResponse.json({ error: 'Failed' }, { status: 500 });
     }
 }

@@ -58,8 +58,7 @@ export default function PartnerDetailPage() {
     const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
     const [editingCheckIn, setEditingCheckIn] = useState<MonthlyCheckIn | null>(null);
 
-    // Delete & Recycle Bin State
-    const [isRecycleBinOpen, setIsRecycleBinOpen] = useState(false);
+    // Delete State
     const [deleteConfirmation, setDeleteConfirmation] = useState<{
         isOpen: boolean;
         type: 'introduction' | 'event' | 'publication' | 'report' | 'checkIn';
@@ -230,6 +229,34 @@ export default function PartnerDetailPage() {
                         c.notes || '-'
                     ]);
                     createTable(['Mois', 'Notes'], checkInData);
+                }
+            }
+
+            // --- 6. Informations de Contact ---
+            addSectionHeader('Informations complémentaires');
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            let contactInfo = [];
+            if (partner.contactPerson?.name) contactInfo.push(`Contact: ${partner.contactPerson.name}`);
+            if (partner.contactPerson?.email) contactInfo.push(`Email: ${partner.contactPerson.email}`);
+            if (partner.commissionClient) contactInfo.push(`Commission Client: ${partner.commissionClient}%`);
+            if (partner.commissionConsulting) contactInfo.push(`Commission Consulting: ${partner.commissionConsulting}%`);
+
+            contactInfo.forEach(line => {
+                doc.text(line, 14, yPos);
+                yPos += 7;
+            });
+
+            if (partner.companyHubspotUrl || partner.contactPerson?.hubspotUrl) {
+                yPos += 3;
+                doc.setTextColor(0, 100, 255);
+                if (partner.companyHubspotUrl) {
+                    doc.text('Lien HubSpot Société', 14, yPos);
+                    yPos += 7;
+                }
+                if (partner.contactPerson?.hubspotUrl) {
+                    doc.text('Lien HubSpot Contact', 14, yPos);
+                    yPos += 7;
                 }
             }
 
@@ -739,14 +766,6 @@ export default function PartnerDetailPage() {
                         <div className="flex gap-3">
                             <Button
                                 variant="secondary"
-                                onClick={() => setIsRecycleBinOpen(true)}
-                                className="flex items-center gap-2"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                                Corbeille
-                            </Button>
-                            <Button
-                                variant="secondary"
                                 onClick={handleExportExcel}
                                 className="flex items-center gap-2"
                             >
@@ -778,6 +797,22 @@ export default function PartnerDetailPage() {
                             >
                                 <Settings className="w-4 h-4" />
                                 Éditer le client
+                            </Button>
+
+                            <Button
+                                variant="secondary"
+                                onClick={async () => {
+                                    if (confirm('Supprimer ce partenaire ? Il sera envoyé dans la corbeille.')) {
+                                        try {
+                                            const res = await fetch(`/api/partners?id=${partnership.partner.id}`, { method: 'DELETE' });
+                                            if (res.ok) router.push('/partners');
+                                        } catch (e) { console.error(e); }
+                                    }
+                                }}
+                                className="flex items-center gap-2 text-red-400 hover:text-red-300 border-red-500/20 hover:bg-red-500/10"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                Supprimer
                             </Button>
                         </div>
                     </div>
@@ -1477,19 +1512,6 @@ export default function PartnerDetailPage() {
                     title="Confirmer la suppression"
                     message={`Êtes-vous sûr de vouloir supprimer "${deleteConfirmation.title}" ? Vous pourrez le restaurer depuis la corbeille.`}
                 />
-
-                {
-                    partnership && (
-                        <RecycleBinModal
-                            isOpen={isRecycleBinOpen}
-                            onClose={() => setIsRecycleBinOpen(false)}
-                            partnership={partnership}
-                            onRestore={handleRestore}
-                        />
-                    )
-                }
-
-
             </div>
 
             {/* Back to Top Button */}
@@ -1501,6 +1523,6 @@ export default function PartnerDetailPage() {
             >
                 <ArrowUp className="w-6 h-6" />
             </button>
-        </main>
+        </main >
     );
 }
