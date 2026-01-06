@@ -450,7 +450,7 @@ export default function GlobalEventDetailPage() {
                                                     leaveFrom="transform opacity-100 scale-100"
                                                     leaveTo="transform opacity-0 scale-95"
                                                 >
-                                                    <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-xl bg-[#1A1A1A] border border-white/10 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 overflow-hidden">
+                                                    <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-xl bg-[#1A1A1A] border border-white/10 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-[100] overflow-hidden">
                                                         <div className="p-1">
                                                             <Menu.Item>
                                                                 {({ active }) => (
