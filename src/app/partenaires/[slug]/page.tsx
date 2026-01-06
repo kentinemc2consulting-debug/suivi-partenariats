@@ -5,12 +5,12 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { PartnershipData, Publication, Partner, QualifiedIntroduction, Event, QuarterlyReport, MonthlyCheckIn } from '@/types';
-import EditPartnerModal from '@/components/partners/EditPartnerModal';
-import AddIntroductionModal from '@/components/partners/AddIntroductionModal';
-import AddPublicationModal from '@/components/partners/AddPublicationModal';
-import AddEventModal from '@/components/partners/AddEventModal';
-import AddQuarterlyReportModal from '@/components/partners/AddQuarterlyReportModal';
-import AddMonthlyCheckInModal from '@/components/partners/AddMonthlyCheckInModal';
+import EditPartnerModal from '@/components/partenaires/EditPartnerModal';
+import AddIntroductionModal from '@/components/partenaires/AddIntroductionModal';
+import AddPublicationModal from '@/components/partenaires/AddPublicationModal';
+import AddEventModal from '@/components/partenaires/AddEventModal';
+import AddQuarterlyReportModal from '@/components/partenaires/AddQuarterlyReportModal';
+import AddMonthlyCheckInModal from '@/components/partenaires/AddMonthlyCheckInModal';
 import * as XLSX from 'xlsx';
 import {
     Plus,
@@ -29,7 +29,7 @@ import {
     Sparkles,
     Send
 } from 'lucide-react';
-import ConfirmDeleteModal from '@/components/partners/ConfirmDeleteModal';
+import ConfirmDeleteModal from '@/components/partenaires/ConfirmDeleteModal';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -320,7 +320,7 @@ export default function PartnerDetailPage() {
                     i.id === id ? { ...i, deletedAt: now } : i
                 );
                 updates = { introductions: newIntros };
-                await fetch('/api/partners', {
+                await fetch('/api/partenaires', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: partnership.partner.id, introductions: newIntros }),
@@ -330,7 +330,7 @@ export default function PartnerDetailPage() {
                     e.id === id ? { ...e, deletedAt: now } : e
                 );
                 updates = { events: newEvents };
-                await fetch('/api/partners', {
+                await fetch('/api/partenaires', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: partnership.partner.id, events: newEvents }),
@@ -340,7 +340,7 @@ export default function PartnerDetailPage() {
                     p.id === id ? { ...p, deletedAt: now } : p
                 );
                 updates = { publications: newPubs };
-                await fetch('/api/partners', {
+                await fetch('/api/partenaires', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: partnership.partner.id, publications: newPubs }),
@@ -350,7 +350,7 @@ export default function PartnerDetailPage() {
                     r.id === id ? { ...r, deletedAt: now } : r
                 );
                 updates = { quarterlyReports: newReports };
-                await fetch('/api/partners', {
+                await fetch('/api/partenaires', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: partnership.partner.id, quarterlyReports: newReports }),
@@ -360,7 +360,7 @@ export default function PartnerDetailPage() {
                     c.id === id ? { ...c, deletedAt: now } : c
                 );
                 updates = { monthlyCheckIns: newCheckIns };
-                await fetch('/api/partners', {
+                await fetch('/api/partenaires', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: partnership.partner.id, monthlyCheckIns: newCheckIns }),
@@ -386,7 +386,7 @@ export default function PartnerDetailPage() {
                     i.id === id ? { ...i, deletedAt: undefined } : i
                 );
                 updates = { introductions: newIntros };
-                await fetch('/api/partners', {
+                await fetch('/api/partenaires', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: partnership.partner.id, introductions: newIntros }),
@@ -396,7 +396,7 @@ export default function PartnerDetailPage() {
                     e.id === id ? { ...e, deletedAt: undefined } : e
                 );
                 updates = { events: newEvents };
-                await fetch('/api/partners', {
+                await fetch('/api/partenaires', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: partnership.partner.id, events: newEvents }),
@@ -406,7 +406,7 @@ export default function PartnerDetailPage() {
                     p.id === id ? { ...p, deletedAt: undefined } : p
                 );
                 updates = { publications: newPubs };
-                await fetch('/api/partners', {
+                await fetch('/api/partenaires', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: partnership.partner.id, publications: newPubs }),
@@ -416,7 +416,7 @@ export default function PartnerDetailPage() {
                     r.id === id ? { ...r, deletedAt: undefined } : r
                 );
                 updates = { quarterlyReports: newReports };
-                await fetch('/api/partners', {
+                await fetch('/api/partenaires', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: partnership.partner.id, quarterlyReports: newReports }),
@@ -426,7 +426,7 @@ export default function PartnerDetailPage() {
                     c.id === id ? { ...c, deletedAt: undefined } : c
                 );
                 updates = { monthlyCheckIns: newCheckIns };
-                await fetch('/api/partners', {
+                await fetch('/api/partenaires', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: partnership.partner.id, monthlyCheckIns: newCheckIns }),
@@ -443,7 +443,7 @@ export default function PartnerDetailPage() {
     useEffect(() => {
         async function fetchPartnership() {
             try {
-                const res = await fetch('/api/partners');
+                const res = await fetch('/api/partenaires');
                 const data: PartnershipData[] = await res.json();
                 const found = data.find(p => p.partner.id === params.id);
                 setPartnership(found || null);
@@ -470,7 +470,7 @@ export default function PartnerDetailPage() {
 
     const handleSavePartner = async (updatedPartner: Partner) => {
         try {
-            const res = await fetch('/api/partners', {
+            const res = await fetch('/api/partenaires', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -501,7 +501,7 @@ export default function PartnerDetailPage() {
         }
 
         try {
-            const res = await fetch('/api/partners', {
+            const res = await fetch('/api/partenaires', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: partnership.partner.id, introductions: updatedIntros }),
@@ -527,7 +527,7 @@ export default function PartnerDetailPage() {
         }
 
         try {
-            const res = await fetch('/api/partners', {
+            const res = await fetch('/api/partenaires', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: partnership.partner.id, publications: updatedPubs }),
@@ -553,7 +553,7 @@ export default function PartnerDetailPage() {
         }
 
         try {
-            const res = await fetch('/api/partners', {
+            const res = await fetch('/api/partenaires', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: partnership.partner.id, events: updatedEvents }),
@@ -579,7 +579,7 @@ export default function PartnerDetailPage() {
         }
 
         try {
-            const res = await fetch('/api/partners', {
+            const res = await fetch('/api/partenaires', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: partnership.partner.id, quarterlyReports: updatedReports }),
@@ -605,7 +605,7 @@ export default function PartnerDetailPage() {
         }
 
         try {
-            const res = await fetch('/api/partners', {
+            const res = await fetch('/api/partenaires', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: partnership.partner.id, monthlyCheckIns: updatedCheckIns }),
@@ -714,7 +714,7 @@ export default function PartnerDetailPage() {
             if (data.summary) {
                 // Update local state and save to Supabase
                 const updatedPartner = { ...partnership!.partner, servicesSummary: data.summary };
-                const resSave = await fetch('/api/partners', {
+                const resSave = await fetch('/api/partenaires', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: partnership!.partner.id, partner: updatedPartner }),
@@ -740,7 +740,7 @@ export default function PartnerDetailPage() {
     const handleUpdateSummary = async (newSummary: string) => {
         try {
             const updatedPartner = { ...partnership!.partner, servicesSummary: newSummary };
-            const res = await fetch('/api/partners', {
+            const res = await fetch('/api/partenaires', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: partnership!.partner.id, partner: updatedPartner }),
@@ -889,7 +889,7 @@ export default function PartnerDetailPage() {
                                 onClick={async () => {
                                     if (confirm('Supprimer ce partenaire ? Il sera envoyé dans la corbeille.')) {
                                         try {
-                                            const res = await fetch(`/api/partners?id=${partnership.partner.id}`, { method: 'DELETE' });
+                                            const res = await fetch(`/api/partenaires?id=${partnership.partner.id}`, { method: 'DELETE' });
                                             if (res.ok) router.push('/partners');
                                         } catch (e) { console.error(e); }
                                     }

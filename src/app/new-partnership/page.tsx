@@ -54,7 +54,7 @@ export default function NewPartnershipPage() {
                 quarterlyReports: []
             };
 
-            const response = await fetch('/api/partners', {
+            const response = await fetch('/api/partenaires', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

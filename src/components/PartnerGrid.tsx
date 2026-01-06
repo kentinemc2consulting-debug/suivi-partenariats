@@ -17,7 +17,7 @@ export default function PartnerGrid() {
                 {partnerships.map((partner) => (
                     <Link
                         key={partner.slug}
-                        href={`/partners/${partner.slug}`}
+                        href={`/partenaires/${partner.slug}`}
                         className="glass-card group cursor-pointer block"
                     >
                         <div className="flex items-center gap-3 mb-2">

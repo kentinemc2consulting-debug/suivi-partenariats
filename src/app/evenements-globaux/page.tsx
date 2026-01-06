@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { GlobalData, GlobalEvent, InvitationStatus } from '@/types';
 import { Calendar, Plus, ArrowLeft, Users, CheckCircle, XCircle, Clock, Download, MoreVertical, Edit, Trash2 } from 'lucide-react';
-import CreateGlobalEventModal from '@/components/global-events/CreateGlobalEventModal';
+import CreateGlobalEventModal from '@/components/evenements-globaux/CreateGlobalEventModal';
 import Link from 'next/link';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -40,7 +40,7 @@ export default function GlobalEventsPage() {
 
     const fetchGlobalData = async () => {
         try {
-            const res = await fetch('/api/global-events');
+            const res = await fetch('/api/evenements-globaux');
             const data = await res.json();
             setGlobalData(data);
         } catch (error) {
@@ -53,7 +53,7 @@ export default function GlobalEventsPage() {
     const handleSaveEvent = async (eventData: Partial<GlobalEvent>) => {
         try {
             const method = eventData.id ? 'PUT' : 'POST';
-            const res = await fetch('/api/global-events', {
+            const res = await fetch('/api/evenements-globaux', {
                 method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(eventData)
@@ -66,7 +66,7 @@ export default function GlobalEventsPage() {
             if (eventData.id) {
                 await fetchGlobalData(); // Refresh list on edit
             } else {
-                router.push(`/global-events/${savedEvent.id}`); // Navigate on create
+                router.push(`/evenements-globaux/${savedEvent.id}`); // Navigate on create
             }
 
             setIsCreateModalOpen(false);
@@ -84,7 +84,7 @@ export default function GlobalEventsPage() {
         if (!confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) return;
 
         try {
-            const res = await fetch(`/api/global-events?id=${id}`, {
+            const res = await fetch(`/api/evenements-globaux?id=${id}`, {
                 method: 'DELETE'
             });
 
@@ -338,7 +338,7 @@ export default function GlobalEventsPage() {
                             const acceptanceRate = stats.total > 0 ? Math.round((stats.accepted / stats.total) * 100) : 0;
 
                             return (
-                                <Link key={event.id} href={`/global-events/${event.id}`} className="block">
+                                <Link key={event.id} href={`/evenements-globaux/${event.id}`} className="block">
                                     <Card className="p-6 hover:bg-white/[0.03] transition-colors cursor-pointer group relative overflow-visible">
                                         <div className="flex items-start justify-between relative z-10">
                                             <div className="flex-1">

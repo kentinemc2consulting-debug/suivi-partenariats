@@ -12,7 +12,7 @@ export default function Home() {
     useEffect(() => {
         async function fetchPartners() {
             try {
-                const res = await fetch('/api/partners');
+                const res = await fetch('/api/partenaires');
                 const data = await res.json();
                 setPartnerships(data);
             } catch (error) {
@@ -55,7 +55,7 @@ export default function Home() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto py-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
                             {activePartnerships.length > 0 ? (
                                 activePartnerships.map((p) => (
-                                    <Link key={p.partner.id} href={`/partners/${p.partner.id}`} className="block group">
+                                    <Link key={p.partner.id} href={`/partenaires/${p.partner.id}`} className="block group">
                                         <div className="premium-partner-button relative overflow-hidden min-h-[140px] flex flex-col justify-center items-center text-center p-8">
                                             <span className="text-2xl font-bold text-white tracking-tight group-hover:scale-110 transition-transform duration-300">
                                                 {p.partner.name}
@@ -85,7 +85,7 @@ export default function Home() {
                     {/* CTA Buttons */}
                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 flex flex-col sm:flex-row gap-4 justify-center">
                         <Link
-                            href="/global-events"
+                            href="/evenements-globaux"
                             className="group relative inline-flex items-center gap-3 px-8 py-4 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full text-lg font-medium transition-all hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/25"
                         >
                             <Calendar className="w-5 h-5" />

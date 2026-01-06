@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { PartnerCard } from '@/components/partners/PartnerCard';
+import { PartnerCard } from '@/components/partenaires/PartnerCard';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { PartnershipData } from '@/types';
 import { Briefcase, Plus, Filter, ArrowLeft, Loader2, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import AddPartnerModal from '@/components/partners/AddPartnerModal';
-import GlobalRecycleBinModal from '@/components/partners/GlobalRecycleBinModal';
+import AddPartnerModal from '@/components/partenaires/AddPartnerModal';
+import GlobalRecycleBinModal from '@/components/partenaires/GlobalRecycleBinModal';
 
 export default function PartnersPage() {
     const router = useRouter();
@@ -20,7 +20,7 @@ export default function PartnersPage() {
 
     const fetchPartnerships = async () => {
         try {
-            const res = await fetch('/api/partners');
+            const res = await fetch('/api/partenaires');
             const data = await res.json();
             setPartnerships(data);
         } catch (error) {
@@ -36,7 +36,7 @@ export default function PartnersPage() {
 
     const handleAddPartner = async (newPartnership: PartnershipData) => {
         try {
-            const res = await fetch('/api/partners', {
+            const res = await fetch('/api/partenaires', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newPartnership),
@@ -51,7 +51,7 @@ export default function PartnersPage() {
 
     const handleRestorePartner = async (id: string) => {
         try {
-            const res = await fetch(`/api/partners?action=restore&id=${id}`, { method: 'PATCH' });
+            const res = await fetch(`/api/partenaires?action=restore&id=${id}`, { method: 'PATCH' });
             if (res.ok) await fetchPartnerships();
         } catch (error) {
             console.error('Error restoring partner:', error);
@@ -60,7 +60,7 @@ export default function PartnersPage() {
 
     const handlePermanentDeletePartner = async (id: string) => {
         try {
-            const res = await fetch(`/api/partners?action=permanent&id=${id}`, { method: 'DELETE' });
+            const res = await fetch(`/api/partenaires?action=permanent&id=${id}`, { method: 'DELETE' });
             if (res.ok) await fetchPartnerships();
         } catch (error) {
             console.error('Error permanently deleting partner:', error);
@@ -69,7 +69,7 @@ export default function PartnersPage() {
 
     const handleEmptyBin = async () => {
         try {
-            const res = await fetch(`/api/partners?action=empty`, { method: 'DELETE' });
+            const res = await fetch(`/api/partenaires?action=empty`, { method: 'DELETE' });
             if (res.ok) await fetchPartnerships();
         } catch (error) {
             console.error('Error emptying bin:', error);
@@ -88,7 +88,7 @@ export default function PartnersPage() {
         if (type === 'checkIn') updates.monthlyCheckIns = (p.monthlyCheckIns || []).map(c => c.id === itemId ? { ...c, deletedAt: undefined } : c);
 
         try {
-            const res = await fetch('/api/partners', {
+            const res = await fetch('/api/partenaires', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: partnershipId, ...updates }),
@@ -221,7 +221,7 @@ export default function PartnersPage() {
                             <PartnerCard
                                 key={partnership.partner.id}
                                 partner={partnership.partner}
-                                onClick={() => router.push(`/partners/${partnership.partner.id}`)}
+                                onClick={() => router.push(`/partenaires/${partnership.partner.id}`)}
                             />
                         ))}
                     </div>

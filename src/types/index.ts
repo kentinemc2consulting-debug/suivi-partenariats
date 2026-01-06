@@ -1,6 +1,7 @@
 export interface Partner {
   id: string;
   name: string;
+  slug?: string; // URL-friendly identifier (e.g., "carrefour")
   logo?: string;
   duration: string;
   startDate: string;

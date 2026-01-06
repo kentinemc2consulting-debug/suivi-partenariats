@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Menu, Transition } from '@headlessui/react';
 import { GlobalEvent, GlobalData, PartnershipData, GlobalEventInvitation, LightweightPartner, InvitationStatus } from '@/types';
 import { ArrowLeft, Plus, Edit, Trash2, CheckCircle, XCircle, Clock, Users, Calendar, MoreVertical, ChevronDown, Download } from 'lucide-react';
-import AddInvitationModal from '@/components/global-events/AddInvitationModal';
+import AddInvitationModal from '@/components/evenements-globaux/AddInvitationModal';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -28,8 +28,8 @@ export default function GlobalEventDetailPage() {
     const fetchData = async () => {
         try {
             const [globalRes, partnersRes] = await Promise.all([
-                fetch('/api/global-events'),
-                fetch('/api/partners')
+                fetch('/api/evenements-globaux'),
+                fetch('/api/partenaires')
             ]);
 
             const globalData: GlobalData = await globalRes.json();
@@ -177,7 +177,7 @@ export default function GlobalEventDetailPage() {
                 updatedInvitations = [...event.invitations, invitation];
             }
 
-            const res = await fetch('/api/global-events', {
+            const res = await fetch('/api/evenements-globaux', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -212,7 +212,7 @@ export default function GlobalEventDetailPage() {
                     : inv
             );
 
-            const res = await fetch('/api/global-events', {
+            const res = await fetch('/api/evenements-globaux', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -236,7 +236,7 @@ export default function GlobalEventDetailPage() {
         try {
             const updatedInvitations = event.invitations.filter(inv => inv.partnerId !== partnerId);
 
-            const res = await fetch('/api/global-events', {
+            const res = await fetch('/api/evenements-globaux', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -267,7 +267,7 @@ export default function GlobalEventDetailPage() {
             <div className="min-h-screen flex items-center justify-center">
                 <Card className="p-12 text-center">
                     <p className="text-white text-xl mb-4">Événement non trouvé</p>
-                    <Button onClick={() => router.push('/global-events')}>
+                    <Button onClick={() => router.push('/evenements-globaux')}>
                         Retour aux événements
                     </Button>
                 </Card>
@@ -298,7 +298,7 @@ export default function GlobalEventDetailPage() {
                 <div className="flex items-center justify-between">
                     <Button
                         variant="secondary"
-                        onClick={() => router.push('/global-events')}
+                        onClick={() => router.push('/evenements-globaux')}
                         className="flex items-center gap-2"
                     >
                         <ArrowLeft className="w-4 h-4" />
