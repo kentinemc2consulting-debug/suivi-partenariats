@@ -33,9 +33,7 @@ import ConfirmDeleteModal from '@/components/partenaires/ConfirmDeleteModal';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-
-
-import { formatDate } from '@/lib/date-utils';
+import { formatDate, toSafeDate } from '@/lib/date-utils';
 
 export default function PartnerDetailPage() {
     const params = useParams();
@@ -459,7 +457,7 @@ export default function PartnerDetailPage() {
     }, [params.slug]);
 
     const getDaysRemaining = (endDate: string) => {
-        const end = new Date(endDate);
+        const end = toSafeDate(endDate);
         const today = new Date();
         const diffTime = end.getTime() - today.getTime();
         return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -920,8 +918,8 @@ export default function PartnerDetailPage() {
 
                     {apiTestResult && (
                         <div className={`p-4 rounded-xl border animate-fadeIn ${apiTestResult.includes('✅')
-                                ? 'bg-green-500/10 border-green-500/30 text-green-300'
-                                : 'bg-red-500/10 border-red-500/30 text-red-300'
+                            ? 'bg-green-500/10 border-green-500/30 text-green-300'
+                            : 'bg-red-500/10 border-red-500/30 text-red-300'
                             }`}>
                             {apiTestResult}
                         </div>
@@ -1204,7 +1202,7 @@ export default function PartnerDetailPage() {
                                             <div className="flex items-center gap-2 text-white/70">
                                                 <Calendar className="w-4 h-4" />
                                                 <span className="text-sm font-medium">
-                                                    Introduit le {new Date(intro.date).toLocaleDateString('fr-FR', {
+                                                    Introduit le {formatDate(intro.date, {
                                                         day: 'numeric',
                                                         month: 'long',
                                                         year: 'numeric'
@@ -1411,7 +1409,7 @@ export default function PartnerDetailPage() {
                                                 <div>
                                                     <span className="text-xs text-white/50 uppercase tracking-wide">Date de proposition</span>
                                                     <p className="text-white font-medium mt-1">
-                                                        {new Date(event.proposalDate).toLocaleDateString('fr-FR', {
+                                                        {formatDate(event.proposalDate, {
                                                             day: 'numeric',
                                                             month: 'long',
                                                             year: 'numeric'
@@ -1423,7 +1421,7 @@ export default function PartnerDetailPage() {
                                                         <span className="text-xs text-white/50 uppercase tracking-wide">Date de l'événement</span>
                                                         <p className="text-white font-medium mt-1 flex items-center gap-2">
                                                             <Calendar className="w-4 h-4 text-primary" />
-                                                            {new Date(event.eventDate).toLocaleDateString('fr-FR', {
+                                                            {formatDate(event.eventDate, {
                                                                 day: 'numeric',
                                                                 month: 'long',
                                                                 year: 'numeric'
@@ -1602,7 +1600,7 @@ export default function PartnerDetailPage() {
                     {activeCheckIns.length > 0 ? (
                         <div className="grid gap-4">
                             {activeCheckIns
-                                .sort((a, b) => new Date(b.checkInDate).getTime() - new Date(a.checkInDate).getTime())
+                                .sort((a, b) => toSafeDate(b.checkInDate).getTime() - toSafeDate(a.checkInDate).getTime())
                                 .map((checkIn) => (
                                     <Card key={checkIn.id} className="p-6">
                                         <div className="flex items-start justify-between">

@@ -82,11 +82,34 @@ export function formatDate(dateInput: string | Date | null | undefined, options?
 }
 
 /**
+ * Safely converts a date input to a Date object
+ * Handles both DD/MM/YYYY and YYYY-MM-DD formats
+ */
+export function toSafeDate(dateInput: string | Date | null | undefined): Date {
+    if (!dateInput) return new Date();
+    if (dateInput instanceof Date) return dateInput;
+
+    if (typeof dateInput === 'string') {
+        if (dateInput.includes('/')) {
+            const parts = dateInput.split('/');
+            if (parts.length === 3) {
+                const [day, month, year] = parts;
+                const d = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+                if (!isNaN(d.getTime())) return d;
+            }
+        }
+        const d = new Date(dateInput);
+        if (!isNaN(d.getTime())) return d;
+    }
+
+    return new Date();
+}
+
+/**
  * Validates if a date string is valid
  */
 export function isValidDate(dateString: string): boolean {
     if (!dateString) return false;
-
-    const date = new Date(dateString);
-    return !isNaN(date.getTime());
+    const d = toSafeDate(dateString);
+    return !isNaN(d.getTime());
 }
