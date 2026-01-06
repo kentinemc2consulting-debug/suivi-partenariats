@@ -1306,7 +1306,7 @@ export default function PartnerDetailPage() {
                                             <div className="flex items-center gap-2 text-white/70">
                                                 <Calendar className="w-4 h-4" />
                                                 <span className="text-sm font-medium">
-                                                    Publié le {formatDate(pub.publicationDate}
+                                                    Publié le {formatDate(pub.publicationDate)}
                                                 </span>
                                             </div>
 
@@ -1314,12 +1314,12 @@ export default function PartnerDetailPage() {
                                                 <div className="space-y-1">
                                                     {pub.lastUpdated && (
                                                         <p className="text-xs text-white/50">
-                                                            Dernière mise à jour: {formatDate(pub.lastUpdated}
+                                                            Dernière mise à jour: {formatDate(pub.lastUpdated)}
                                                         </p>
                                                     )}
                                                     {pub.statsReportDate && (
                                                         <p className="text-xs text-white/50">
-                                                            📅 Rapport stats: {formatDate(pub.statsReportDate}
+                                                            📅 Rapport stats: {formatDate(pub.statsReportDate)}
                                                         </p>
                                                     )}
                                                 </div>
@@ -1337,7 +1337,7 @@ export default function PartnerDetailPage() {
                                             </Button>
                                             <Button
                                                 variant="secondary"
-                                                onClick={() => handleDeleteIntent('publication', pub.id, `${pub.platform} (${formatDate(pub.publicationDate})`)}
+                                                onClick={() => handleDeleteIntent('publication', pub.id, `${pub.platform} (${formatDate(pub.publicationDate)})`)}
                                                 className="hover:bg-red-500/10 hover:border-red-500/30 group"
                                             >
                                                 <Trash2 className="w-4 h-4 text-white/40 group-hover:text-red-400 transition-colors" />
@@ -1527,7 +1527,7 @@ export default function PartnerDetailPage() {
                                 <Card key={report.id} className="p-6">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <h3 className="text-lg font-semibold text-white">Rapport du {formatDate(report.reportDate}</h3>
+                                            <h3 className="text-lg font-semibold text-white">Rapport du {formatDate(report.reportDate)}</h3>
                                             {report.link && (
                                                 <a href={report.link} target="_blank" rel="noreferrer" className="text-sm text-primary-400 hover:text-primary-300 transition-colors mt-1 inline-block">
                                                     Voir le document
@@ -1547,7 +1547,7 @@ export default function PartnerDetailPage() {
                                             </Button>
                                             <Button
                                                 variant="secondary"
-                                                onClick={() => handleDeleteIntent('report', report.id, `Rapport du ${formatDate(report.reportDate}`)}
+                                                onClick={() => handleDeleteIntent('report', report.id, `Rapport du ${formatDate(report.reportDate)}`)}
                                                 className="hover:bg-red-500/10 hover:border-red-500/30 group"
                                             >
                                                 <Trash2 className="w-4 h-4 text-white/40 group-hover:text-red-400 transition-colors" />
@@ -1630,7 +1630,7 @@ export default function PartnerDetailPage() {
                                                 </Button>
                                                 <Button
                                                     variant="secondary"
-                                                    onClick={() => handleDeleteIntent('checkIn', checkIn.id, `Point du ${formatDate(checkIn.checkInDate}`)}
+                                                    onClick={() => handleDeleteIntent('checkIn', checkIn.id, `Point du ${formatDate(checkIn.checkInDate)}`)}
                                                     className="hover:bg-red-500/10 hover:border-red-500/30 group"
                                                 >
                                                     <Trash2 className="w-4 h-4 text-white/40 group-hover:text-red-400 transition-colors" />
