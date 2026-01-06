@@ -446,7 +446,7 @@ export default function PartnerDetailPage() {
             try {
                 const res = await fetch('/api/partenaires');
                 const data: PartnershipData[] = await res.json();
-                const found = data.find(p => p.partner.id === params.id);
+                const found = data.find(p => p.partner.id === params.slug || p.partner.slug === params.slug);
                 setPartnership(found || null);
             } catch (error) {
                 console.error('Error fetching partnership:', error);
@@ -456,7 +456,7 @@ export default function PartnerDetailPage() {
         }
 
         fetchPartnership();
-    }, [params.id]);
+    }, [params.slug]);
 
     const getDaysRemaining = (endDate: string) => {
         const end = new Date(endDate);
