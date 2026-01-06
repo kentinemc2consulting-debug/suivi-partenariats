@@ -17,6 +17,7 @@ export interface Partner {
     hubspotUrl?: string;
   };
   deletedAt?: string;
+  servicesSummary?: string;
 }
 
 export interface QualifiedIntroduction {

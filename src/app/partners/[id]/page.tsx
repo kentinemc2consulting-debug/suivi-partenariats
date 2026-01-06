@@ -25,7 +25,9 @@ import {
     Calendar,
     TrendingUp,
     Edit,
-    ExternalLink
+    ExternalLink,
+    Sparkles,
+    Send
 } from 'lucide-react';
 import ConfirmDeleteModal from '@/components/partners/ConfirmDeleteModal';
 
@@ -69,6 +71,11 @@ export default function PartnerDetailPage() {
         id: '',
         title: ''
     });
+
+    // AI Summarizer State
+    const [poText, setPoText] = useState('');
+    const [isAILoading, setIsAILoading] = useState(false);
+    const [isPoInputOpen, setIsPoInputOpen] = useState(false);
 
     // PDF Generation State
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
@@ -690,6 +697,58 @@ export default function PartnerDetailPage() {
         }
     };
 
+    const handleSummarizePO = async () => {
+        if (!poText.trim()) return;
+        setIsAILoading(true);
+        try {
+            const res = await fetch('/api/ai/summarize-po', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ poContent: poText }),
+            });
+            const data = await res.json();
+            if (data.summary) {
+                // Update local state and save to Supabase
+                const updatedPartner = { ...partnership!.partner, servicesSummary: data.summary };
+                const resSave = await fetch('/api/partners', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: partnership!.partner.id, partner: updatedPartner }),
+                });
+                if (resSave.ok) {
+                    setPartnership(prev => prev ? { ...prev, partner: updatedPartner } : null);
+                    setIsPoInputOpen(false);
+                    setPoText('');
+                } else {
+                    alert('Erreur lors de la sauvegarde du résumé');
+                }
+            } else {
+                throw new Error(data.error || 'Erreur inconnue');
+            }
+        } catch (error: any) {
+            console.error('AI Summary Error:', error);
+            alert(`Erreur IA : ${error.message}`);
+        } finally {
+            setIsAILoading(false);
+        }
+    };
+
+    const handleUpdateSummary = async (newSummary: string) => {
+        try {
+            const updatedPartner = { ...partnership!.partner, servicesSummary: newSummary };
+            const res = await fetch('/api/partners', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: partnership!.partner.id, partner: updatedPartner }),
+            });
+            if (res.ok) {
+                setPartnership(prev => prev ? { ...prev, partner: updatedPartner } : null);
+            }
+        } catch (error) {
+            console.error('Error updating summary:', error);
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -967,6 +1026,92 @@ export default function PartnerDetailPage() {
                     </Card>
                 </div>
 
+                {/* Visual Separator */}
+                <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+                {/* Prestations Section (AI powered) */}
+                <section id="prestations" className="space-y-6 pt-4">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-primary/10">
+                                <Sparkles className="w-7 h-7 text-primary" />
+                            </div>
+                            Prestations
+                        </h2>
+                        <Button
+                            variant="secondary"
+                            onClick={() => setIsPoInputOpen(!isPoInputOpen)}
+                            className="flex items-center gap-2"
+                        >
+                            <Sparkles className="w-4 h-4 text-primary" />
+                            {partnership.partner.servicesSummary ? 'Actualiser le résumé' : 'Générer avec l\'IA'}
+                        </Button>
+                    </div>
+
+                    {isPoInputOpen && (
+                        <Card className="p-6 border-primary/30 bg-primary/5 animate-fadeIn">
+                            <h3 className="text-lg font-semibold text-white mb-3">Coller le texte du bon de commande</h3>
+                            <textarea
+                                className="w-full h-40 bg-black/20 border border-white/10 rounded-xl p-4 text-white text-sm focus:border-primary/50 outline-none transition-all"
+                                placeholder="Collez ici le descriptif des prestations du bon de commande..."
+                                value={poText}
+                                onChange={(e) => setPoText(e.target.value)}
+                            />
+                            <div className="flex justify-end gap-3 mt-4">
+                                <Button variant="secondary" onClick={() => setIsPoInputOpen(false)}>
+                                    Annuler
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    onClick={handleSummarizePO}
+                                    disabled={isAILoading || !poText.trim()}
+                                    className="flex items-center gap-2"
+                                >
+                                    {isAILoading ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Analyse en cours...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Send className="w-4 h-4" />
+                                            Générer le résumé
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
+                        </Card>
+                    )}
+
+                    {partnership.partner.servicesSummary ? (
+                        <Card className="p-8 card-elevated relative group overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Edit className="w-4 h-4 text-white/30" />
+                            </div>
+                            <div
+                                className="prose prose-invert max-w-none text-white/80 leading-relaxed whitespace-pre-line"
+                                contentEditable
+                                onBlur={(e) => handleUpdateSummary(e.currentTarget.innerText)}
+                                suppressContentEditableWarning
+                            >
+                                {partnership.partner.servicesSummary}
+                            </div>
+                        </Card>
+                    ) : !isPoInputOpen && (
+                        <div
+                            className="relative group cursor-pointer"
+                            onClick={() => setIsPoInputOpen(true)}
+                        >
+                            <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                            <div className="relative flex flex-col items-center justify-center p-12 rounded-2xl border-2 border-dashed border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all text-center">
+                                <Sparkles className="w-12 h-12 text-white/10 mb-4 group-hover:text-primary/40 transition-colors" />
+                                <p className="text-white/40 font-medium max-w-md">
+                                    Collez le descriptif de vos bons de commande pour générer un résumé automatique des prestations.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                </section>
 
                 {/* Visual Separator */}
                 <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>

@@ -51,6 +51,7 @@ export async function getAllPartnerships(): Promise<PartnershipData[]> {
                         hubspotUrl: partner.contact_person_hubspot_url,
                     },
                     deletedAt: partner.deleted_at,
+                    servicesSummary: partner.services_summary,
                 },
                 introductions: introductions.data?.map(mapIntroduction) || [],
                 events: events.data?.map(mapEvent) || [],
@@ -93,6 +94,7 @@ export async function createPartnership(partnershipData: PartnershipData): Promi
             contact_person_name: partner.contactPerson?.name,
             contact_person_email: partner.contactPerson?.email,
             contact_person_hubspot_url: partner.contactPerson?.hubspotUrl,
+            services_summary: partner.servicesSummary,
         })
         .select()
         .single()
@@ -198,6 +200,7 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
                 contact_person_name: updates.partner.contactPerson?.name,
                 contact_person_email: updates.partner.contactPerson?.email,
                 contact_person_hubspot_url: updates.partner.contactPerson?.hubspotUrl,
+                services_summary: updates.partner.servicesSummary,
             })
             .eq('id', partnerId)
 
