@@ -126,9 +126,9 @@ export async function DELETE(request: Request) {
         }
 
         return NextResponse.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error in DELETE partner:', error);
-        return NextResponse.json({ error: 'Failed' }, { status: 500 });
+        return NextResponse.json({ error: error.message || 'Failed' }, { status: 500 });
     }
 }
 
@@ -146,8 +146,8 @@ export async function PATCH(request: Request) {
         }
 
         return NextResponse.json({ error: 'Invalid action or ID' }, { status: 400 });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error in PATCH partner:', error);
-        return NextResponse.json({ error: 'Failed' }, { status: 500 });
+        return NextResponse.json({ error: error.message || 'Failed' }, { status: 500 });
     }
 }
