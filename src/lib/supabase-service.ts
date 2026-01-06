@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { PartnershipData, Partner, QualifiedIntroduction, Event, Publication, QuarterlyReport, MonthlyCheckIn } from '@/types'
+import type { PartnershipData, Partner, QualifiedIntroduction, Event, Publication, QuarterlyReport, MonthlyCheckIn, GlobalEvent, LightweightPartner, GlobalEventInvitation } from '@/types'
 
 /**
  * Fetch all partners with their related data
@@ -208,7 +208,6 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
 
     // Update introductions if provided
     if (updates.introductions) {
-        // Delete all existing introductions and re-insert
         await client.from('introductions').delete().eq('partner_id', partnerId)
         if (updates.introductions.length > 0) {
             await client.from('introductions').insert(
@@ -298,6 +297,124 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
     }
 }
 
+// Global Events Functions
+
+export async function getGlobalEvents(): Promise<GlobalEvent[]> {
+    if (!supabase) return []
+    const { data, error } = await supabase
+        .from('global_events')
+        .select('*')
+        .order('event_date', { ascending: false })
+
+    if (error) {
+        console.error('Error fetching global events:', error)
+        throw new Error('Failed to fetch global events')
+    }
+
+    return data.map(mapGlobalEvent)
+}
+
+export async function createGlobalEvent(event: GlobalEvent): Promise<GlobalEvent> {
+    if (!supabase) throw new Error('Supabase not initialized')
+    const { data, error } = await supabase
+        .from('global_events')
+        .insert({
+            id: event.id,
+            event_name: event.eventName,
+            event_date: event.eventDate,
+            event_location: event.eventLocation,
+            description: event.description,
+            invitations: event.invitations,
+            created_at: event.createdAt,
+            deleted_at: event.deletedAt
+        })
+        .select()
+        .single()
+
+    if (error) {
+        console.error('Error creating global event:', error)
+        throw new Error('Failed to create global event')
+    }
+
+    return mapGlobalEvent(data)
+}
+
+export async function updateGlobalEvent(event: GlobalEvent): Promise<GlobalEvent> {
+    if (!supabase) throw new Error('Supabase not initialized')
+    const { data, error } = await supabase
+        .from('global_events')
+        .update({
+            event_name: event.eventName,
+            event_date: event.eventDate,
+            event_location: event.eventLocation,
+            description: event.description,
+            invitations: event.invitations,
+            updated_at: event.updatedAt || new Date().toISOString()
+        })
+        .eq('id', event.id)
+        .select()
+        .single()
+
+    if (error) {
+        console.error('Error updating global event:', error)
+        throw new Error('Failed to update global event')
+    }
+
+    return mapGlobalEvent(data)
+}
+
+export async function deleteGlobalEvent(id: string): Promise<void> {
+    if (!supabase) throw new Error('Supabase not initialized')
+    const { error } = await supabase
+        .from('global_events')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', id)
+
+    if (error) {
+        console.error('Error deleting global event:', error)
+        throw new Error('Failed to delete global event')
+    }
+}
+
+// Lightweight Partners Functions
+
+export async function getLightweightPartners(): Promise<LightweightPartner[]> {
+    if (!supabase) return []
+    const { data, error } = await supabase
+        .from('lightweight_partners')
+        .select('*')
+        .order('name', { ascending: true })
+
+    if (error) {
+        console.error('Error fetching lightweight partners:', error)
+        throw new Error('Failed to fetch lightweight partners')
+    }
+
+    return data.map(mapLightweightPartner)
+}
+
+export async function createLightweightPartner(partner: LightweightPartner): Promise<LightweightPartner> {
+    if (!supabase) throw new Error('Supabase not initialized')
+    const { data, error } = await supabase
+        .from('lightweight_partners')
+        .insert({
+            id: partner.id,
+            name: partner.name,
+            email: partner.email,
+            company: partner.company
+        })
+        .select()
+        .single()
+
+    if (error) {
+        console.error('Error creating lightweight partner:', error)
+        throw new Error('Failed to create lightweight partner')
+    }
+
+    return mapLightweightPartner(data)
+}
+
+
 // Helper mapping functions
 function mapIntroduction(data: any): QualifiedIntroduction {
     return {
@@ -356,5 +473,29 @@ function mapMonthlyCheckIn(data: any): MonthlyCheckIn {
         checkInDate: data.check_in_date,
         notes: data.notes,
         deletedAt: data.deleted_at,
+    }
+}
+
+function mapGlobalEvent(data: any): GlobalEvent {
+    return {
+        id: data.id,
+        eventName: data.event_name,
+        eventDate: data.event_date,
+        eventLocation: data.event_location,
+        description: data.description,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        deletedAt: data.deleted_at,
+        invitations: data.invitations || []
+    }
+}
+
+function mapLightweightPartner(data: any): LightweightPartner {
+    return {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        company: data.company,
+        isLightweight: true
     }
 }
