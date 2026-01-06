@@ -35,6 +35,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 
+import { formatDate } from '@/lib/date-utils';
 
 export default function PartnerDetailPage() {
     const params = useParams();
