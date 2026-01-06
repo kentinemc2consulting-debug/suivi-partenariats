@@ -126,7 +126,7 @@ export default function PartnerDetailPage() {
             doc.setTextColor(255, 255, 255);
             let subtitle = `${partner.type === 'strategique' ? 'Partenaire Stratégique' : 'Ambassadeur'}`;
             if (partner.startDate) {
-                subtitle += ` • Depuis le ${formatDate(partner.startDate}`;
+                subtitle += ` • Depuis le ${formatDate(partner.startDate}`;);
             }
             doc.text(subtitle, 14, 30);
 
