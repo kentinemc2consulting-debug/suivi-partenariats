@@ -22,7 +22,7 @@ export async function GET() {
     } catch (error) {
         console.error('Error reading partners:', error);
         return NextResponse.json(
-            { error: 'Failed to fetch partners' },
+            { error: 'Failed to fetch partners', details: error instanceof Error ? error.message : String(error) },
             { status: 500 }
         );
     }
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     } catch (error) {
         console.error('Error creating partnership:', error);
         return NextResponse.json(
-            { error: 'Failed to create partnership' },
+            { error: 'Failed to create partnership', details: error instanceof Error ? error.message : String(error) },
             { status: 500 }
         );
     }
@@ -91,10 +91,9 @@ export async function PUT(request: Request) {
             return NextResponse.json(partners[partnerIndex], { status: 200 });
         }
 
-    } catch (error) {
         console.error('Error updating partnership:', error);
         return NextResponse.json(
-            { error: 'Failed to update partnership' },
+            { error: 'Failed to update partnership', details: error instanceof Error ? error.message : String(error) },
             { status: 500 }
         );
     }
@@ -128,7 +127,10 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ success: true });
     } catch (error: any) {
         console.error('Error in DELETE partner:', error);
-        return NextResponse.json({ error: error.message || 'Failed' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Failed to delete partner', details: error.message || String(error) },
+            { status: 500 }
+        );
     }
 }
 
@@ -148,6 +150,9 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: 'Invalid action or ID' }, { status: 400 });
     } catch (error: any) {
         console.error('Error in PATCH partner:', error);
-        return NextResponse.json({ error: error.message || 'Failed' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Failed to patch partner', details: error.message || String(error) },
+            { status: 500 }
+        );
     }
 }
