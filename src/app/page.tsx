@@ -96,7 +96,7 @@ export default function Home() {
                         </Link>
 
                         <Link
-                            href="/partners"
+                            href="/partenaires"
                             className="group relative inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-white rounded-full text-lg font-medium transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/25"
                         >
                             <span>Gestion Globale</span>
