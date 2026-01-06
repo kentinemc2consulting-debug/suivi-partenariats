@@ -158,11 +158,6 @@ export default function PartnersPage() {
                         >
                             <Trash2 className="w-5 h-5" />
                             Corbeille
-                            {deletedPartnerships.length > 0 && (
-                                <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold">
-                                    {deletedPartnerships.length}
-                                </span>
-                            )}
                         </Button>
                     </div>
                 </div>
