@@ -5,7 +5,7 @@ import { Dialog } from '@headlessui/react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Partner, PartnershipData } from '@/types';
-import { formatDate } from '@/lib/date-utils';
+import { formatDate, toDateString } from '@/lib/date-utils';
 
 interface AddPartnerModalProps {
     isOpen: boolean;
@@ -57,6 +57,13 @@ export default function AddPartnerModal({ isOpen, onClose, onSave }: AddPartnerM
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
+
+        // Handle date fields: normalize DD/MM/YYYY to YYYY-MM-DD
+        if (name === 'startDate' || name === 'endDate') {
+            const normalizedDate = toDateString(value);
+            setFormData(prev => ({ ...prev, [name]: normalizedDate }));
+            return;
+        }
 
         if (name === 'commissionClient' || name === 'commissionConsulting') {
             const numValue = value === '' ? 0 : Number(value);
