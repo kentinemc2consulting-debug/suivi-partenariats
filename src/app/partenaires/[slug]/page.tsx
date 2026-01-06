@@ -842,7 +842,7 @@ export default function PartnerDetailPage() {
                     <div className="flex items-center justify-between">
                         <Button
                             variant="secondary"
-                            onClick={() => router.push('/partners')}
+                            onClick={() => router.push('/partenaires')}
                             className="flex items-center gap-2"
                         >
                             <ArrowLeft className="w-4 h-4" />
@@ -891,7 +891,7 @@ export default function PartnerDetailPage() {
                                     if (confirm('Supprimer ce partenaire ? Il sera envoyé dans la corbeille.')) {
                                         try {
                                             const res = await fetch(`/api/partenaires?id=${partnership.partner.id}`, { method: 'DELETE' });
-                                            if (res.ok) router.push('/partners');
+                                            if (res.ok) router.push('/partenaires');
                                         } catch (e) { console.error(e); }
                                     }
                                 }}
