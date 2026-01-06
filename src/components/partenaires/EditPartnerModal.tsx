@@ -87,7 +87,7 @@ export default function EditPartnerModal({ isOpen, onClose, partner, onSave }: E
 
             {/* Full-screen container to center the panel */}
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="mx-auto max-w-lg w-full rounded-2xl glass-card border border-white/10 shadow-xl flex flex-col max-h-[90vh]">
+                <Dialog.Panel className="mx-auto max-w-2xl w-full rounded-2xl glass-card border border-white/10 shadow-xl flex flex-col max-h-[90vh]">
                     <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
                         <Dialog.Title className="text-xl font-bold text-white">Éditer le Partenaire</Dialog.Title>
                         <button onClick={onClose} className="text-white/60 hover:text-white transition-colors">
