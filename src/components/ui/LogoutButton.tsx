@@ -20,7 +20,7 @@ export function LogoutButton() {
         <Button
             variant="secondary"
             onClick={handleLogout}
-            className="gap-2"
+            className="flex flex-row items-center gap-2"
         >
             <LogOut className="w-4 h-4" />
             Déconnexion
