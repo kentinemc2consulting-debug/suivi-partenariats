@@ -123,7 +123,7 @@ export default function PartnersPage() {
     }
 
     return (
-        <main className="min-h-screen p-8">
+        <main className="min-h-screen p-4 sm:p-8">
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header */}
                 <div className="space-y-6">
@@ -136,24 +136,27 @@ export default function PartnersPage() {
                         Retour au tableau de bord
                     </Button>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h1 className="text-5xl font-bold text-white font-display flex items-center gap-4">
-                                <Briefcase className="w-12 h-12 text-primary-400" />
-                                Gestion des <span className="text-gradient">Partenariats</span>
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white font-display flex items-center gap-3">
+                                <Briefcase className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-primary-400" />
+                                <span className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                                    Gestion des <span className="text-gradient">Partenariats</span>
+                                </span>
                             </h1>
-                            <p className="text-xl text-white/70 mt-4">
+                            <p className="text-base sm:text-lg lg:text-xl text-white/70 mt-2 sm:mt-4">
                                 {filteredPartnerships.length} partenariat{filteredPartnerships.length > 1 ? 's' : ''}
                             </p>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                             <Button
                                 variant="primary"
                                 onClick={() => setIsAddModalOpen(true)}
-                                className="flex items-center gap-2"
+                                className="flex items-center gap-2 text-sm sm:text-base"
                             >
-                                <Plus className="w-5 h-5" />
-                                Nouveau partenariat
+                                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                                <span className="hidden sm:inline">Nouveau partenariat</span>
+                                <span className="sm:hidden">Nouveau</span>
                             </Button>
                             <Button
                                 variant="secondary"
@@ -161,7 +164,7 @@ export default function PartnersPage() {
                                 className="flex items-center justify-center p-2"
                                 title="Corbeille"
                             >
-                                <Trash2 className="w-5 h-5" />
+                                <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                             </Button>
                             <LogoutButton />
                         </div>
