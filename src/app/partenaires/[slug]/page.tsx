@@ -513,6 +513,37 @@ export default function PartnerDetailPage() {
         }
     };
 
+    const handleUpdateIntroductionStatus = async (intro: QualifiedIntroduction, newStatus: 'pending' | 'negotiating' | 'signed' | 'not_interested') => {
+        if (!partnership) return;
+
+        // Optimistic update
+        const updatedIntro = { ...intro, status: newStatus, contractSigned: newStatus === 'signed' };
+        const updatedIntros = partnership.introductions.map(i => i.id === intro.id ? updatedIntro : i);
+
+        // Update local state immediately
+        setPartnership(prev => prev ? { ...prev, introductions: updatedIntros } : null);
+
+        try {
+            const res = await fetch('/api/partenaires', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: partnership.partner.id, introductions: updatedIntros }),
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to update introduction status');
+            }
+        } catch (error) {
+            console.error('Error updating introduction status:', error);
+            alert('Erreur lors de la mise à jour du statut');
+            // Revert state if needed
+            const res = await fetch('/api/partenaires');
+            const data: PartnershipData[] = await res.json();
+            const found = data.find(p => p.partner.id === params.slug || p.partner.slug === params.slug);
+            setPartnership(found || null);
+        }
+    };
+
     const handleSavePublication = async (pub: Publication) => {
         if (!partnership) return;
 
@@ -1245,26 +1276,30 @@ export default function PartnerDetailPage() {
                                         </div>
 
                                         <div className="flex items-center gap-2">
-                                            {intro.status === 'signed' && (
-                                                <div className="px-4 py-2 rounded-full text-sm font-semibold badge-premium badge-success">
-                                                    Contrat signé
+                                            {/* Status Dropdown */}
+                                            <div className="relative">
+                                                <select
+                                                    value={intro.status || 'pending'}
+                                                    onChange={(e) => handleUpdateIntroductionStatus(intro, e.target.value as 'pending' | 'negotiating' | 'signed' | 'not_interested')}
+                                                    className={`
+                                                        appearance-none pl-4 pr-10 py-2 rounded-full text-sm font-semibold border-2 cursor-pointer outline-none transition-all
+                                                        ${(intro.status === 'signed') ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/30' : ''}
+                                                        ${(intro.status === 'negotiating') ? 'bg-blue-500/20 text-blue-300 border-blue-500/30 hover:bg-blue-500/30' : ''}
+                                                        ${(intro.status === 'not_interested') ? 'bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30' : ''}
+                                                        ${(intro.status === 'pending' || !intro.status) ? 'bg-white/10 text-white/60 border-white/10 hover:bg-white/20' : ''}
+                                                    `}
+                                                >
+                                                    <option value="pending" className="bg-slate-900 text-gray-300">En attente</option>
+                                                    <option value="negotiating" className="bg-slate-900 text-gray-300">En négociation</option>
+                                                    <option value="signed" className="bg-slate-900 text-gray-300">Contrat signé</option>
+                                                    <option value="not_interested" className="bg-slate-900 text-gray-300">Pas de suite</option>
+                                                </select>
+                                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                    <svg className={`w-4 h-4 ${(intro.status === 'signed') ? 'text-emerald-400' : (intro.status === 'negotiating') ? 'text-blue-400' : (intro.status === 'not_interested') ? 'text-red-400' : 'text-white/40'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                    </svg>
                                                 </div>
-                                            )}
-                                            {intro.status === 'negotiating' && (
-                                                <div className="px-4 py-2 rounded-full text-sm font-semibold badge-premium bg-blue-500/20 text-blue-400 border-blue-500/30">
-                                                    En négociation
-                                                </div>
-                                            )}
-                                            {intro.status === 'not_interested' && (
-                                                <div className="px-4 py-2 rounded-full text-sm font-semibold badge-premium bg-red-500/20 text-red-400 border-red-500/30">
-                                                    Pas de suite
-                                                </div>
-                                            )}
-                                            {(intro.status === 'pending' || !intro.status) && (
-                                                <div className="px-4 py-2 rounded-full text-sm font-semibold badge-premium bg-white/10 text-white/60 border-white/10">
-                                                    En attente
-                                                </div>
-                                            )}
+                                            </div>
                                             <Button
                                                 variant="secondary"
                                                 onClick={() => {
