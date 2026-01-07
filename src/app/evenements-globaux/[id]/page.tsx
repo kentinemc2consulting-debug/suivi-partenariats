@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Menu, Transition } from '@headlessui/react';
 import { GlobalEvent, GlobalData, PartnershipData, GlobalEventInvitation, LightweightPartner, InvitationStatus } from '@/types';
-import { ArrowLeft, Plus, Edit, Trash2, CheckCircle, XCircle, Clock, Users, Calendar, MoreVertical, ChevronDown, Download } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Trash2, CheckCircle, XCircle, Clock, Users, Calendar, MoreVertical, ChevronDown, Download, Home } from 'lucide-react';
 import AddInvitationModal from '@/components/evenements-globaux/AddInvitationModal';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -296,14 +296,67 @@ export default function GlobalEventDetailPage() {
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header */}
                 <div className="flex items-center justify-between">
-                    <Button
-                        variant="secondary"
-                        onClick={() => router.push('/evenements-globaux')}
-                        className="flex items-center gap-2 text-sm sm:text-base w-auto"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        <span className="hidden sm:inline">Retour aux événements</span>
-                    </Button>
+                    <div className="flex items-center justify-between w-full sm:w-auto">
+                        <Button
+                            variant="secondary"
+                            onClick={() => router.push('/evenements-globaux')}
+                            className="flex items-center gap-2 text-sm sm:text-base w-auto"
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                            <span className="hidden sm:inline">Retour aux événements</span>
+                        </Button>
+
+                        <Menu as="div" className="sm:hidden relative">
+                            <Menu.Button className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors border border-white/10">
+                                <MoreVertical className="w-5 h-5" />
+                            </Menu.Button>
+                            <Transition
+                                as={Fragment}
+                                enter="transition ease-out duration-100"
+                                enterFrom="transform opacity-0 scale-95"
+                                enterTo="transform opacity-100 scale-100"
+                                leave="transition ease-in duration-75"
+                                leaveFrom="transform opacity-100 scale-100"
+                                leaveTo="transform opacity-0 scale-95"
+                            >
+                                <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right bg-[#0F172A] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={generatePDF}
+                                                className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left border-b border-white/5`}
+                                            >
+                                                <Download className="w-4 h-4" />
+                                                Exporter PDF
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={() => setIsAddInvitationModalOpen(true)}
+                                                className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left border-b border-white/5`}
+                                            >
+                                                <Plus className="w-4 h-4" />
+                                                Inviter
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={() => router.push('/')}
+                                                className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left`}
+                                            >
+                                                <Home className="w-4 h-4" />
+                                                Accueil
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                </Menu.Items>
+                            </Transition>
+                        </Menu>
+                    </div>
 
                     <div className="hidden sm:flex items-center gap-2 sm:gap-3">
                         <Button
@@ -322,6 +375,15 @@ export default function GlobalEventDetailPage() {
                         >
                             <Plus className="w-4 h-4" />
                             Inviter un partenaire
+                        </Button>
+
+                        <Button
+                            variant="secondary"
+                            onClick={() => router.push('/')}
+                            className="flex items-center justify-center p-2"
+                            title="Accueil"
+                        >
+                            <Home className="w-4 h-4" />
                         </Button>
                     </div>
                 </div>
@@ -351,26 +413,7 @@ export default function GlobalEventDetailPage() {
                             <p className="text-sm sm:text-base text-white/70">{event.description}</p>
                         )}
 
-                        {/* Mobile only: Action buttons below description */}
-                        <div className="sm:hidden flex flex-col gap-2 mt-4">
-                            <Button
-                                variant="secondary"
-                                onClick={generatePDF}
-                                className="flex items-center gap-2 text-sm w-full justify-center"
-                            >
-                                <Download className="w-4 h-4" />
-                                PDF
-                            </Button>
 
-                            <Button
-                                variant="primary"
-                                onClick={() => setIsAddInvitationModalOpen(true)}
-                                className="flex items-center gap-2 text-sm w-full justify-center"
-                            >
-                                <Plus className="w-4 h-4" />
-                                Inviter
-                            </Button>
-                        </div>
                     </div>
                 </Card>
 

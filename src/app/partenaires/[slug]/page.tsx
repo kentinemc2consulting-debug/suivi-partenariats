@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { PartnershipData, Publication, Partner, QualifiedIntroduction, Event, QuarterlyReport, MonthlyCheckIn } from '@/types';
+import { PartnershipData, Publication, Partner, QualifiedIntroduction, Event, QuarterlyReport, MonthlyCheckIn, GlobalEvent } from '@/types';
 import EditPartnerModal from '@/components/partenaires/EditPartnerModal';
 import AddIntroductionModal from '@/components/partenaires/AddIntroductionModal';
 import AddPublicationModal from '@/components/partenaires/AddPublicationModal';
@@ -27,7 +27,8 @@ import {
     ExternalLink,
     Sparkles,
     Send,
-    MoreVertical
+    MoreVertical,
+    Home
 } from 'lucide-react';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
@@ -77,6 +78,9 @@ export default function PartnerDetailPage() {
     const [poText, setPoText] = useState('');
     const [isAILoading, setIsAILoading] = useState(false);
     const [isPoInputOpen, setIsPoInputOpen] = useState(false);
+    const [isEditingSummary, setIsEditingSummary] = useState(false);
+    const [editedSummary, setEditedSummary] = useState('');
+    const [invitedGlobalEvents, setInvitedGlobalEvents] = useState<GlobalEvent[]>([]);
 
     // API Test State
     const [isTestingAPI, setIsTestingAPI] = useState(false);
@@ -438,6 +442,21 @@ export default function PartnerDetailPage() {
                 const data: PartnershipData[] = await res.json();
                 const found = data.find(p => p.partner.id === params.slug || p.partner.slug === params.slug);
                 setPartnership(found || null);
+
+                if (found) {
+                    try {
+                        const globalEventsRes = await fetch('/api/evenements-globaux');
+                        if (globalEventsRes.ok) {
+                            const allGlobalEvents: GlobalEvent[] = await globalEventsRes.json();
+                            const relatedEvents = allGlobalEvents.filter(event =>
+                                event.invitations?.some(inv => inv.partnerId === found.partner.id)
+                            );
+                            setInvitedGlobalEvents(relatedEvents);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching global events:', error);
+                    }
+                }
             } catch (error) {
                 console.error('Error fetching partnership:', error);
             } finally {
@@ -972,6 +991,14 @@ export default function PartnerDetailPage() {
                                     <Sparkles className="w-4 h-4" />
                                 )}
                             </Button>
+                            <Button
+                                variant="secondary"
+                                onClick={() => router.push('/')}
+                                className="flex items-center justify-center p-2"
+                                title="Accueil"
+                            >
+                                <Home className="w-4 h-4" />
+                            </Button>
                         </div>
 
                         {/* Mobile: Collapsible menu */}
@@ -1057,6 +1084,17 @@ export default function PartnerDetailPage() {
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                                 Supprimer
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={() => router.push('/')}
+                                                className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left border-t border-white/5`}
+                                            >
+                                                <Home className="w-4 h-4" />
+                                                Accueil
                                             </button>
                                         )}
                                     </Menu.Item>
@@ -1181,7 +1219,7 @@ export default function PartnerDetailPage() {
                             <span className="text-white/70 text-sm font-medium">Événements</span>
                         </div>
                         <div className="text-4xl font-bold text-gradient-primary">
-                            {activeEvents.length}
+                            {activeEvents.length + invitedGlobalEvents.length}
                         </div>
                     </Card>
                     <Card
@@ -1289,17 +1327,45 @@ export default function PartnerDetailPage() {
                     {partnership.partner.servicesSummary ? (
                         <>
                             <Card className="p-8 card-elevated relative group overflow-hidden">
-                                <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <Edit className="w-4 h-4 text-white/30" />
-                                </div>
-                                <div
-                                    className="prose prose-invert max-w-none text-white/80 leading-relaxed whitespace-pre-line"
-                                    contentEditable
-                                    onBlur={(e) => handleUpdateSummary(e.currentTarget.innerText)}
-                                    suppressContentEditableWarning
-                                >
-                                    {partnership.partner.servicesSummary}
-                                </div>
+                                {isEditingSummary ? (
+                                    <div className="space-y-4">
+                                        <textarea
+                                            className="w-full bg-white/5 text-white border border-white/10 rounded-lg p-4 focus:outline-none focus:border-primary-400 min-h-[150px] resize-y"
+                                            value={editedSummary}
+                                            onChange={(e) => setEditedSummary(e.target.value)}
+                                            autoFocus
+                                        />
+                                        <div className="flex justify-end gap-2">
+                                            <Button variant="secondary" onClick={() => setIsEditingSummary(false)}>
+                                                Annuler
+                                            </Button>
+                                            <Button variant="primary" onClick={() => {
+                                                handleUpdateSummary(editedSummary);
+                                                setIsEditingSummary(false);
+                                            }}>
+                                                Enregistrer
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                            <button
+                                                onClick={() => {
+                                                    setEditedSummary(partnership.partner.servicesSummary || '');
+                                                    setIsEditingSummary(true);
+                                                }}
+                                                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                                                title="Modifier le résumé"
+                                            >
+                                                <Edit className="w-4 h-4 text-white/50 hover:text-white" />
+                                            </button>
+                                        </div>
+                                        <div className="prose prose-invert max-w-none text-white/80 leading-relaxed whitespace-pre-line">
+                                            {partnership.partner.servicesSummary}
+                                        </div>
+                                    </>
+                                )}
                             </Card>
                             {/* Mobile: Button below summary */}
                             <Button
