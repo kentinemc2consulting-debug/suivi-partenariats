@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ScrollToTop from "@/components/ui/ScrollToTop";
 
 export const metadata: Metadata = {
     title: "Suivi Partenariats | E=MC² Consulting",
@@ -22,6 +23,7 @@ export default function RootLayout({
                 <div className="relative z-10 min-h-screen">
                     {children}
                 </div>
+                <ScrollToTop />
             </body>
         </html>
     );
