@@ -292,46 +292,49 @@ export default function GlobalEventDetailPage() {
     };
 
     return (
-        <main className="min-h-screen p-8">
+        <main className="min-h-screen p-4 sm:p-8">
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                     <Button
                         variant="secondary"
                         onClick={() => router.push('/evenements-globaux')}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 text-sm sm:text-base"
                     >
                         <ArrowLeft className="w-4 h-4" />
-                        Retour aux événements
+                        <span className="hidden sm:inline">Retour aux événements</span>
+                        <span className="sm:hidden">Retour</span>
                     </Button>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
                         <Button
                             variant="secondary"
                             onClick={generatePDF}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-2 text-sm sm:text-base"
                         >
                             <Download className="w-4 h-4" />
-                            Exporter PDF
+                            <span className="hidden sm:inline">Exporter PDF</span>
+                            <span className="sm:hidden">PDF</span>
                         </Button>
 
                         <Button
                             variant="primary"
                             onClick={() => setIsAddInvitationModalOpen(true)}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-2 text-sm sm:text-base"
                         >
                             <Plus className="w-4 h-4" />
-                            Inviter un partenaire
+                            <span className="hidden sm:inline">Inviter un partenaire</span>
+                            <span className="sm:hidden">Inviter</span>
                         </Button>
                     </div>
                 </div>
 
                 {/* Event Info */}
-                <Card className="p-8">
-                    <div className="space-y-4">
-                        <h1 className="text-4xl font-bold text-white">{event.eventName}</h1>
+                <Card className="p-4 sm:p-6 lg:p-8">
+                    <div className="space-y-3 sm:space-y-4">
+                        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white break-words">{event.eventName}</h1>
 
-                        <div className="flex flex-wrap items-center gap-4 text-white/60">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm sm:text-base text-white/60">
                             {event.eventDate && (
                                 <div className="flex items-center gap-2">
                                     <Calendar className="w-4 h-4" />
@@ -348,7 +351,7 @@ export default function GlobalEventDetailPage() {
                         </div>
 
                         {event.description && (
-                            <p className="text-white/70 text-lg">{event.description}</p>
+                            <p className="text-sm sm:text-base text-white/70">{event.description}</p>
                         )}
                     </div>
                 </Card>
@@ -396,10 +399,10 @@ export default function GlobalEventDetailPage() {
                         <div className="space-y-3">
                             {[...event.invitations].sort((a, b) => a.partnerName.localeCompare(b.partnerName)).map((invitation) => (
                                 <Card key={invitation.partnerId} className="p-4">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex-1">
-                                            <h3 className="text-lg font-semibold text-white">{invitation.partnerName}</h3>
-                                            <div className="flex items-center gap-3 text-sm text-white/60 mt-1">
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-base sm:text-lg font-semibold text-white break-words">{invitation.partnerName}</h3>
+                                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-white/60 mt-1">
                                                 <span>Proposé le {new Date(invitation.proposalDate).toLocaleDateString('fr-FR')}</span>
                                                 {invitation.responseDate && (
                                                     <span>• Réponse le {new Date(invitation.responseDate).toLocaleDateString('fr-FR')}</span>
@@ -407,8 +410,8 @@ export default function GlobalEventDetailPage() {
                                             </div>
 
                                             {invitation.guests && invitation.guests.length > 0 && (
-                                                <div className="flex flex-wrap gap-2 mt-3">
-                                                    <div className="text-sm text-white/40 mr-1">Invités :</div>
+                                                <div className="flex flex-wrap gap-2 mt-2 sm:mt-3">
+                                                    <div className="text-xs sm:text-sm text-white/40 mr-1">Invités :</div>
                                                     {invitation.guests.map((guest, idx) => (
                                                         <span key={idx} className="text-xs bg-white/10 text-white/80 px-2 py-0.5 rounded-full border border-white/5">
                                                             {guest}
@@ -418,23 +421,23 @@ export default function GlobalEventDetailPage() {
                                             )}
 
                                             {invitation.notes && (
-                                                <p className="text-sm text-white/50 mt-2">{invitation.notes}</p>
+                                                <p className="text-xs sm:text-sm text-white/50 mt-2">{invitation.notes}</p>
                                             )}
                                         </div>
 
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2 flex-shrink-0">
                                             <div className="relative">
                                                 <select
                                                     value={invitation.status}
                                                     onChange={(e) => handleUpdateInvitationStatus(invitation.partnerId, e.target.value as InvitationStatus)}
-                                                    className={`appearance-none pl-4 pr-10 py-1.5 rounded-full text-sm border font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/20 ${getStatusColor(invitation.status)}`}
+                                                    className={`appearance-none pl-3 sm:pl-4 pr-8 sm:pr-10 py-1.5 rounded-full text-xs sm:text-sm border font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/20 ${getStatusColor(invitation.status)}`}
                                                 >
                                                     <option value="proposed">Proposé</option>
                                                     <option value="pending">En attente</option>
                                                     <option value="accepted">Accepté</option>
                                                     <option value="declined">Refusé</option>
                                                 </select>
-                                                <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none opacity-70 ${invitation.status === 'accepted' ? 'text-green-300' : invitation.status === 'declined' ? 'text-red-300' : invitation.status === 'pending' ? 'text-orange-300' : 'text-blue-300'}`} />
+                                                <ChevronDown className={`absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-3 h-3 sm:w-3.5 sm:h-3.5 pointer-events-none opacity-70 ${invitation.status === 'accepted' ? 'text-green-300' : invitation.status === 'declined' ? 'text-red-300' : invitation.status === 'pending' ? 'text-orange-300' : 'text-blue-300'}`} />
                                             </div>
 
                                             <Menu as="div" className="relative">
@@ -450,14 +453,16 @@ export default function GlobalEventDetailPage() {
                                                     leaveFrom="transform opacity-100 scale-100"
                                                     leaveTo="transform opacity-0 scale-95"
                                                 >
-                                                    <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-xl bg-[#1A1A1A] border border-white/10 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-[100] overflow-hidden">
+                                                    <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-[#0F172A] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
                                                         <div className="p-1">
                                                             <Menu.Item>
                                                                 {({ active }) => (
                                                                     <button
-                                                                        onClick={() => handleEditInvitation(invitation)}
-                                                                        className={`${active ? 'bg-white/10 text-white' : 'text-white/70'
-                                                                            } group flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors`}
+                                                                        onClick={() => {
+                                                                            setEditingInvitation(invitation);
+                                                                            setIsAddInvitationModalOpen(true);
+                                                                        }}
+                                                                        className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left`}
                                                                     >
                                                                         <Edit className="w-4 h-4" />
                                                                         Modifier
@@ -468,8 +473,7 @@ export default function GlobalEventDetailPage() {
                                                                 {({ active }) => (
                                                                     <button
                                                                         onClick={() => handleRemoveInvitation(invitation.partnerId)}
-                                                                        className={`${active ? 'bg-red-500/20 text-red-400' : 'text-red-400/70'
-                                                                            } group flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors mt-1`}
+                                                                        className={`${active ? 'bg-red-500/10' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:text-red-300 transition-colors text-left border-t border-white/5`}
                                                                     >
                                                                         <Trash2 className="w-4 h-4" />
                                                                         Supprimer

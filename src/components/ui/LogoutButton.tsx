@@ -21,9 +21,10 @@ export function LogoutButton() {
             variant="secondary"
             onClick={handleLogout}
             className="flex flex-row items-center gap-2"
+            title="Déconnexion"
         >
             <LogOut className="w-4 h-4" />
-            Déconnexion
+            <span className="hidden sm:inline">Déconnexion</span>
         </Button>
     );
 }

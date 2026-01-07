@@ -890,7 +890,7 @@ export default function PartnerDetailPage() {
     const activeCheckIns = (partnership.monthlyCheckIns || []).filter(c => !c.deletedAt);
 
     return (
-        <main className="min-h-screen p-8">
+        <main className="min-h-screen p-4 sm:p-8">
             <div className="max-w-7xl mx-auto space-y-8">
                 {alertConfig && (
                     <div className={`p-4 rounded-xl border flex items-center gap-3 ${alertConfig.color}`}>
@@ -901,50 +901,54 @@ export default function PartnerDetailPage() {
 
                 {/* Header */}
                 <div className="space-y-6">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <Button
                             variant="secondary"
                             onClick={() => router.push('/partenaires')}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-2 text-sm sm:text-base"
                         >
                             <ArrowLeft className="w-4 h-4" />
-                            Gestion des partenariats
+                            <span className="hidden sm:inline">Gestion des partenariats</span>
+                            <span className="sm:hidden">Retour</span>
                         </Button>
 
-                        <div className="flex gap-3">
+                        <div className="flex gap-2 flex-wrap">
                             <Button
                                 variant="secondary"
                                 onClick={handleExportExcel}
-                                className="flex items-center gap-2"
+                                className="flex items-center gap-2 text-sm"
+                                title="Exporter en Excel"
                             >
                                 <FileText className="w-4 h-4" />
-                                Excel
+                                <span className="hidden sm:inline">Excel</span>
                             </Button>
                             <Button
                                 variant="primary"
                                 onClick={handleExportPDF}
                                 disabled={isGeneratingPDF}
-                                className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                                className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-sm"
+                                title="Exporter en PDF"
                             >
                                 {isGeneratingPDF ? (
                                     <>
                                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        Génération...
+                                        <span className="hidden sm:inline">Génération...</span>
                                     </>
                                 ) : (
                                     <>
                                         <FileText className="w-4 h-4" />
-                                        PDF Export
+                                        <span className="hidden sm:inline">PDF</span>
                                     </>
                                 )}
                             </Button>
                             <Button
                                 variant="primary"
                                 onClick={() => setIsEditModalOpen(true)}
-                                className="flex items-center gap-2"
+                                className="flex items-center gap-2 text-sm"
+                                title="Éditer le client"
                             >
                                 <Settings className="w-4 h-4" />
-                                Éditer le client
+                                <span className="hidden sm:inline">Éditer</span>
                             </Button>
 
                             <Button
@@ -957,17 +961,17 @@ export default function PartnerDetailPage() {
                                         } catch (e) { console.error(e); }
                                     }
                                 }}
-                                className="flex items-center gap-2 text-red-400 hover:text-red-300 border-red-500/20 hover:bg-red-500/10"
+                                className="flex items-center justify-center p-2 text-red-400 hover:text-red-300 border-red-500/20 hover:bg-red-500/10"
+                                title="Supprimer"
                             >
                                 <Trash2 className="w-4 h-4" />
-                                Supprimer
                             </Button>
 
                             <Button
                                 variant="secondary"
                                 onClick={handleTestAPI}
                                 disabled={isTestingAPI}
-                                className="flex items-center gap-2"
+                                className="flex items-center justify-center p-2"
                                 title="Tester la connexion à l'API Gemini"
                             >
                                 {isTestingAPI ? (
@@ -975,7 +979,6 @@ export default function PartnerDetailPage() {
                                 ) : (
                                     <Sparkles className="w-4 h-4" />
                                 )}
-                                Test API
                             </Button>
                         </div>
                     </div>
@@ -989,24 +992,26 @@ export default function PartnerDetailPage() {
                         </div>
                     )}
 
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-5xl font-bold text-white font-display flex items-center gap-4">
-                                {partnership.partner.name}
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex-1 min-w-0">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white font-display break-words">
+                                    {partnership.partner.name}
+                                </h1>
                                 {partnership.partner.type && (
-                                    <span className={`text-[11px] font-semibold uppercase tracking-wider px-4 py-1.5 rounded-full border backdrop-blur-md shadow-sm ${partnership.partner.type === 'ambassadeur'
+                                    <span className={`text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider px-3 sm:px-4 py-1 sm:py-1.5 rounded-full border backdrop-blur-md shadow-sm whitespace-nowrap self-start ${partnership.partner.type === 'ambassadeur'
                                         ? 'bg-purple-500/20 text-purple-300 border-purple-500/40 shadow-purple-500/10'
                                         : 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 shadow-cyan-500/10'
                                         }`}>
                                         {partnership.partner.type === 'ambassadeur' ? 'Ambassadeur' : 'Partenariat stratégique'}
                                     </span>
                                 )}
-                            </h1>
-                            <p className="text-xl text-white/60 mt-2">
+                            </div>
+                            <p className="text-sm sm:text-base lg:text-xl text-white/60 mt-2">
                                 {partnership.partner.duration} • {partnership.partner.commissionClient || 0}% client • {partnership.partner.commissionConsulting || 0}% E=MC² Consulting
                             </p>
 
-                            <div className="flex flex-wrap items-center gap-4 mt-4 text-sm">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-4 text-xs sm:text-sm">
                                 {partnership.partner.companyHubspotUrl && (
                                     <a
                                         href={partnership.partner.companyHubspotUrl}
@@ -1017,12 +1022,13 @@ export default function PartnerDetailPage() {
                                         <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                                             <path d="M11.5 0C5.1 0 0 5.1 0 11.5S5.1 23 11.5 23 23 17.9 23 11.5 17.9 0 11.5 0zM15 14.2c-.4.4-1.1.4-1.5 0l-2.5-2.5c-.4-.4-.4-1.1 0-1.5.4-.4 1.1-.4 1.5 0l2.5 2.5c.4.4.4 1 0 1.5z" />
                                         </svg>
-                                        Fiche Entreprise
+                                        <span className="hidden sm:inline">Fiche Entreprise</span>
+                                        <span className="sm:hidden">Fiche</span>
                                     </a>
                                 )}
 
                                 {partnership.partner.contactPerson && (partnership.partner.contactPerson.name || partnership.partner.contactPerson.email) && (
-                                    <div className="flex items-center gap-3 text-white/70 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                                    <div className="flex items-center gap-2 sm:gap-3 text-white/70 bg-white/5 px-3 py-1.5 rounded-full border border-white/10 flex-wrap">
                                         {partnership.partner.contactPerson.name && (
                                             <div className="flex items-center gap-2">
                                                 <Users className="w-4 h-4 text-white/50" />
@@ -1031,15 +1037,15 @@ export default function PartnerDetailPage() {
                                         )}
                                         {partnership.partner.contactPerson.email && (
                                             <>
-                                                {partnership.partner.contactPerson.name && <span className="text-white/20">|</span>}
-                                                <a href={`mailto:${partnership.partner.contactPerson.email}`} className="hover:text-white transition-colors">
+                                                {partnership.partner.contactPerson.name && <span className="text-white/20 hidden sm:inline">|</span>}
+                                                <a href={`mailto:${partnership.partner.contactPerson.email}`} className="hover:text-white transition-colors break-all">
                                                     {partnership.partner.contactPerson.email}
                                                 </a>
                                             </>
                                         )}
                                         {partnership.partner.contactPerson.hubspotUrl && (
                                             <>
-                                                <span className="text-white/20">|</span>
+                                                <span className="text-white/20 hidden sm:inline">|</span>
                                                 <a
                                                     href={partnership.partner.contactPerson.hubspotUrl}
                                                     target="_blank"
@@ -1057,7 +1063,7 @@ export default function PartnerDetailPage() {
                                 )}
                             </div>
                         </div>
-                        <div className={`px-6 py-3 rounded-full text-lg font-semibold badge-premium ${partnership.partner.isActive
+                        <div className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full text-base sm:text-lg font-semibold badge-premium self-start sm:self-auto ${partnership.partner.isActive
                             ? 'badge-success'
                             : 'bg-gray-500/20 text-gray-400 border-2 border-gray-500/30'
                             }`}>
@@ -1231,10 +1237,10 @@ export default function PartnerDetailPage() {
                 <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
 
                 <section id="introductions" className="space-y-6 pt-4">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
                             <div className="p-2 rounded-lg bg-primary/10">
-                                <Users className="w-7 h-7 text-primary" />
+                                <Users className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
                             </div>
                             Introductions Qualifiées
                         </h2>
@@ -1343,10 +1349,10 @@ export default function PartnerDetailPage() {
                 <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
 
                 <section id="publications" className="space-y-6 pt-4">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
                             <div className="p-2 rounded-lg bg-cyan-400/10">
-                                <FileText className="w-7 h-7 text-cyan-400" />
+                                <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
                             </div>
                             Publications
                         </h2>
@@ -1446,10 +1452,10 @@ export default function PartnerDetailPage() {
                 < div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" ></div >
 
                 <section id="events" className="space-y-6 pt-4">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
                             <div className="p-2 rounded-lg bg-orange-500/10">
-                                <Calendar className="w-7 h-7 text-orange-400" />
+                                <Calendar className="w-6 h-6 sm:w-7 sm:h-7 text-orange-400" />
                             </div>
                             Événements
                         </h2>
@@ -1468,17 +1474,17 @@ export default function PartnerDetailPage() {
                     {activeEvents.length > 0 ? (
                         <div className="grid gap-4">
                             {activeEvents.map((event) => (
-                                <Card key={event.id} className="p-6 card-elevated">
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex-1 space-y-4">
+                                <Card key={event.id} className="p-4 sm:p-6 card-elevated">
+                                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                                        <div className="flex-1 min-w-0 space-y-3 sm:space-y-4">
                                             {/* Event Name - Prominent */}
-                                            <h3 className="text-2xl font-bold text-white">{event.eventName}</h3>
+                                            <h3 className="text-xl sm:text-2xl font-bold text-white break-words">{event.eventName}</h3>
 
                                             {/* Dates Grid - Clear Labels */}
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                                 <div>
                                                     <span className="text-xs text-white/50 uppercase tracking-wide">Date de proposition</span>
-                                                    <p className="text-white font-medium mt-1">
+                                                    <p className="text-sm sm:text-base text-white font-medium mt-1">
                                                         {formatDate(event.proposalDate, {
                                                             day: 'numeric',
                                                             month: 'long',
@@ -1489,7 +1495,7 @@ export default function PartnerDetailPage() {
                                                 {event.eventDate && (
                                                     <div>
                                                         <span className="text-xs text-white/50 uppercase tracking-wide">Date de l'événement</span>
-                                                        <p className="text-white font-medium mt-1 flex items-center gap-2">
+                                                        <p className="text-sm sm:text-base text-white font-medium mt-1 flex items-center gap-2">
                                                             <Calendar className="w-4 h-4 text-primary" />
                                                             {formatDate(event.eventDate, {
                                                                 day: 'numeric',
@@ -1502,7 +1508,7 @@ export default function PartnerDetailPage() {
                                                 {event.eventLocation && (
                                                     <div>
                                                         <span className="text-xs text-white/50 uppercase tracking-wide">Lieu</span>
-                                                        <p className="text-white font-medium mt-1 flex items-center gap-2">
+                                                        <p className="text-sm sm:text-base text-white font-medium mt-1 flex items-center gap-2">
                                                             <MapPin className="w-4 h-4 text-primary" />
                                                             {event.eventLocation}
                                                         </p>
@@ -1511,7 +1517,7 @@ export default function PartnerDetailPage() {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                                             {/* Status Dropdown */}
                                             <div className="relative">
                                                 <select
@@ -1577,10 +1583,10 @@ export default function PartnerDetailPage() {
                 <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
 
                 <section id="reports" className="space-y-6 pt-4">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
                             <div className="p-2 rounded-lg bg-cyan-400/10">
-                                <FileText className="w-7 h-7 text-cyan-400" />
+                                <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
                             </div>
                             Comptes Rendus Trimestriels
                         </h2>
@@ -1654,10 +1660,10 @@ export default function PartnerDetailPage() {
                 <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
 
                 <section id="checkIns" className="space-y-6 pt-4">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
                             <div className="p-2 rounded-lg bg-primary/10">
-                                <Calendar className="w-7 h-7 text-primary" />
+                                <Calendar className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
                             </div>
                             Points Mensuels
                         </h2>

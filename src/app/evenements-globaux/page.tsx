@@ -254,24 +254,25 @@ export default function GlobalEventsPage() {
     }
 
     return (
-        <main className="min-h-screen p-8">
+        <main className="min-h-screen p-4 sm:p-8">
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header */}
                 <div className="space-y-6">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                         <Button
                             variant="secondary"
                             onClick={() => router.push('/')}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-2 text-sm sm:text-base"
                         >
                             <ArrowLeft className="w-4 h-4" />
-                            Retour à l'accueil
+                            <span className="hidden sm:inline">Retour à l'accueil</span>
+                            <span className="sm:hidden">Retour</span>
                         </Button>
 
                         <Button
                             variant="primary"
                             onClick={handleCreateClick}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-2 text-sm sm:text-base"
                         >
                             <Plus className="w-4 h-4" />
                             Créer un événement
@@ -279,13 +280,13 @@ export default function GlobalEventsPage() {
                     </div>
 
                     <div>
-                        <h1 className="text-5xl font-bold text-white font-display flex items-center gap-4">
-                            <div className="p-3 rounded-lg bg-primary/10">
-                                <Calendar className="w-10 h-10 text-primary" />
+                        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white font-display flex items-center gap-3 sm:gap-4">
+                            <div className="p-2 sm:p-3 rounded-lg bg-primary/10">
+                                <Calendar className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
                             </div>
                             Événements Globaux
                         </h1>
-                        <p className="text-xl text-white/60 mt-2">
+                        <p className="text-base sm:text-lg lg:text-xl text-white/60 mt-2">
                             Gérez vos événements et suivez les invitations de tous vos partenaires
                         </p>
                     </div>
@@ -339,12 +340,12 @@ export default function GlobalEventsPage() {
 
                             return (
                                 <Link key={event.id} href={`/evenements-globaux/${event.id}`} className="block">
-                                    <Card className="p-6 hover:bg-white/[0.03] transition-colors cursor-pointer group relative overflow-visible">
-                                        <div className="flex items-start justify-between relative z-10">
-                                            <div className="flex-1">
-                                                <h3 className="text-2xl font-bold text-white mb-2">{event.eventName}</h3>
+                                    <Card className="p-4 sm:p-6 hover:bg-white/[0.03] transition-colors cursor-pointer group relative overflow-visible">
+                                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 relative z-10">
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 break-words">{event.eventName}</h3>
 
-                                                <div className="flex flex-wrap items-center gap-4 text-sm text-white/60 mb-4">
+                                                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-white/60 mb-3 sm:mb-4">
                                                     {event.eventDate && (
                                                         <div className="flex items-center gap-2">
                                                             <Calendar className="w-4 h-4" />
@@ -361,47 +362,47 @@ export default function GlobalEventsPage() {
                                                 </div>
 
                                                 {event.description && (
-                                                    <p className="text-white/60 mb-4 line-clamp-2">{event.description}</p>
+                                                    <p className="text-sm sm:text-base text-white/60 mb-3 sm:mb-4 line-clamp-2">{event.description}</p>
                                                 )}
 
                                                 {/* Stats Badges */}
-                                                <div className="flex flex-wrap items-center gap-3">
-                                                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
-                                                        <Users className="w-4 h-4 text-white/60" />
-                                                        <span className="text-sm text-white">{stats.total} invitations</span>
+                                                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                                                    <div className="flex items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-white/5 border border-white/10">
+                                                        <Users className="w-3 h-3 sm:w-4 sm:h-4 text-white/60" />
+                                                        <span className="text-xs sm:text-sm text-white">{stats.total} invitations</span>
                                                     </div>
 
                                                     {stats.accepted > 0 && (
-                                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
-                                                            <CheckCircle className="w-4 h-4 text-green-400" />
-                                                            <span className="text-sm text-green-300">{stats.accepted} accepté{stats.accepted > 1 ? 's' : ''}</span>
+                                                        <div className="flex items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
+                                                            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
+                                                            <span className="text-xs sm:text-sm text-green-300">{stats.accepted} accepté{stats.accepted > 1 ? 's' : ''}</span>
                                                         </div>
                                                     )}
 
                                                     {stats.declined > 0 && (
-                                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20">
-                                                            <XCircle className="w-4 h-4 text-red-400" />
-                                                            <span className="text-sm text-red-300">{stats.declined} refusé{stats.declined > 1 ? 's' : ''}</span>
+                                                        <div className="flex items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-red-500/10 border border-red-500/20">
+                                                            <XCircle className="w-3 h-3 sm:w-4 sm:h-4 text-red-400" />
+                                                            <span className="text-xs sm:text-sm text-red-300">{stats.declined} refusé{stats.declined > 1 ? 's' : ''}</span>
                                                         </div>
                                                     )}
 
                                                     {stats.pending > 0 && (
-                                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20">
-                                                            <Clock className="w-4 h-4 text-orange-400" />
-                                                            <span className="text-sm text-orange-300">{stats.pending} en attente</span>
+                                                        <div className="flex items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20">
+                                                            <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-orange-400" />
+                                                            <span className="text-xs sm:text-sm text-orange-300">{stats.pending} en attente</span>
                                                         </div>
                                                     )}
 
                                                     {stats.total > 0 && (
-                                                        <div className="text-sm text-white/40">
+                                                        <div className="text-xs sm:text-sm text-white/40">
                                                             Taux d'acceptation: {acceptanceRate}%
                                                         </div>
                                                     )}
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center gap-2 relative">
-                                                <Button variant="secondary" className="pointer-events-none">
+                                            <div className="flex items-center gap-2 relative flex-shrink-0">
+                                                <Button variant="secondary" className="pointer-events-none text-sm sm:text-base">
                                                     Gérer →
                                                 </Button>
 

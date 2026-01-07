@@ -95,7 +95,7 @@ export default function Home() {
                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 flex flex-col sm:flex-row gap-4 justify-center">
                         <Link
                             href="/evenements-globaux"
-                            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full text-lg font-medium transition-all hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/25"
+                            className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full text-lg font-medium transition-all hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/25"
                         >
                             <Calendar className="w-5 h-5" />
                             <span>Événements Globaux</span>
@@ -106,7 +106,7 @@ export default function Home() {
 
                         <Link
                             href="/partenaires"
-                            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-white rounded-full text-lg font-medium transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/25"
+                            className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-white rounded-full text-lg font-medium transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/25"
                         >
                             <span>Gestion Globale</span>
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
