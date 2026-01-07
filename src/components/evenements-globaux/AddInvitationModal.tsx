@@ -277,7 +277,7 @@ export default function AddInvitationModal({
                                                     />
                                                 </div>
 
-                                                <div className="flex justify-end gap-3 pt-4">
+                                                <div className="flex justify-center sm:justify-end gap-3 pt-4">
                                                     <Button type="button" variant="secondary" onClick={onClose}>
                                                         Annuler
                                                     </Button>
@@ -365,7 +365,7 @@ export default function AddInvitationModal({
                                                     />
                                                 </div>
 
-                                                <div className="flex justify-end gap-3 pt-4">
+                                                <div className="flex justify-center sm:justify-end gap-3 pt-4">
                                                     <Button type="button" variant="secondary" onClick={onClose}>
                                                         Annuler
                                                     </Button>

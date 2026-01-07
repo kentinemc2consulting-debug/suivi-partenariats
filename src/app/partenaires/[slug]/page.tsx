@@ -1354,7 +1354,7 @@ export default function PartnerDetailPage() {
                         <div className="grid gap-4">
                             {activeIntroductions.map((intro) => (
                                 <Card key={intro.id} className="p-6 card-elevated">
-                                    <div className="flex items-start justify-between">
+                                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-0">
                                         <div className="flex-1 space-y-3">
                                             {/* Person Name - Prominent */}
                                             <h3 className="text-2xl font-bold text-white">{intro.contactName}</h3>
@@ -1473,7 +1473,7 @@ export default function PartnerDetailPage() {
                                                 <Button
                                                     variant="primary"
                                                     onClick={() => window.open(pub.link, '_blank')}
-                                                    className="flex items-center gap-2"
+                                                    className="hidden sm:flex items-center gap-2"
                                                 >
                                                     <ExternalLink className="w-4 h-4" />
                                                     Voir
@@ -1502,23 +1502,81 @@ export default function PartnerDetailPage() {
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="flex gap-2">
-                                            <Button
-                                                variant="secondary"
-                                                onClick={() => {
-                                                    setEditingPublication(pub);
-                                                    setIsPubModalOpen(true);
-                                                }}
-                                            >
-                                                <Edit className="w-4 h-4" />
-                                            </Button>
-                                            <Button
-                                                variant="secondary"
-                                                onClick={() => handleDeleteIntent('publication', pub.id, `${pub.platform} (${formatDate(pub.publicationDate)})`)}
-                                                className="hover:bg-red-500/10 hover:border-red-500/30 group"
-                                            >
-                                                <Trash2 className="w-4 h-4 text-white/40 group-hover:text-red-400 transition-colors" />
-                                            </Button>
+                                        <div className="flex gap-2 items-start">
+                                            {/* Desktop Actions */}
+                                            <div className="hidden sm:flex gap-2">
+                                                <Button
+                                                    variant="secondary"
+                                                    onClick={() => {
+                                                        setEditingPublication(pub);
+                                                        setIsPubModalOpen(true);
+                                                    }}
+                                                >
+                                                    <Edit className="w-4 h-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="secondary"
+                                                    onClick={() => handleDeleteIntent('publication', pub.id, `${pub.platform} (${formatDate(pub.publicationDate)})`)}
+                                                    className="hover:bg-red-500/10 hover:border-red-500/30 group"
+                                                >
+                                                    <Trash2 className="w-4 h-4 text-white/40 group-hover:text-red-400 transition-colors" />
+                                                </Button>
+                                            </div>
+
+                                            {/* Mobile Menu */}
+                                            <Menu as="div" className="relative sm:hidden">
+                                                <Menu.Button className="p-2 -mr-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors">
+                                                    <MoreVertical className="w-5 h-5" />
+                                                </Menu.Button>
+                                                <Transition
+                                                    as={Fragment}
+                                                    enter="transition ease-out duration-100"
+                                                    enterFrom="transform opacity-0 scale-95"
+                                                    enterTo="transform opacity-100 scale-100"
+                                                    leave="transition ease-in duration-75"
+                                                    leaveFrom="transform opacity-100 scale-100"
+                                                    leaveTo="transform opacity-0 scale-95"
+                                                >
+                                                    <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-[#0F172A] border border-white/10 rounded-xl shadow-xl z-50 focus:outline-none overflow-hidden">
+                                                        <Menu.Item>
+                                                            {({ active }) => (
+                                                                <button
+                                                                    onClick={() => window.open(pub.link, '_blank')}
+                                                                    className={`${active ? 'bg-white/5' : ''} group flex w-full items-center gap-3 px-4 py-3 text-sm text-left text-white/90`}
+                                                                >
+                                                                    <ExternalLink className="w-4 h-4 text-white/60" />
+                                                                    Voir
+                                                                </button>
+                                                            )}
+                                                        </Menu.Item>
+                                                        <Menu.Item>
+                                                            {({ active }) => (
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setEditingPublication(pub);
+                                                                        setIsPubModalOpen(true);
+                                                                    }}
+                                                                    className={`${active ? 'bg-white/5' : ''} group flex w-full items-center gap-3 px-4 py-3 text-sm text-left text-white/90 border-t border-white/5`}
+                                                                >
+                                                                    <Edit className="w-4 h-4 text-white/60" />
+                                                                    Modifier
+                                                                </button>
+                                                            )}
+                                                        </Menu.Item>
+                                                        <Menu.Item>
+                                                            {({ active }) => (
+                                                                <button
+                                                                    onClick={() => handleDeleteIntent('publication', pub.id, `${pub.platform} (${formatDate(pub.publicationDate)})`)}
+                                                                    className={`${active ? 'bg-red-500/10' : ''} group flex w-full items-center gap-3 px-4 py-3 text-sm text-left text-red-400 border-t border-white/5`}
+                                                                >
+                                                                    <Trash2 className="w-4 h-4 text-red-400" />
+                                                                    Supprimer
+                                                                </button>
+                                                            )}
+                                                        </Menu.Item>
+                                                    </Menu.Items>
+                                                </Transition>
+                                            </Menu>
                                         </div>
                                     </div>
                                 </Card>
