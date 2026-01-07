@@ -536,7 +536,7 @@ export default function GlobalEventDetailPage() {
                                                         <Menu.Item>
                                                             {({ active }) => (
                                                                 <button
-                                                                    onClick={() => handleDeleteInvitation(invitation.partnerId)}
+                                                                    onClick={() => handleRemoveInvitation(invitation.partnerId)}
                                                                     className={`${active ? 'bg-red-500/10' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:text-red-300 transition-colors text-left border-t border-white/5`}
                                                                 >
                                                                     <Trash2 className="w-4 h-4" />
