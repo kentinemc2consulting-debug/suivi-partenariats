@@ -394,7 +394,7 @@ export default function GlobalEventDetailPage() {
 
                     {event.invitations.length > 0 ? (
                         <div className="space-y-3">
-                            {event.invitations.map((invitation) => (
+                            {[...event.invitations].sort((a, b) => a.partnerName.localeCompare(b.partnerName)).map((invitation) => (
                                 <Card key={invitation.partnerId} className="p-4">
                                     <div className="flex items-center justify-between">
                                         <div className="flex-1">

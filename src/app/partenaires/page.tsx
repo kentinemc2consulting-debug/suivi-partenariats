@@ -103,11 +103,13 @@ export default function PartnersPage() {
     const activePartnerships = partnerships.filter(p => !p.partner.deletedAt);
     const deletedPartnerships = partnerships.filter(p => p.partner.deletedAt);
 
-    const filteredPartnerships = activePartnerships.filter(p => {
-        if (filter === 'active') return p.partner.isActive;
-        if (filter === 'archived') return !p.partner.isActive;
-        return true;
-    });
+    const filteredPartnerships = activePartnerships
+        .filter(p => {
+            if (filter === 'active') return p.partner.isActive;
+            if (filter === 'archived') return !p.partner.isActive;
+            return true;
+        })
+        .sort((a, b) => a.partner.name.localeCompare(b.partner.name));
 
     if (loading) {
         return (
