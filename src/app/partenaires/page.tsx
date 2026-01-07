@@ -9,7 +9,7 @@ import { Briefcase, Plus, Filter, ArrowLeft, Loader2, Trash2 } from 'lucide-reac
 import { useRouter } from 'next/navigation';
 import AddPartnerModal from '@/components/partenaires/AddPartnerModal';
 import GlobalRecycleBinModal from '@/components/partenaires/GlobalRecycleBinModal';
-import { LogoutButton } from '@/components/ui/LogoutButton';
+
 
 export default function PartnersPage() {
     const router = useRouter();
@@ -166,7 +166,6 @@ export default function PartnersPage() {
                             >
                                 <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                             </Button>
-                            <LogoutButton />
                         </div>
                     </div>
                 </div>
