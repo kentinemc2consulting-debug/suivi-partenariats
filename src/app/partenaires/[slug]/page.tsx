@@ -16,7 +16,6 @@ import {
     Plus,
     Trash2,
     MapPin,
-    ArrowUp,
     ArrowLeft,
     AlertTriangle,
     FileText,
@@ -87,16 +86,6 @@ export default function PartnerDetailPage() {
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
 
-    // Scroll to Top State
-    const [showScrollTop, setShowScrollTop] = useState(false);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setShowScrollTop(window.scrollY > 400);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
 
     const scrollToSection = (id: string) => {
         const element = document.getElementById(id);
@@ -1895,16 +1884,6 @@ export default function PartnerDetailPage() {
                 />
             </div >
 
-            {/* Back to Top Button */}
-            < button
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })
-                }
-                className={`fixed bottom-8 right-8 p-4 rounded-full bg-primary-500 text-white shadow-2xl shadow-primary-500/40 transition-all duration-300 z-50 hover:scale-110 active:scale-95 ${showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
-                    }`}
-                title="Retour en haut"
-            >
-                <ArrowUp className="w-6 h-6" />
-            </button >
         </main >
     );
 }
