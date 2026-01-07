@@ -109,7 +109,7 @@ export default function EditPartnerModal({ isOpen, onClose, partner, onSave }: E
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <DatePicker
                                     label="Date de début"
                                     value={formData.startDate}
@@ -137,7 +137,7 @@ export default function EditPartnerModal({ isOpen, onClose, partner, onSave }: E
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-white/80 mb-1">Commission Client (%)</label>
                                     <input
@@ -180,7 +180,7 @@ export default function EditPartnerModal({ isOpen, onClose, partner, onSave }: E
                                 </select>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-white/80 mb-1">Statut</label>
                                     <select
@@ -211,7 +211,7 @@ export default function EditPartnerModal({ isOpen, onClose, partner, onSave }: E
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-white/80 mb-1">Nom du Contact</label>
                                         <input
