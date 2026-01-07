@@ -38,10 +38,10 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(url)
     }
 
-    // If user is signed in and trying to access login, redirect to partenaires
+    // If user is signed in and trying to access login, redirect to homepage
     if (user && request.nextUrl.pathname.startsWith('/login')) {
         const url = request.nextUrl.clone()
-        url.pathname = '/partenaires'
+        url.pathname = '/'
         return NextResponse.redirect(url)
     }
 
