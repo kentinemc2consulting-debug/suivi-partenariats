@@ -565,6 +565,37 @@ export default function PartnerDetailPage() {
         }
     };
 
+    const handleUpdateEventStatus = async (event: Event, newStatus: 'pending' | 'accepted' | 'declined') => {
+        if (!partnership) return;
+
+        // Optimistic update
+        const updatedEvent = { ...event, status: newStatus, attended: newStatus === 'accepted' };
+        const updatedEvents = partnership.events.map(e => e.id === event.id ? updatedEvent : e);
+
+        // Update local state immediately
+        setPartnership(prev => prev ? { ...prev, events: updatedEvents } : null);
+
+        try {
+            const res = await fetch('/api/partenaires', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: partnership.partner.id, events: updatedEvents }),
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to update event status');
+            }
+        } catch (error) {
+            console.error('Error updating event status:', error);
+            alert('Erreur lors de la mise à jour du statut');
+            // Revert state if needed (could re-fetch or use previous state)
+            const res = await fetch('/api/partenaires');
+            const data: PartnershipData[] = await res.json();
+            const found = data.find(p => p.partner.id === params.slug || p.partner.slug === params.slug);
+            setPartnership(found || null);
+        }
+    };
+
     const handleSaveQuarterlyReport = async (report: QuarterlyReport) => {
         if (!partnership) return;
 
@@ -1444,22 +1475,28 @@ export default function PartnerDetailPage() {
                                         </div>
 
                                         <div className="flex items-center gap-2">
-                                            {/* Status Badge */}
-                                            {event.status === 'accepted' && (
-                                                <div className="px-4 py-2 rounded-full text-sm font-semibold badge-premium badge-success">
-                                                    Accepté
+                                            {/* Status Dropdown */}
+                                            <div className="relative">
+                                                <select
+                                                    value={event.status || 'pending'}
+                                                    onChange={(e) => handleUpdateEventStatus(event, e.target.value as 'pending' | 'accepted' | 'declined')}
+                                                    className={`
+                                                        appearance-none pl-4 pr-10 py-2 rounded-full text-sm font-semibold border-2 cursor-pointer outline-none transition-all
+                                                        ${(event.status === 'accepted') ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/30' : ''}
+                                                        ${(event.status === 'declined' || event.status === 'refused') ? 'bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30' : ''}
+                                                        ${(event.status === 'pending' || !event.status) ? 'bg-orange-500/20 text-orange-300 border-orange-500/30 hover:bg-orange-500/30' : ''}
+                                                    `}
+                                                >
+                                                    <option value="pending" className="bg-slate-900 text-gray-300">En attente</option>
+                                                    <option value="accepted" className="bg-slate-900 text-gray-300">Accepté</option>
+                                                    <option value="declined" className="bg-slate-900 text-gray-300">Refusé</option>
+                                                </select>
+                                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                    <svg className={`w-4 h-4 ${(event.status === 'accepted') ? 'text-emerald-400' : (event.status === 'declined' || event.status === 'refused') ? 'text-red-400' : 'text-orange-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                    </svg>
                                                 </div>
-                                            )}
-                                            {event.status === 'declined' && (
-                                                <div className="px-4 py-2 rounded-full text-sm font-semibold badge-premium bg-red-500/20 text-red-400 border-red-500/30">
-                                                    Refusé
-                                                </div>
-                                            )}
-                                            {(event.status === 'pending' || !event.status) && (
-                                                <div className="px-4 py-2 rounded-full text-sm font-semibold badge-premium bg-orange-500/20 text-orange-400 border-orange-500/30">
-                                                    En attente
-                                                </div>
-                                            )}
+                                            </div>
                                             <Button
                                                 variant="secondary"
                                                 onClick={() => {
