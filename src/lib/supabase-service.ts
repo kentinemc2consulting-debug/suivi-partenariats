@@ -244,13 +244,16 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
 
     // Update events if provided
     if (updates.events) {
+        console.log('[UPDATE] Updating events for partner:', partnerId, 'Count:', updates.events.length)
         const { error: deleteError } = await client.from('events').delete().eq('partner_id', partnerId)
         if (deleteError) {
-            console.error('Error deleting events:', deleteError)
+            console.error('[UPDATE] Error deleting events:', deleteError)
             throw deleteError
         }
+        console.log('[UPDATE] Successfully deleted existing events')
 
         if (updates.events.length > 0) {
+            console.log('[UPDATE] Inserting', updates.events.length, 'events')
             const { error: insertError } = await client.from('events').insert(
                 updates.events.map((event) => ({
                     id: event.id,
@@ -265,21 +268,25 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
                 }))
             )
             if (insertError) {
-                console.error('Error inserting events:', insertError)
+                console.error('[UPDATE] Error inserting events:', insertError)
                 throw insertError
             }
+            console.log('[UPDATE] Successfully inserted events')
         }
     }
 
     // Update publications if provided
     if (updates.publications) {
+        console.log('[UPDATE] Updating publications for partner:', partnerId, 'Count:', updates.publications.length)
         const { error: deleteError } = await client.from('publications').delete().eq('partner_id', partnerId)
         if (deleteError) {
-            console.error('Error deleting publications:', deleteError)
+            console.error('[UPDATE] Error deleting publications:', deleteError)
             throw deleteError
         }
+        console.log('[UPDATE] Successfully deleted existing publications')
 
         if (updates.publications.length > 0) {
+            console.log('[UPDATE] Inserting', updates.publications.length, 'publications')
             const { error: insertError } = await client.from('publications').insert(
                 updates.publications.map((pub) => ({
                     id: pub.id,
@@ -293,9 +300,10 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
                 }))
             )
             if (insertError) {
-                console.error('Error inserting publications:', insertError)
+                console.error('[UPDATE] Error inserting publications:', insertError)
                 throw insertError
             }
+            console.log('[UPDATE] Successfully inserted publications')
         }
     }
 
