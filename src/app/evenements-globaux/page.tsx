@@ -288,16 +288,6 @@ export default function GlobalEventsPage() {
                         <p className="text-base sm:text-lg lg:text-xl text-white/60 mt-2">
                             Gérez vos événements et suivez les invitations de tous vos partenaires
                         </p>
-
-                        {/* Mobile only: Create button below description */}
-                        <Button
-                            variant="primary"
-                            onClick={handleCreateClick}
-                            className="sm:hidden flex items-center gap-2 text-sm mt-4 w-full justify-center"
-                        >
-                            <Plus className="w-4 h-4" />
-                            Créer un événement
-                        </Button>
                     </div>
                 </div>
 
