@@ -1,18 +1,29 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase-client';
 import { Button } from '@/components/ui/Button';
 import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+    // Check if user was just logged out
+    useEffect(() => {
+        if (searchParams.get('logout') === 'true') {
+            setSuccessMessage('Vous avez été déconnecté avec succès');
+            // Clear the query parameter from URL
+            window.history.replaceState({}, '', '/login');
+        }
+    }, [searchParams]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -114,6 +125,13 @@ export default function LoginPage() {
                         {error && (
                             <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
                                 <p className="text-sm text-red-400">{error}</p>
+                            </div>
+                        )}
+
+                        {/* Success Message */}
+                        {successMessage && (
+                            <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                                <p className="text-sm text-green-400">{successMessage}</p>
                             </div>
                         )}
 
