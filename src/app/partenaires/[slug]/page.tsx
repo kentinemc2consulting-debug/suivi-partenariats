@@ -851,7 +851,9 @@ export default function PartnerDetailPage() {
     }
 
     const activeIntroductions = partnership.introductions.filter(i => !i.deletedAt);
-    const activeEvents = partnership.events.filter(e => !e.deletedAt);
+    const activeEvents = partnership.events
+        .filter(e => !e.deletedAt)
+        .sort((a, b) => new Date(b.proposalDate).getTime() - new Date(a.proposalDate).getTime());
     const activePublications = partnership.publications.filter(p => !p.deletedAt);
     const activeReports = (partnership.quarterlyReports || []).filter(r => !r.deletedAt);
     const activeCheckIns = (partnership.monthlyCheckIns || []).filter(c => !c.deletedAt);
@@ -1483,7 +1485,7 @@ export default function PartnerDetailPage() {
                                                     className={`
                                                         appearance-none pl-4 pr-10 py-2 rounded-full text-sm font-semibold border-2 cursor-pointer outline-none transition-all
                                                         ${(event.status === 'accepted') ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/30' : ''}
-                                                        ${(event.status === 'declined' || event.status === 'refused') ? 'bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30' : ''}
+                                                        ${(event.status === 'declined') ? 'bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30' : ''}
                                                         ${(event.status === 'pending' || !event.status) ? 'bg-orange-500/20 text-orange-300 border-orange-500/30 hover:bg-orange-500/30' : ''}
                                                     `}
                                                 >
@@ -1492,7 +1494,7 @@ export default function PartnerDetailPage() {
                                                     <option value="declined" className="bg-slate-900 text-gray-300">Refusé</option>
                                                 </select>
                                                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                                                    <svg className={`w-4 h-4 ${(event.status === 'accepted') ? 'text-emerald-400' : (event.status === 'declined' || event.status === 'refused') ? 'text-red-400' : 'text-orange-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <svg className={`w-4 h-4 ${(event.status === 'accepted') ? 'text-emerald-400' : (event.status === 'declined') ? 'text-red-400' : 'text-orange-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                                     </svg>
                                                 </div>
