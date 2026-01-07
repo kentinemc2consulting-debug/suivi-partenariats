@@ -59,7 +59,10 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
             const pub: Publication = {
                 id: initialData?.id || crypto.randomUUID(),
                 partnerId: partnerId,
-                ...formData,
+                platform: formData.platform,
+                link: formData.link,
+                publicationDate: formData.publicationDate,
+                statsReportDate: formData.statsReportDate || undefined, // Convert empty string to undefined
                 lastUpdated: new Date().toISOString()
             };
             await onSave(pub);

@@ -57,9 +57,12 @@ export default function AddEventModal({ isOpen, onClose, onSave, initialData, pa
             const event: Event = {
                 id: initialData?.id || crypto.randomUUID(),
                 partnerId: partnerId,
-                ...formData,
-                attended: formData.status === 'accepted',
-                status: formData.status as 'pending' | 'accepted' | 'declined'
+                eventName: formData.eventName,
+                eventLocation: formData.eventLocation || undefined,
+                proposalDate: formData.proposalDate,
+                eventDate: formData.eventDate || undefined, // Convert empty string to undefined
+                status: formData.status as 'pending' | 'accepted' | 'declined',
+                attended: formData.status === 'accepted'
             };
             await onSave(event);
             onClose();
