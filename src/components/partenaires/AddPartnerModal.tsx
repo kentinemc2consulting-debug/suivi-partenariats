@@ -141,7 +141,7 @@ export default function AddPartnerModal({ isOpen, onClose, onSave }: AddPartnerM
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <DatePicker
                                     label="Date de début"
                                     value={formData.startDate}
@@ -169,7 +169,7 @@ export default function AddPartnerModal({ isOpen, onClose, onSave }: AddPartnerM
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-white/80 mb-1">Commission Client (%)</label>
                                     <input
@@ -212,7 +212,7 @@ export default function AddPartnerModal({ isOpen, onClose, onSave }: AddPartnerM
 
                             <div className="space-y-4 pt-4 border-t border-white/5">
                                 <h3 className="text-sm font-semibold text-white/90">Informations Contact & HubSpot (facultatif)</h3>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-white/80 mb-1">Nom du Contact</label>
                                         <input
