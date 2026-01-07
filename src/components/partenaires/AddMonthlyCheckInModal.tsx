@@ -110,7 +110,7 @@ export default function AddMonthlyCheckInModal({ isOpen, onClose, onSave, initia
                                         />
                                     </div>
 
-                                    <div className="flex justify-end gap-3 pt-4">
+                                    <div className="flex flex-row justify-end gap-3 pt-4">
                                         <Button type="button" variant="secondary" onClick={onClose}>
                                             Annuler
                                         </Button>

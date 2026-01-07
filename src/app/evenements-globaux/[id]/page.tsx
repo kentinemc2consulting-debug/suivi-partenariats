@@ -295,26 +295,24 @@ export default function GlobalEventDetailPage() {
         <main className="min-h-screen p-4 sm:p-8">
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                <div className="flex items-center justify-between">
                     <Button
                         variant="secondary"
                         onClick={() => router.push('/evenements-globaux')}
-                        className="flex items-center gap-2 text-sm sm:text-base"
+                        className="flex items-center gap-2 text-sm sm:text-base w-auto"
                     >
                         <ArrowLeft className="w-4 h-4" />
                         <span className="hidden sm:inline">Retour aux événements</span>
-                        <span className="sm:hidden">Retour</span>
                     </Button>
 
-                    <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
+                    <div className="hidden sm:flex items-center gap-2 sm:gap-3">
                         <Button
                             variant="secondary"
                             onClick={generatePDF}
                             className="flex items-center gap-2 text-sm sm:text-base"
                         >
                             <Download className="w-4 h-4" />
-                            <span className="hidden sm:inline">Exporter PDF</span>
-                            <span className="sm:hidden">PDF</span>
+                            Exporter PDF
                         </Button>
 
                         <Button
@@ -323,8 +321,7 @@ export default function GlobalEventDetailPage() {
                             className="flex items-center gap-2 text-sm sm:text-base"
                         >
                             <Plus className="w-4 h-4" />
-                            <span className="hidden sm:inline">Inviter un partenaire</span>
-                            <span className="sm:hidden">Inviter</span>
+                            Inviter un partenaire
                         </Button>
                     </div>
                 </div>
@@ -353,6 +350,27 @@ export default function GlobalEventDetailPage() {
                         {event.description && (
                             <p className="text-sm sm:text-base text-white/70">{event.description}</p>
                         )}
+
+                        {/* Mobile only: Action buttons below description */}
+                        <div className="sm:hidden flex flex-col gap-2 mt-4">
+                            <Button
+                                variant="secondary"
+                                onClick={generatePDF}
+                                className="flex items-center gap-2 text-sm w-full justify-center"
+                            >
+                                <Download className="w-4 h-4" />
+                                PDF
+                            </Button>
+
+                            <Button
+                                variant="primary"
+                                onClick={() => setIsAddInvitationModalOpen(true)}
+                                className="flex items-center gap-2 text-sm w-full justify-center"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Inviter
+                            </Button>
+                        </div>
                     </div>
                 </Card>
 
@@ -398,9 +416,55 @@ export default function GlobalEventDetailPage() {
                     {event.invitations.length > 0 ? (
                         <div className="space-y-3">
                             {[...event.invitations].sort((a, b) => a.partnerName.localeCompare(b.partnerName)).map((invitation) => (
-                                <Card key={invitation.partnerId} className="p-4">
-                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-                                        <div className="flex-1 min-w-0">
+                                <Card key={invitation.partnerId} className="p-4 relative">
+                                    {/* Mobile: Menu in top right corner */}
+                                    <div className="sm:hidden absolute top-4 right-4 z-20">
+                                        <Menu as="div" className="relative">
+                                            <Menu.Button className="p-2 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-colors">
+                                                <MoreVertical className="w-4 h-4" />
+                                            </Menu.Button>
+                                            <Transition
+                                                as={Fragment}
+                                                enter="transition ease-out duration-100"
+                                                enterFrom="transform opacity-0 scale-95"
+                                                enterTo="transform opacity-100 scale-100"
+                                                leave="transition ease-in duration-75"
+                                                leaveFrom="transform opacity-100 scale-100"
+                                                leaveTo="transform opacity-0 scale-95"
+                                            >
+                                                <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-[#0F172A] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+                                                    <Menu.Item>
+                                                        {({ active }) => (
+                                                            <button
+                                                                onClick={() => {
+                                                                    setEditingInvitation(invitation);
+                                                                    setIsAddInvitationModalOpen(true);
+                                                                }}
+                                                                className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left`}
+                                                            >
+                                                                <Edit className="w-4 h-4" />
+                                                                Modifier
+                                                            </button>
+                                                        )}
+                                                    </Menu.Item>
+                                                    <Menu.Item>
+                                                        {({ active }) => (
+                                                            <button
+                                                                onClick={() => handleDeleteInvitation(invitation.partnerId)}
+                                                                className={`${active ? 'bg-red-500/10' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:text-red-300 transition-colors text-left border-t border-white/5`}
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                                Supprimer
+                                                            </button>
+                                                        )}
+                                                    </Menu.Item>
+                                                </Menu.Items>
+                                            </Transition>
+                                        </Menu>
+                                    </div>
+
+                                    <div className="flex flex-col gap-3">
+                                        <div className="flex-1 min-w-0 pr-12 sm:pr-0">
                                             <h3 className="text-base sm:text-lg font-semibold text-white break-words">{invitation.partnerName}</h3>
                                             <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-white/60 mt-1">
                                                 <span>Proposé le {new Date(invitation.proposalDate).toLocaleDateString('fr-FR')}</span>
@@ -425,7 +489,7 @@ export default function GlobalEventDetailPage() {
                                             )}
                                         </div>
 
-                                        <div className="flex items-center gap-2 flex-shrink-0">
+                                        <div className="flex items-center gap-2 justify-between sm:justify-start">
                                             <div className="relative">
                                                 <select
                                                     value={invitation.status}
@@ -440,7 +504,8 @@ export default function GlobalEventDetailPage() {
                                                 <ChevronDown className={`absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-3 h-3 sm:w-3.5 sm:h-3.5 pointer-events-none opacity-70 ${invitation.status === 'accepted' ? 'text-green-300' : invitation.status === 'declined' ? 'text-red-300' : invitation.status === 'pending' ? 'text-orange-300' : 'text-blue-300'}`} />
                                             </div>
 
-                                            <Menu as="div" className="relative">
+                                            {/* Desktop: Menu button */}
+                                            <Menu as="div" className="hidden sm:block relative">
                                                 <Menu.Button className="p-2 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-colors">
                                                     <MoreVertical className="w-4 h-4" />
                                                 </Menu.Button>
@@ -454,33 +519,31 @@ export default function GlobalEventDetailPage() {
                                                     leaveTo="transform opacity-0 scale-95"
                                                 >
                                                     <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-[#0F172A] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
-                                                        <div className="p-1">
-                                                            <Menu.Item>
-                                                                {({ active }) => (
-                                                                    <button
-                                                                        onClick={() => {
-                                                                            setEditingInvitation(invitation);
-                                                                            setIsAddInvitationModalOpen(true);
-                                                                        }}
-                                                                        className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left`}
-                                                                    >
-                                                                        <Edit className="w-4 h-4" />
-                                                                        Modifier
-                                                                    </button>
-                                                                )}
-                                                            </Menu.Item>
-                                                            <Menu.Item>
-                                                                {({ active }) => (
-                                                                    <button
-                                                                        onClick={() => handleRemoveInvitation(invitation.partnerId)}
-                                                                        className={`${active ? 'bg-red-500/10' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:text-red-300 transition-colors text-left border-t border-white/5`}
-                                                                    >
-                                                                        <Trash2 className="w-4 h-4" />
-                                                                        Supprimer
-                                                                    </button>
-                                                                )}
-                                                            </Menu.Item>
-                                                        </div>
+                                                        <Menu.Item>
+                                                            {({ active }) => (
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setEditingInvitation(invitation);
+                                                                        setIsAddInvitationModalOpen(true);
+                                                                    }}
+                                                                    className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left`}
+                                                                >
+                                                                    <Edit className="w-4 h-4" />
+                                                                    Modifier
+                                                                </button>
+                                                            )}
+                                                        </Menu.Item>
+                                                        <Menu.Item>
+                                                            {({ active }) => (
+                                                                <button
+                                                                    onClick={() => handleDeleteInvitation(invitation.partnerId)}
+                                                                    className={`${active ? 'bg-red-500/10' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:text-red-300 transition-colors text-left border-t border-white/5`}
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                    Supprimer
+                                                                </button>
+                                                            )}
+                                                        </Menu.Item>
                                                     </Menu.Items>
                                                 </Transition>
                                             </Menu>

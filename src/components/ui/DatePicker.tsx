@@ -160,12 +160,12 @@ export default function DatePicker({
                         onFocus={() => setIsOpen(true)}
                         placeholder={placeholder}
                         required={required}
-                        className="input w-full pr-10"
+                        className="input w-full pr-12"
                     />
                     <button
                         type="button"
                         onClick={() => setIsOpen(!isOpen)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-white/60 hover:text-white/90 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white/90 transition-colors"
                     >
                         <Calendar className="w-5 h-5" />
                     </button>

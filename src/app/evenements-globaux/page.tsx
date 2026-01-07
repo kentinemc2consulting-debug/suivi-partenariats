@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { GlobalData, GlobalEvent, InvitationStatus } from '@/types';
-import { Calendar, Plus, ArrowLeft, Users, CheckCircle, XCircle, Clock, Download, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { Calendar, Plus, ArrowLeft, ArrowRight, Users, CheckCircle, XCircle, Clock, Download, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import CreateGlobalEventModal from '@/components/evenements-globaux/CreateGlobalEventModal';
 import Link from 'next/link';
 import jsPDF from 'jspdf';
@@ -257,22 +257,21 @@ export default function GlobalEventsPage() {
         <main className="min-h-screen p-4 sm:p-8">
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header */}
-                <div className="space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                <div className="space-y-4 sm:space-y-6">
+                    <div className="flex items-center justify-between">
                         <Button
                             variant="secondary"
                             onClick={() => router.push('/')}
-                            className="flex items-center gap-2 text-sm sm:text-base"
+                            className="flex items-center gap-2 text-sm sm:text-base w-auto"
                         >
                             <ArrowLeft className="w-4 h-4" />
                             <span className="hidden sm:inline">Retour à l'accueil</span>
-                            <span className="sm:hidden">Retour</span>
                         </Button>
 
                         <Button
                             variant="primary"
                             onClick={handleCreateClick}
-                            className="flex items-center gap-2 text-sm sm:text-base"
+                            className="hidden sm:flex items-center gap-2 text-sm sm:text-base"
                         >
                             <Plus className="w-4 h-4" />
                             Créer un événement
@@ -289,6 +288,16 @@ export default function GlobalEventsPage() {
                         <p className="text-base sm:text-lg lg:text-xl text-white/60 mt-2">
                             Gérez vos événements et suivez les invitations de tous vos partenaires
                         </p>
+
+                        {/* Mobile only: Create button below description */}
+                        <Button
+                            variant="primary"
+                            onClick={handleCreateClick}
+                            className="sm:hidden flex items-center gap-2 text-sm mt-4 w-full justify-center"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Créer un événement
+                        </Button>
                     </div>
                 </div>
 
@@ -341,8 +350,52 @@ export default function GlobalEventsPage() {
                             return (
                                 <Link key={event.id} href={`/evenements-globaux/${event.id}`} className="block">
                                     <Card className="p-4 sm:p-6 hover:bg-white/[0.03] transition-colors cursor-pointer group relative overflow-visible">
+                                        {/* Mobile: Menu in top right corner */}
+                                        <div className="sm:hidden absolute top-4 right-4 z-20">
+                                            <button
+                                                onClick={(e) => toggleMenu(event.id, e)}
+                                                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                                            >
+                                                <MoreVertical className="w-5 h-5" />
+                                            </button>
+
+                                            {activeMenuId === event.id && (
+                                                <div
+                                                    ref={menuRef}
+                                                    className="absolute top-12 right-0 w-48 bg-[#0F172A] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            router.push(`/evenements-globaux/${event.id}`);
+                                                        }}
+                                                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:bg-white/5 hover:text-white transition-colors text-left"
+                                                    >
+                                                        <ArrowRight className="w-4 h-4" />
+                                                        Gérer
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => handleEditClick(event, e)}
+                                                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:bg-white/5 hover:text-white transition-colors text-left border-t border-white/5"
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                        Modifier
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => handleDeleteEvent(event.id, e)}
+                                                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors text-left border-t border-white/5"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                        Supprimer
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+
                                         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 relative z-10">
-                                            <div className="flex-1 min-w-0">
+                                            <div className="flex-1 min-w-0 pr-12 sm:pr-0">
                                                 <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 break-words">{event.eventName}</h3>
 
                                                 <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-white/60 mb-3 sm:mb-4">
@@ -401,7 +454,8 @@ export default function GlobalEventsPage() {
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center gap-2 relative flex-shrink-0">
+                                            {/* Desktop: Buttons on the right */}
+                                            <div className="hidden sm:flex items-center gap-2 relative flex-shrink-0">
                                                 <Button variant="secondary" className="pointer-events-none text-sm sm:text-base">
                                                     Gérer →
                                                 </Button>

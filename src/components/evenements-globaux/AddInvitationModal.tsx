@@ -171,7 +171,7 @@ export default function AddInvitationModal({
                         leaveFrom="opacity-100 scale-100"
                         leaveTo="opacity-0 scale-95"
                     >
-                        <Dialog.Panel className="w-full max-w-2xl glass-card rounded-2xl border border-white/10 flex flex-col max-h-[90vh] shadow-xl">
+                        <Dialog.Panel className="w-full max-w-2xl glass-card rounded-2xl border border-white/10 flex flex-col max-h-[90vh] shadow-xl overflow-hidden">
                             <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
                                 <Dialog.Title className="text-xl font-bold text-white">
                                     {editingInvitation ? 'Modifier l\'Invitation' : 'Inviter un Partenaire'}
@@ -245,10 +245,11 @@ export default function AddInvitationModal({
                                                             onChange={(e) => setCurrentGuest(e.target.value)}
                                                             onKeyPress={(e) => e.key === 'Enter' && handleAddGuest(e as any)}
                                                             placeholder="Nom de l'invité"
-                                                            className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-400"
+                                                            className="flex-1 min-w-0 bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:border-primary-400"
                                                         />
-                                                        <Button type="button" variant="secondary" onClick={handleAddGuest}>
-                                                            Ajouter
+                                                        <Button type="button" variant="secondary" onClick={handleAddGuest} className="shrink-0 px-3 sm:px-4">
+                                                            <span className="hidden sm:inline">Ajouter</span>
+                                                            <span className="sm:hidden">+</span>
                                                         </Button>
                                                     </div>
                                                     {guests.length > 0 && (
@@ -332,10 +333,11 @@ export default function AddInvitationModal({
                                                             onChange={(e) => setCurrentGuest(e.target.value)}
                                                             onKeyPress={(e) => e.key === 'Enter' && handleAddGuest(e as any)}
                                                             placeholder="Nom de l'invité"
-                                                            className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-400"
+                                                            className="flex-1 min-w-0 bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:border-primary-400"
                                                         />
-                                                        <Button type="button" variant="secondary" onClick={handleAddGuest}>
-                                                            Ajouter
+                                                        <Button type="button" variant="secondary" onClick={handleAddGuest} className="shrink-0 px-3 sm:px-4">
+                                                            <span className="hidden sm:inline">Ajouter</span>
+                                                            <span className="sm:hidden">+</span>
                                                         </Button>
                                                     </div>
                                                     {guests.length > 0 && (

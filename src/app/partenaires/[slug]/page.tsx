@@ -27,8 +27,11 @@ import {
     Edit,
     ExternalLink,
     Sparkles,
-    Send
+    Send,
+    MoreVertical
 } from 'lucide-react';
+import { Menu, Transition } from '@headlessui/react';
+import { Fragment } from 'react';
 import ConfirmDeleteModal from '@/components/partenaires/ConfirmDeleteModal';
 
 import jsPDF from 'jspdf';
@@ -890,7 +893,7 @@ export default function PartnerDetailPage() {
     const activeCheckIns = (partnership.monthlyCheckIns || []).filter(c => !c.deletedAt);
 
     return (
-        <main className="min-h-screen p-4 sm:p-8">
+        <main className="min-h-screen p-4 sm:p-8 overflow-x-hidden">
             <div className="max-w-7xl mx-auto space-y-8">
                 {alertConfig && (
                     <div className={`p-4 rounded-xl border flex items-center gap-3 ${alertConfig.color}`}>
@@ -901,18 +904,18 @@ export default function PartnerDetailPage() {
 
                 {/* Header */}
                 <div className="space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center justify-between gap-4">
                         <Button
                             variant="secondary"
                             onClick={() => router.push('/partenaires')}
-                            className="flex items-center gap-2 text-sm sm:text-base"
+                            className="flex items-center gap-2 text-sm sm:text-base w-auto"
                         >
                             <ArrowLeft className="w-4 h-4" />
                             <span className="hidden sm:inline">Gestion des partenariats</span>
-                            <span className="sm:hidden">Retour</span>
                         </Button>
 
-                        <div className="flex gap-2 flex-wrap">
+                        {/* Desktop: All buttons visible */}
+                        <div className="hidden sm:flex gap-2 flex-wrap">
                             <Button
                                 variant="secondary"
                                 onClick={handleExportExcel}
@@ -981,6 +984,107 @@ export default function PartnerDetailPage() {
                                 )}
                             </Button>
                         </div>
+
+                        {/* Mobile: Collapsible menu */}
+                        <Menu as="div" className="sm:hidden relative">
+                            <Menu.Button className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors border border-white/10">
+                                <MoreVertical className="w-5 h-5" />
+                            </Menu.Button>
+                            <Transition
+                                as={Fragment}
+                                enter="transition ease-out duration-100"
+                                enterFrom="transform opacity-0 scale-95"
+                                enterTo="transform opacity-100 scale-100"
+                                leave="transition ease-in duration-75"
+                                leaveFrom="transform opacity-100 scale-100"
+                                leaveTo="transform opacity-0 scale-95"
+                            >
+                                <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right bg-[#0F172A] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={handleExportExcel}
+                                                className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left`}
+                                            >
+                                                <FileText className="w-4 h-4" />
+                                                Exporter Excel
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={handleExportPDF}
+                                                disabled={isGeneratingPDF}
+                                                className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left border-t border-white/5 disabled:opacity-50`}
+                                            >
+                                                {isGeneratingPDF ? (
+                                                    <>
+                                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                        Génération PDF...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <FileText className="w-4 h-4" />
+                                                        Exporter PDF
+                                                    </>
+                                                )}
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={() => setIsEditModalOpen(true)}
+                                                className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left border-t border-white/5`}
+                                            >
+                                                <Settings className="w-4 h-4" />
+                                                Éditer
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={handleTestAPI}
+                                                disabled={isTestingAPI}
+                                                className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left border-t border-white/5 disabled:opacity-50`}
+                                            >
+                                                {isTestingAPI ? (
+                                                    <>
+                                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                        Test API...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Sparkles className="w-4 h-4" />
+                                                        Tester API
+                                                    </>
+                                                )}
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={async () => {
+                                                    if (confirm('Supprimer ce partenaire ? Il sera envoyé dans la corbeille.')) {
+                                                        try {
+                                                            const res = await fetch(`/api/partenaires?id=${partnership.partner.id}`, { method: 'DELETE' });
+                                                            if (res.ok) router.push('/partenaires');
+                                                        } catch (e) { console.error(e); }
+                                                    }
+                                                }}
+                                                className={`${active ? 'bg-red-500/10' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:text-red-300 transition-colors text-left border-t border-white/5`}
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                                Supprimer
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                </Menu.Items>
+                            </Transition>
+                        </Menu>
                     </div>
 
                     {apiTestResult && (
@@ -1151,17 +1255,18 @@ export default function PartnerDetailPage() {
 
                 {/* Prestations Section (AI powered) */}
                 <section id="prestations" className="space-y-6 pt-4">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
                             <div className="p-2 rounded-lg bg-primary/10">
-                                <Sparkles className="w-7 h-7 text-primary" />
+                                <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
                             </div>
                             Prestations
                         </h2>
+                        {/* Desktop: Button in header */}
                         <Button
                             variant="secondary"
                             onClick={() => setIsPoInputOpen(!isPoInputOpen)}
-                            className="flex items-center gap-2"
+                            className="hidden sm:flex items-center gap-2"
                         >
                             <Sparkles className="w-4 h-4 text-primary" />
                             {partnership.partner.servicesSummary ? 'Actualiser le résumé' : 'Générer avec l\'IA'}
@@ -1204,19 +1309,30 @@ export default function PartnerDetailPage() {
                     )}
 
                     {partnership.partner.servicesSummary ? (
-                        <Card className="p-8 card-elevated relative group overflow-hidden">
-                            <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Edit className="w-4 h-4 text-white/30" />
-                            </div>
-                            <div
-                                className="prose prose-invert max-w-none text-white/80 leading-relaxed whitespace-pre-line"
-                                contentEditable
-                                onBlur={(e) => handleUpdateSummary(e.currentTarget.innerText)}
-                                suppressContentEditableWarning
+                        <>
+                            <Card className="p-8 card-elevated relative group overflow-hidden">
+                                <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Edit className="w-4 h-4 text-white/30" />
+                                </div>
+                                <div
+                                    className="prose prose-invert max-w-none text-white/80 leading-relaxed whitespace-pre-line"
+                                    contentEditable
+                                    onBlur={(e) => handleUpdateSummary(e.currentTarget.innerText)}
+                                    suppressContentEditableWarning
+                                >
+                                    {partnership.partner.servicesSummary}
+                                </div>
+                            </Card>
+                            {/* Mobile: Button below summary */}
+                            <Button
+                                variant="secondary"
+                                onClick={() => setIsPoInputOpen(!isPoInputOpen)}
+                                className="sm:hidden flex items-center gap-2 w-full justify-center"
                             >
-                                {partnership.partner.servicesSummary}
-                            </div>
-                        </Card>
+                                <Sparkles className="w-4 h-4 text-primary" />
+                                Actualiser le résumé
+                            </Button>
+                        </>
                     ) : !isPoInputOpen && (
                         <div
                             className="relative group cursor-pointer"
@@ -1269,9 +1385,9 @@ export default function PartnerDetailPage() {
                                             <p className="text-lg text-primary font-semibold">{intro.company}</p>
 
                                             {/* Introduction Date with Icon */}
-                                            <div className="flex items-center gap-2 text-white/70">
-                                                <Calendar className="w-4 h-4" />
-                                                <span className="text-sm font-medium">
+                                            <div className="flex items-center gap-2 text-white/70 flex-nowrap">
+                                                <Calendar className="w-4 h-4 shrink-0" />
+                                                <span className="text-xs sm:text-sm font-medium whitespace-nowrap">
                                                     Introduit le {formatDate(intro.date, {
                                                         day: 'numeric',
                                                         month: 'long',
@@ -1639,7 +1755,7 @@ export default function PartnerDetailPage() {
                             ))}
                         </div>
                     ) : (
-                        <div className="relative group cursor-pointer" onClick={() => { setEditingReport(null); setIsReportModalOpen(true); }}>
+                        <div className="relative group cursor-pointer hidden sm:flex" onClick={() => { setEditingReport(null); setIsReportModalOpen(true); }}>
                             <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-cyan-400/20 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
                             <div className="relative flex flex-col items-center justify-center p-12 rounded-2xl border-2 border-dashed border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all">
                                 <FileText className="w-12 h-12 text-white/10 mb-4 group-hover:text-primary/40 transition-colors" />
@@ -1722,7 +1838,7 @@ export default function PartnerDetailPage() {
                                 ))}
                         </div>
                     ) : (
-                        <div className="relative group cursor-pointer" onClick={() => { setEditingCheckIn(null); setIsCheckInModalOpen(true); }}>
+                        <div className="relative group cursor-pointer hidden sm:flex" onClick={() => { setEditingCheckIn(null); setIsCheckInModalOpen(true); }}>
                             <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-cyan-400/20 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
                             <div className="relative flex flex-col items-center justify-center p-12 rounded-2xl border-2 border-dashed border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all">
                                 <Calendar className="w-12 h-12 text-white/10 mb-4 group-hover:text-primary/40 transition-colors" />
