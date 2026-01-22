@@ -205,7 +205,7 @@ export default function PartnerDetailPage() {
                     const pubData = activePubs.map(p => [
                         formatDate(p.publicationDate),
                         p.platform,
-                        p.link
+                        p.links ? p.links.join(', ') : ''
                     ]);
                     createTable(['Date', 'Plateforme', 'Lien'], pubData);
                 }
