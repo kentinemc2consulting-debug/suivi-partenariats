@@ -735,7 +735,7 @@ export default function PartnerDetailPage() {
             .map(p => ({
                 "Date publication": formatDate(p.publicationDate),
                 "Plateforme": p.platform,
-                "Lien": p.link,
+                "Lien": p.links ? p.links.join(', ') : '',
                 "Date de rapport statistiques": p.statsReportDate ? formatDate(p.statsReportDate) : 'Non renseigné'
             }));
         const wsPubs = XLSX.utils.json_to_sheet(pubsData);
