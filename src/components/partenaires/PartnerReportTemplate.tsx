@@ -222,16 +222,23 @@ export const PartnerReportTemplate = React.forwardRef<HTMLDivElement, PartnerRep
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <a
-                                            href={pub.link}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="px-4 py-2 text-[10px] font-bold uppercase tracking-tight flex items-center gap-2"
-                                            style={{ backgroundColor: '#0077b5', color: 'white', borderRadius: '9999px', textDecoration: 'none' }}
-                                        >
-                                            <LinkIcon className="w-3 h-3" />
-                                            Voir le post
-                                        </a>
+                                        {pub.links && pub.links.length > 0 ? (
+                                            pub.links.map((link, idx) => (
+                                                <a
+                                                    key={idx}
+                                                    href={link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="px-4 py-2 text-[10px] font-bold uppercase tracking-tight flex items-center gap-2"
+                                                    style={{ backgroundColor: '#0077b5', color: 'white', borderRadius: '9999px', textDecoration: 'none' }}
+                                                >
+                                                    <LinkIcon className="w-3 h-3" />
+                                                    {pub.links.length > 1 ? `Lien ${idx + 1}` : 'Voir le post'}
+                                                </a>
+                                            ))
+                                        ) : (
+                                            <span className="text-[10px] text-white/40 italic">Aucun lien</span>
+                                        )}
                                     </div>
                                 </div>
                             ))}
