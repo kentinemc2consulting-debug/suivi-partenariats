@@ -19,12 +19,14 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState<{
         platform: string;
-        link: string;
+        links: string; // Raw textarea input (one link per line)
+        description: string;
         publicationDate: string;
         statsReportDate?: string;
     }>({
         platform: 'LinkedIn',
-        link: '',
+        links: '',
+        description: '',
         publicationDate: new Date().toISOString().split('T')[0],
         statsReportDate: ''
     });
@@ -33,21 +35,23 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
         if (isOpen && initialData) {
             setFormData({
                 platform: initialData.platform,
-                link: initialData.link,
+                links: (initialData.links || []).join('\n'), // Convert array to textarea format
+                description: initialData.description || '',
                 publicationDate: new Date(initialData.publicationDate).toISOString().split('T')[0],
                 statsReportDate: initialData.statsReportDate ? new Date(initialData.statsReportDate).toISOString().split('T')[0] : ''
             });
         } else if (isOpen && !initialData) {
             setFormData({
                 platform: 'LinkedIn',
-                link: '',
+                links: '',
+                description: '',
                 publicationDate: new Date().toISOString().split('T')[0],
                 statsReportDate: ''
             });
         }
     }, [isOpen, initialData]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
@@ -56,11 +60,24 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
         e.preventDefault();
         setIsLoading(true);
         try {
+            // Parse links from textarea (split by newlines, remove empty lines, trim whitespace)
+            const linksArray = formData.links
+                .split('\n')
+                .map(link => link.trim())
+                .filter(link => link.length > 0);
+
+            if (linksArray.length === 0) {
+                alert('Veuillez entrer au moins un lien');
+                setIsLoading(false);
+                return;
+            }
+
             const pub: Publication = {
                 id: initialData?.id || crypto.randomUUID(),
                 partnerId: partnerId,
                 platform: formData.platform,
-                link: formData.link,
+                links: linksArray,
+                description: formData.description.trim() || undefined, // Convert empty string to undefined
                 publicationDate: formData.publicationDate,
                 statsReportDate: formData.statsReportDate || undefined, // Convert empty string to undefined
                 lastUpdated: new Date().toISOString()
@@ -108,15 +125,31 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-white/80 mb-1">Lien</label>
-                                <input
-                                    type="url"
-                                    name="link"
-                                    value={formData.link}
+                                <label className="block text-sm font-medium text-white/80 mb-1">
+                                    Lien(s) - Un par ligne
+                                </label>
+                                <textarea
+                                    name="links"
+                                    value={formData.links}
                                     onChange={handleChange}
-                                    className="input w-full"
+                                    className="input w-full min-h-[120px] resize-y font-mono text-sm"
                                     required
-                                    placeholder="https://..."
+                                    placeholder="https://instagram.com/stories/...&#10;https://instagram.com/stories/...&#10;https://instagram.com/stories/..."
+                                />
+                                <p className="text-xs text-white/50 mt-1">
+                                    {formData.links.split('\n').filter(l => l.trim()).length} lien(s) détecté(s)
+                                </p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-white/80 mb-1">
+                                    Description (facultatif)
+                                </label>
+                                <textarea
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    className="input w-full min-h-[80px] resize-y"
+                                    placeholder="Ajoutez des informations supplémentaires sur cette publication..."
                                 />
                             </div>
                             <DatePicker

@@ -2,7 +2,7 @@ import { Fragment, useState, useEffect } from 'react';
 import { Dialog, Tab, Transition } from '@headlessui/react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { GlobalEventInvitation, PartnershipData, LightweightPartner, GlobalEvent } from '@/types';
+import { GlobalEventInvitation, PartnershipData, LightweightPartner, GlobalEvent, InvitationStatus } from '@/types';
 
 interface AddInvitationModalProps {
     isOpen: boolean;
@@ -34,6 +34,7 @@ export default function AddInvitationModal({
     const [notes, setNotes] = useState('');
     const [guests, setGuests] = useState<string[]>([]);
     const [currentGuest, setCurrentGuest] = useState('');
+    const [status, setStatus] = useState<InvitationStatus>('pending');
 
     useEffect(() => {
         if (isOpen) {
@@ -57,6 +58,7 @@ export default function AddInvitationModal({
 
                 setNotes(editingInvitation.notes || '');
                 setGuests(editingInvitation.guests || []);
+                setStatus(editingInvitation.status);
             } else {
                 // Reset for new invitation
                 setMode('existing');
@@ -64,6 +66,7 @@ export default function AddInvitationModal({
                 setNewContact({ name: '', email: '', company: '' });
                 setNotes('');
                 setGuests([]);
+                setStatus('pending');
             }
             setCurrentGuest('');
         }
@@ -100,8 +103,9 @@ export default function AddInvitationModal({
                 invitation = {
                     partnerId: partner.partner.id,
                     partnerName: partner.partner.name,
-                    status: 'proposed',
+                    status: status,
                     proposalDate: new Date().toISOString(),
+                    responseDate: (status !== 'proposed' && status !== 'pending') ? new Date().toISOString() : undefined,
                     notes: notes || undefined,
                     guests: guests.length > 0 ? guests : undefined
                 };
@@ -124,8 +128,9 @@ export default function AddInvitationModal({
                 invitation = {
                     partnerId: id,
                     partnerName: newContact.name,
-                    status: 'proposed',
+                    status: status,
                     proposalDate: new Date().toISOString(),
+                    responseDate: (status !== 'proposed' && status !== 'pending') ? new Date().toISOString() : undefined,
                     notes: notes || undefined,
                     guests: guests.length > 0 ? guests : undefined
                 };
@@ -237,6 +242,21 @@ export default function AddInvitationModal({
                                                 </div>
 
                                                 <div>
+                                                    <label className="block text-sm text-white/60 mb-2">Statut de l'invitation *</label>
+                                                    <select
+                                                        required
+                                                        value={status}
+                                                        onChange={(e) => setStatus(e.target.value as InvitationStatus)}
+                                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-400"
+                                                    >
+                                                        <option value="proposed">Proposé</option>
+                                                        <option value="pending">En attente</option>
+                                                        <option value="accepted">Accepté</option>
+                                                        <option value="declined">Refusé</option>
+                                                    </select>
+                                                </div>
+
+                                                <div>
                                                     <label className="block text-sm text-white/60 mb-2">Personnes invitées (optionnel)</label>
                                                     <div className="flex gap-2 mb-2">
                                                         <input
@@ -322,6 +342,21 @@ export default function AddInvitationModal({
                                                         placeholder="Nom de l'entreprise"
                                                         className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-400"
                                                     />
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-sm text-white/60 mb-2">Statut de l'invitation *</label>
+                                                    <select
+                                                        required
+                                                        value={status}
+                                                        onChange={(e) => setStatus(e.target.value as InvitationStatus)}
+                                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-400"
+                                                    >
+                                                        <option value="proposed">Proposé</option>
+                                                        <option value="pending">En attente</option>
+                                                        <option value="accepted">Accepté</option>
+                                                        <option value="declined">Refusé</option>
+                                                    </select>
                                                 </div>
 
                                                 <div>

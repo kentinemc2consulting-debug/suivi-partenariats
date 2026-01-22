@@ -447,11 +447,21 @@ export default function PartnerDetailPage() {
                     try {
                         const globalEventsRes = await fetch('/api/evenements-globaux');
                         if (globalEventsRes.ok) {
-                            const allGlobalEvents: GlobalEvent[] = await globalEventsRes.json();
-                            const relatedEvents = allGlobalEvents.filter(event =>
-                                event.invitations?.some(inv => inv.partnerId === found.partner.id)
-                            );
-                            setInvitedGlobalEvents(relatedEvents);
+                            const data = await globalEventsRes.json();
+                            const allGlobalEvents = data.globalEvents || [];
+                            if (Array.isArray(allGlobalEvents)) {
+                                const relatedEvents = allGlobalEvents.filter((event: GlobalEvent) => {
+                                    if (!event.invitations || !Array.isArray(event.invitations)) {
+                                        console.warn("Event with invalid invitations:", event);
+                                        return false;
+                                    }
+                                    return event.invitations.some(inv => inv.partnerId === found.partner.id)
+                                });
+                                setInvitedGlobalEvents(relatedEvents);
+                            } else {
+                                console.error('Expected array of global events, received:', allGlobalEvents);
+                                setInvitedGlobalEvents([]);
+                            }
                         }
                     } catch (error) {
                         console.error('Error fetching global events:', error);
@@ -1583,14 +1593,9 @@ export default function PartnerDetailPage() {
                                         <div className="flex-1 space-y-3">
                                             <div className="flex items-center gap-3">
                                                 <h3 className="text-2xl font-bold text-white">{pub.platform}</h3>
-                                                <Button
-                                                    variant="primary"
-                                                    onClick={() => window.open(pub.link, '_blank')}
-                                                    className="hidden sm:flex items-center gap-2"
-                                                >
-                                                    <ExternalLink className="w-4 h-4" />
-                                                    Voir
-                                                </Button>
+                                                <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-white/60">
+                                                    {(pub.links ?? []).length} lien{(pub.links ?? []).length > 1 ? 's' : ''}
+                                                </span>
                                             </div>
 
                                             <div className="flex items-center gap-2 text-white/70">
@@ -1599,6 +1604,31 @@ export default function PartnerDetailPage() {
                                                     Publié le {formatDate(pub.publicationDate)}
                                                 </span>
                                             </div>
+
+                                            {/* Display all links */}
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                {(pub.links ?? []).map((link, index) => (
+                                                    <Button
+                                                        key={index}
+                                                        variant="primary"
+                                                        onClick={() => window.open(link, '_blank')}
+                                                        className="flex items-center gap-2 text-xs"
+                                                        title={link}
+                                                    >
+                                                        <ExternalLink className="w-3 h-3" />
+                                                        {(pub.links ?? []).length > 1 ? `Lien ${index + 1}` : 'Voir'}
+                                                    </Button>
+                                                ))}
+                                            </div>
+
+                                            {/* Description */}
+                                            {pub.description && (
+                                                <div className="mt-3 p-3 rounded-lg bg-white/5 border border-white/10">
+                                                    <p className="text-sm text-white/80 whitespace-pre-line">
+                                                        {pub.description}
+                                                    </p>
+                                                </div>
+                                            )}
 
                                             {(pub.lastUpdated || pub.statsReportDate) && (
                                                 <div className="space-y-1">
@@ -1651,17 +1681,20 @@ export default function PartnerDetailPage() {
                                                     leaveTo="transform opacity-0 scale-95"
                                                 >
                                                     <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-[#0F172A] border border-white/10 rounded-xl shadow-xl z-50 focus:outline-none overflow-hidden">
-                                                        <Menu.Item>
-                                                            {({ active }) => (
-                                                                <button
-                                                                    onClick={() => window.open(pub.link, '_blank')}
-                                                                    className={`${active ? 'bg-white/5' : ''} group flex w-full items-center gap-3 px-4 py-3 text-sm text-left text-white/90`}
-                                                                >
-                                                                    <ExternalLink className="w-4 h-4 text-white/60" />
-                                                                    Voir
-                                                                </button>
-                                                            )}
-                                                        </Menu.Item>
+                                                        {/* Show all links */}
+                                                        {(pub.links ?? []).map((link, index) => (
+                                                            <Menu.Item key={index}>
+                                                                {({ active }) => (
+                                                                    <button
+                                                                        onClick={() => window.open(link, '_blank')}
+                                                                        className={`${active ? 'bg-white/5' : ''} group flex w-full items-center gap-3 px-4 py-3 text-sm text-left text-white/90 ${index > 0 ? 'border-t border-white/5' : ''}`}
+                                                                    >
+                                                                        <ExternalLink className="w-4 h-4 text-white/60" />
+                                                                        {(pub.links ?? []).length > 1 ? `Lien ${index + 1}` : 'Voir'}
+                                                                    </button>
+                                                                )}
+                                                            </Menu.Item>
+                                                        ))}
                                                         <Menu.Item>
                                                             {({ active }) => (
                                                                 <button
@@ -1738,140 +1771,160 @@ export default function PartnerDetailPage() {
                     </div>
                     {activeEvents.length > 0 ? (
                         <div className="grid gap-4">
-                            {activeEvents.map((event) => (
-                                <Card key={event.id} className="p-4 sm:p-6 card-elevated">
-                                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                                        <div className="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                                            {/* Event Name - Prominent */}
-                                            <h3 className="text-xl sm:text-2xl font-bold text-white break-words">{event.eventName}</h3>
+                            {activeEvents.map((event) => {
+                                // Try to find matching global event if ID is missing (robustness fallback)
+                                const linkedGlobalEvent = invitedGlobalEvents.find(ge =>
+                                    ge.id === event.globalEventId ||
+                                    (ge.eventName === event.eventName) // Simplest matching by name
+                                );
+                                const targetId = event.globalEventId || linkedGlobalEvent?.id;
 
-                                            {/* Dates Grid - Clear Labels */}
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                                                <div>
-                                                    <span className="text-xs text-white/50 uppercase tracking-wide">Date de proposition</span>
-                                                    <p className="text-sm sm:text-base text-white font-medium mt-1">
-                                                        {formatDate(event.proposalDate, {
-                                                            day: 'numeric',
-                                                            month: 'long',
-                                                            year: 'numeric'
-                                                        })}
-                                                    </p>
-                                                </div>
-                                                {event.eventDate && (
+                                return (
+                                    <Card key={event.id} className="p-4 sm:p-6 card-elevated">
+                                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                                            <div className="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                                                {/* Event Name - Clickable if linked to global event */}
+                                                {targetId ? (
+                                                    <h3
+                                                        className="text-xl sm:text-2xl font-bold text-white break-words cursor-pointer hover:text-primary transition-colors flex items-center gap-2 group"
+                                                        onClick={() => window.location.href = `/evenements-globaux/${targetId}`}
+                                                        title="Voir l'événement global"
+                                                    >
+                                                        {event.eventName}
+                                                        <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
+                                                    </h3>
+                                                ) : (
+                                                    <h3 className="text-xl sm:text-2xl font-bold text-white break-words">{event.eventName}</h3>
+                                                )}
+
+                                                {/* Dates Grid - Clear Labels */}
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                                     <div>
-                                                        <span className="text-xs text-white/50 uppercase tracking-wide">Date de l'événement</span>
-                                                        <p className="text-sm sm:text-base text-white font-medium mt-1 flex items-center gap-2">
-                                                            <Calendar className="w-4 h-4 text-primary" />
-                                                            {formatDate(event.eventDate, {
+                                                        <span className="text-xs text-white/50 uppercase tracking-wide">Date de proposition</span>
+                                                        <p className="text-sm sm:text-base text-white font-medium mt-1">
+                                                            {formatDate(event.proposalDate, {
                                                                 day: 'numeric',
                                                                 month: 'long',
                                                                 year: 'numeric'
                                                             })}
                                                         </p>
                                                     </div>
-                                                )}
-                                                {event.eventLocation && (
-                                                    <div>
-                                                        <span className="text-xs text-white/50 uppercase tracking-wide">Lieu</span>
-                                                        <p className="text-sm sm:text-base text-white font-medium mt-1 flex items-center gap-2">
-                                                            <MapPin className="w-4 h-4 text-primary" />
-                                                            {event.eventLocation}
-                                                        </p>
-                                                    </div>
-                                                )}
+                                                    {event.eventDate && (
+                                                        <div>
+                                                            <span className="text-xs text-white/50 uppercase tracking-wide">Date de l'événement</span>
+                                                            <p className="text-sm sm:text-base text-white font-medium mt-1 flex items-center gap-2">
+                                                                <Calendar className="w-4 h-4 text-primary" />
+                                                                {formatDate(event.eventDate, {
+                                                                    day: 'numeric',
+                                                                    month: 'long',
+                                                                    year: 'numeric'
+                                                                })}
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                    {event.eventLocation && (
+                                                        <div>
+                                                            <span className="text-xs text-white/50 uppercase tracking-wide">Lieu</span>
+                                                            <p className="text-sm sm:text-base text-white font-medium mt-1 flex items-center gap-2">
+                                                                <MapPin className="w-4 h-4 text-primary" />
+                                                                {event.eventLocation}
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                                            {/* Status Dropdown */}
-                                            <div className="relative">
-                                                <select
-                                                    value={event.status || 'pending'}
-                                                    onChange={(e) => handleUpdateEventStatus(event, e.target.value as 'pending' | 'accepted' | 'declined')}
-                                                    className={`
+                                            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                                                {/* Status Dropdown */}
+                                                <div className="relative">
+                                                    <select
+                                                        value={event.status || 'pending'}
+                                                        onChange={(e) => handleUpdateEventStatus(event, e.target.value as 'pending' | 'accepted' | 'declined')}
+                                                        className={`
                                                         appearance-none pl-4 pr-10 py-2 rounded-full text-sm font-semibold border-2 cursor-pointer outline-none transition-all
                                                         ${(event.status === 'accepted') ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/30' : ''}
                                                         ${(event.status === 'declined') ? 'bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30' : ''}
                                                         ${(event.status === 'pending' || !event.status) ? 'bg-orange-500/20 text-orange-300 border-orange-500/30 hover:bg-orange-500/30' : ''}
                                                     `}
-                                                >
-                                                    <option value="pending" className="bg-slate-900 text-gray-300">En attente</option>
-                                                    <option value="accepted" className="bg-slate-900 text-gray-300">Accepté</option>
-                                                    <option value="declined" className="bg-slate-900 text-gray-300">Refusé</option>
-                                                </select>
-                                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                                                    <svg className={`w-4 h-4 ${(event.status === 'accepted') ? 'text-emerald-400' : (event.status === 'declined') ? 'text-red-400' : 'text-orange-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                                    </svg>
+                                                    >
+                                                        <option value="pending" className="bg-slate-900 text-gray-300">En attente</option>
+                                                        <option value="accepted" className="bg-slate-900 text-gray-300">Accepté</option>
+                                                        <option value="declined" className="bg-slate-900 text-gray-300">Refusé</option>
+                                                    </select>
+                                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                        <svg className={`w-4 h-4 ${(event.status === 'accepted') ? 'text-emerald-400' : (event.status === 'declined') ? 'text-red-400' : 'text-orange-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                        </svg>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            {/* Desktop Actions */}
-                                            <div className="hidden sm:flex gap-2">
-                                                <Button
-                                                    variant="secondary"
-                                                    onClick={() => {
-                                                        setEditingEvent(event);
-                                                        setIsEventModalOpen(true);
-                                                    }}
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                </Button>
-                                                <Button
-                                                    variant="secondary"
-                                                    onClick={() => handleDeleteIntent('event', event.id, event.eventName)}
-                                                    className="hover:bg-red-500/10 hover:border-red-500/30 group"
-                                                >
-                                                    <Trash2 className="w-4 h-4 text-white/40 group-hover:text-red-400 transition-colors" />
-                                                </Button>
-                                            </div>
+                                                {/* Desktop Actions */}
+                                                <div className="hidden sm:flex gap-2">
+                                                    <Button
+                                                        variant="secondary"
+                                                        onClick={() => {
+                                                            setEditingEvent(event);
+                                                            setIsEventModalOpen(true);
+                                                        }}
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="secondary"
+                                                        onClick={() => handleDeleteIntent('event', event.id, event.eventName)}
+                                                        className="hover:bg-red-500/10 hover:border-red-500/30 group"
+                                                    >
+                                                        <Trash2 className="w-4 h-4 text-white/40 group-hover:text-red-400 transition-colors" />
+                                                    </Button>
+                                                </div>
 
-                                            {/* Mobile Menu */}
-                                            <Menu as="div" className="relative sm:hidden">
-                                                <Menu.Button className="p-2 -mr-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors">
-                                                    <MoreVertical className="w-5 h-5" />
-                                                </Menu.Button>
-                                                <Transition
-                                                    as={Fragment}
-                                                    enter="transition ease-out duration-100"
-                                                    enterFrom="transform opacity-0 scale-95"
-                                                    enterTo="transform opacity-100 scale-100"
-                                                    leave="transition ease-in duration-75"
-                                                    leaveFrom="transform opacity-100 scale-100"
-                                                    leaveTo="transform opacity-0 scale-95"
-                                                >
-                                                    <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-[#0F172A] border border-white/10 rounded-xl shadow-xl z-50 focus:outline-none overflow-hidden">
-                                                        <Menu.Item>
-                                                            {({ active }) => (
-                                                                <button
-                                                                    onClick={() => {
-                                                                        setEditingEvent(event);
-                                                                        setIsEventModalOpen(true);
-                                                                    }}
-                                                                    className={`${active ? 'bg-white/5' : ''} group flex w-full items-center gap-3 px-4 py-3 text-sm text-left text-white/90`}
-                                                                >
-                                                                    <Edit className="w-4 h-4 text-white/60" />
-                                                                    Modifier
-                                                                </button>
-                                                            )}
-                                                        </Menu.Item>
-                                                        <Menu.Item>
-                                                            {({ active }) => (
-                                                                <button
-                                                                    onClick={() => handleDeleteIntent('event', event.id, event.eventName)}
-                                                                    className={`${active ? 'bg-red-500/10' : ''} group flex w-full items-center gap-3 px-4 py-3 text-sm text-left text-red-400 border-t border-white/5`}
-                                                                >
-                                                                    <Trash2 className="w-4 h-4 text-red-400" />
-                                                                    Supprimer
-                                                                </button>
-                                                            )}
-                                                        </Menu.Item>
-                                                    </Menu.Items>
-                                                </Transition>
-                                            </Menu>
+                                                {/* Mobile Menu */}
+                                                <Menu as="div" className="relative sm:hidden">
+                                                    <Menu.Button className="p-2 -mr-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors">
+                                                        <MoreVertical className="w-5 h-5" />
+                                                    </Menu.Button>
+                                                    <Transition
+                                                        as={Fragment}
+                                                        enter="transition ease-out duration-100"
+                                                        enterFrom="transform opacity-0 scale-95"
+                                                        enterTo="transform opacity-100 scale-100"
+                                                        leave="transition ease-in duration-75"
+                                                        leaveFrom="transform opacity-100 scale-100"
+                                                        leaveTo="transform opacity-0 scale-95"
+                                                    >
+                                                        <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-[#0F172A] border border-white/10 rounded-xl shadow-xl z-50 focus:outline-none overflow-hidden">
+                                                            <Menu.Item>
+                                                                {({ active }) => (
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setEditingEvent(event);
+                                                                            setIsEventModalOpen(true);
+                                                                        }}
+                                                                        className={`${active ? 'bg-white/5' : ''} group flex w-full items-center gap-3 px-4 py-3 text-sm text-left text-white/90`}
+                                                                    >
+                                                                        <Edit className="w-4 h-4 text-white/60" />
+                                                                        Modifier
+                                                                    </button>
+                                                                )}
+                                                            </Menu.Item>
+                                                            <Menu.Item>
+                                                                {({ active }) => (
+                                                                    <button
+                                                                        onClick={() => handleDeleteIntent('event', event.id, event.eventName)}
+                                                                        className={`${active ? 'bg-red-500/10' : ''} group flex w-full items-center gap-3 px-4 py-3 text-sm text-left text-red-400 border-t border-white/5`}
+                                                                    >
+                                                                        <Trash2 className="w-4 h-4 text-red-400" />
+                                                                        Supprimer
+                                                                    </button>
+                                                                )}
+                                                            </Menu.Item>
+                                                        </Menu.Items>
+                                                    </Transition>
+                                                </Menu>
+                                            </div>
                                         </div>
-                                    </div>
-                                </Card>
-                            ))}
+                                    </Card>
+                                );
+                            })}
                         </div>
                     ) : (
                         <div className="relative group cursor-pointer" onClick={() => { setEditingEvent(null); setIsEventModalOpen(true); }}>

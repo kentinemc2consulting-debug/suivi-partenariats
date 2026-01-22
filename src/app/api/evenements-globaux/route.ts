@@ -14,6 +14,7 @@ import {
 export async function GET() {
     try {
         const events = await getGlobalEvents();
+        console.log('[API] /evenements-globaux: fetch result:', JSON.stringify(events, null, 2));
         // Lightweight partners fetch logic could be added here if needed for the frontend
         return NextResponse.json({ globalEvents: events, lightweightPartners: [] });
     } catch (error) {

@@ -20,6 +20,7 @@ export default function GlobalEventDetailPage() {
     const [loading, setLoading] = useState(true);
     const [isAddInvitationModalOpen, setIsAddInvitationModalOpen] = useState(false);
     const [editingInvitation, setEditingInvitation] = useState<GlobalEventInvitation | undefined>(undefined);
+    const [selectedStatusFilter, setSelectedStatusFilter] = useState<InvitationStatus | null>(null);
 
     useEffect(() => {
         fetchData();
@@ -83,11 +84,13 @@ export default function GlobalEventDetailPage() {
         doc.text(subtitle, 14, 30);
 
         // 2. Stats Summary
+        const getInvitationCount = (inv: any) => (inv.guests && inv.guests.length > 0) ? 1 + inv.guests.length : 1;
+
         const stats = {
-            total: event.invitations.length,
-            accepted: event.invitations.filter(i => i.status === 'accepted').length,
-            pending: event.invitations.filter(i => i.status === 'pending' || i.status === 'proposed').length,
-            declined: event.invitations.filter(i => i.status === 'declined').length
+            total: event.invitations.reduce((acc, inv) => acc + getInvitationCount(inv), 0),
+            accepted: event.invitations.filter(i => i.status === 'accepted').reduce((acc, inv) => acc + getInvitationCount(inv), 0),
+            pending: event.invitations.filter(i => i.status === 'pending' || i.status === 'proposed').reduce((acc, inv) => acc + getInvitationCount(inv), 0),
+            declined: event.invitations.filter(i => i.status === 'declined').reduce((acc, inv) => acc + getInvitationCount(inv), 0)
         };
 
         let yPos = 50;
@@ -99,7 +102,7 @@ export default function GlobalEventDetailPage() {
         yPos += 8;
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
-        doc.text(`Total invités: ${stats.total}`, 14, yPos);
+        doc.text(`Total personnes: ${stats.total}`, 14, yPos);
         doc.setTextColor(34, 197, 94); // Green
         doc.text(`Acceptés: ${stats.accepted}`, 60, yPos);
         doc.setTextColor(249, 115, 22); // Orange
@@ -275,11 +278,13 @@ export default function GlobalEventDetailPage() {
         );
     }
 
+    const getInvitationCount = (inv: any) => (inv.guests && inv.guests.length > 0) ? 1 + inv.guests.length : 1;
+
     const stats = {
-        total: event.invitations.length,
-        accepted: event.invitations.filter(i => i.status === 'accepted').length,
-        declined: event.invitations.filter(i => i.status === 'declined').length,
-        pending: event.invitations.filter(i => i.status === 'pending' || i.status === 'proposed').length
+        total: event.invitations.reduce((acc, inv) => acc + getInvitationCount(inv), 0),
+        accepted: event.invitations.filter(i => i.status === 'accepted').reduce((acc, inv) => acc + getInvitationCount(inv), 0),
+        declined: event.invitations.filter(i => i.status === 'declined').reduce((acc, inv) => acc + getInvitationCount(inv), 0),
+        pending: event.invitations.filter(i => i.status === 'pending' || i.status === 'proposed').reduce((acc, inv) => acc + getInvitationCount(inv), 0)
     };
 
     const getStatusColor = (status: InvitationStatus) => {
@@ -290,6 +295,21 @@ export default function GlobalEventDetailPage() {
             case 'proposed': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
         }
     };
+
+    const handleStatusFilterToggle = (status: InvitationStatus) => {
+        // Toggle: if clicking the same status, deselect it, otherwise select the new status
+        setSelectedStatusFilter(selectedStatusFilter === status ? null : status);
+    };
+
+    // Filter invitations based on selected status
+    const filteredInvitations = selectedStatusFilter
+        ? event.invitations.filter(inv => {
+            if (selectedStatusFilter === 'pending') {
+                return inv.status === 'pending' || inv.status === 'proposed';
+            }
+            return inv.status === selectedStatusFilter;
+        })
+        : event.invitations;
 
     return (
         <main className="min-h-screen p-4 sm:p-8">
@@ -419,136 +439,85 @@ export default function GlobalEventDetailPage() {
 
                 {/* Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <Card className="p-6 stat-card-premium">
+                    <Card
+                        className="p-6 stat-card-premium cursor-pointer hover:bg-white/[0.03] transition-all"
+                        onClick={() => setSelectedStatusFilter(null)}
+                    >
                         <div className="flex items-center gap-3 mb-3">
                             <Users className="w-5 h-5 text-primary" />
                             <span className="text-white/70 text-sm">Total</span>
                         </div>
                         <div className="text-3xl font-bold text-white">{stats.total}</div>
+                        {selectedStatusFilter === null && (
+                            <div className="mt-2 text-xs text-primary font-medium">● Filtré actif</div>
+                        )}
                     </Card>
 
-                    <Card className="p-6 stat-card-premium">
+                    <Card
+                        className={`p-6 stat-card-premium cursor-pointer hover:bg-white/[0.03] transition-all ${selectedStatusFilter === 'accepted' ? 'ring-2 ring-green-400/50' : ''}`}
+                        onClick={() => handleStatusFilterToggle('accepted')}
+                    >
                         <div className="flex items-center gap-3 mb-3">
                             <CheckCircle className="w-5 h-5 text-green-400" />
                             <span className="text-white/70 text-sm">Accepté</span>
                         </div>
                         <div className="text-3xl font-bold text-green-400">{stats.accepted}</div>
+                        {selectedStatusFilter === 'accepted' && (
+                            <div className="mt-2 text-xs text-green-400 font-medium">● Filtré actif</div>
+                        )}
                     </Card>
 
-                    <Card className="p-6 stat-card-premium">
+                    <Card
+                        className={`p-6 stat-card-premium cursor-pointer hover:bg-white/[0.03] transition-all ${selectedStatusFilter === 'pending' ? 'ring-2 ring-orange-400/50' : ''}`}
+                        onClick={() => handleStatusFilterToggle('pending')}
+                    >
                         <div className="flex items-center gap-3 mb-3">
                             <Clock className="w-5 h-5 text-orange-400" />
                             <span className="text-white/70 text-sm">En attente</span>
                         </div>
                         <div className="text-3xl font-bold text-orange-400">{stats.pending}</div>
+                        {selectedStatusFilter === 'pending' && (
+                            <div className="mt-2 text-xs text-orange-400 font-medium">● Filtré actif</div>
+                        )}
                     </Card>
 
-                    <Card className="p-6 stat-card-premium">
+                    <Card
+                        className={`p-6 stat-card-premium cursor-pointer hover:bg-white/[0.03] transition-all ${selectedStatusFilter === 'declined' ? 'ring-2 ring-red-400/50' : ''}`}
+                        onClick={() => handleStatusFilterToggle('declined')}
+                    >
                         <div className="flex items-center gap-3 mb-3">
                             <XCircle className="w-5 h-5 text-red-400" />
                             <span className="text-white/70 text-sm">Refusé</span>
                         </div>
                         <div className="text-3xl font-bold text-red-400">{stats.declined}</div>
+                        {selectedStatusFilter === 'declined' && (
+                            <div className="mt-2 text-xs text-red-400 font-medium">● Filtré actif</div>
+                        )}
                     </Card>
                 </div>
 
                 {/* Invitations List */}
                 <div className="space-y-4">
-                    <h2 className="text-2xl font-bold text-white">Invitations</h2>
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-bold text-white">Invitations</h2>
+                        {selectedStatusFilter && (
+                            <button
+                                onClick={() => setSelectedStatusFilter(null)}
+                                className="text-sm text-white/60 hover:text-white transition-colors"
+                            >
+                                Réinitialiser le filtre ✕
+                            </button>
+                        )}
+                    </div>
 
                     {event.invitations.length > 0 ? (
-                        <div className="space-y-3">
-                            {[...event.invitations].sort((a, b) => a.partnerName.localeCompare(b.partnerName)).map((invitation) => (
-                                <Card key={invitation.partnerId} className="p-4 relative">
-                                    {/* Mobile: Menu in top right corner */}
-                                    <div className="sm:hidden absolute top-4 right-4 z-20">
-                                        <Menu as="div" className="relative">
-                                            <Menu.Button className="p-2 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-colors">
-                                                <MoreVertical className="w-4 h-4" />
-                                            </Menu.Button>
-                                            <Transition
-                                                as={Fragment}
-                                                enter="transition ease-out duration-100"
-                                                enterFrom="transform opacity-0 scale-95"
-                                                enterTo="transform opacity-100 scale-100"
-                                                leave="transition ease-in duration-75"
-                                                leaveFrom="transform opacity-100 scale-100"
-                                                leaveTo="transform opacity-0 scale-95"
-                                            >
-                                                <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-[#0F172A] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
-                                                    <Menu.Item>
-                                                        {({ active }) => (
-                                                            <button
-                                                                onClick={() => {
-                                                                    setEditingInvitation(invitation);
-                                                                    setIsAddInvitationModalOpen(true);
-                                                                }}
-                                                                className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left`}
-                                                            >
-                                                                <Edit className="w-4 h-4" />
-                                                                Modifier
-                                                            </button>
-                                                        )}
-                                                    </Menu.Item>
-                                                    <Menu.Item>
-                                                        {({ active }) => (
-                                                            <button
-                                                                onClick={() => handleRemoveInvitation(invitation.partnerId)}
-                                                                className={`${active ? 'bg-red-500/10' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:text-red-300 transition-colors text-left border-t border-white/5`}
-                                                            >
-                                                                <Trash2 className="w-4 h-4" />
-                                                                Supprimer
-                                                            </button>
-                                                        )}
-                                                    </Menu.Item>
-                                                </Menu.Items>
-                                            </Transition>
-                                        </Menu>
-                                    </div>
-
-                                    <div className="flex flex-col gap-3">
-                                        <div className="flex-1 min-w-0 pr-12 sm:pr-0">
-                                            <h3 className="text-base sm:text-lg font-semibold text-white break-words">{invitation.partnerName}</h3>
-                                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-white/60 mt-1">
-                                                <span>Proposé le {new Date(invitation.proposalDate).toLocaleDateString('fr-FR')}</span>
-                                                {invitation.responseDate && (
-                                                    <span>• Réponse le {new Date(invitation.responseDate).toLocaleDateString('fr-FR')}</span>
-                                                )}
-                                            </div>
-
-                                            {invitation.guests && invitation.guests.length > 0 && (
-                                                <div className="flex flex-wrap gap-2 mt-2 sm:mt-3">
-                                                    <div className="text-xs sm:text-sm text-white/40 mr-1">Invités :</div>
-                                                    {invitation.guests.map((guest, idx) => (
-                                                        <span key={idx} className="text-xs bg-white/10 text-white/80 px-2 py-0.5 rounded-full border border-white/5">
-                                                            {guest}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )}
-
-                                            {invitation.notes && (
-                                                <p className="text-xs sm:text-sm text-white/50 mt-2">{invitation.notes}</p>
-                                            )}
-                                        </div>
-
-                                        <div className="flex items-center gap-2 justify-between sm:justify-start">
-                                            <div className="relative">
-                                                <select
-                                                    value={invitation.status}
-                                                    onChange={(e) => handleUpdateInvitationStatus(invitation.partnerId, e.target.value as InvitationStatus)}
-                                                    className={`appearance-none pl-3 sm:pl-4 pr-8 sm:pr-10 py-1.5 rounded-full text-xs sm:text-sm border font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/20 ${getStatusColor(invitation.status)}`}
-                                                >
-                                                    <option value="proposed">Proposé</option>
-                                                    <option value="pending">En attente</option>
-                                                    <option value="accepted">Accepté</option>
-                                                    <option value="declined">Refusé</option>
-                                                </select>
-                                                <ChevronDown className={`absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-3 h-3 sm:w-3.5 sm:h-3.5 pointer-events-none opacity-70 ${invitation.status === 'accepted' ? 'text-green-300' : invitation.status === 'declined' ? 'text-red-300' : invitation.status === 'pending' ? 'text-orange-300' : 'text-blue-300'}`} />
-                                            </div>
-
-                                            {/* Desktop: Menu button */}
-                                            <Menu as="div" className="hidden sm:block relative">
+                        filteredInvitations.length > 0 ? (
+                            <div className="space-y-3">
+                                {[...filteredInvitations].sort((a, b) => a.partnerName.localeCompare(b.partnerName)).map((invitation) => (
+                                    <Card key={invitation.partnerId} className="p-4 relative">
+                                        {/* Mobile: Menu in top right corner */}
+                                        <div className="sm:hidden absolute top-4 right-4 z-20">
+                                            <Menu as="div" className="relative">
                                                 <Menu.Button className="p-2 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-colors">
                                                     <MoreVertical className="w-4 h-4" />
                                                 </Menu.Button>
@@ -591,10 +560,110 @@ export default function GlobalEventDetailPage() {
                                                 </Transition>
                                             </Menu>
                                         </div>
-                                    </div>
-                                </Card>
-                            ))}
-                        </div>
+
+                                        <div className="flex flex-col gap-3">
+                                            <div className="flex-1 min-w-0 pr-12 sm:pr-0">
+                                                <h3 className="text-base sm:text-lg font-semibold text-white break-words">{invitation.partnerName}</h3>
+                                                <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-white/60 mt-1">
+                                                    <span>Proposé le {new Date(invitation.proposalDate).toLocaleDateString('fr-FR')}</span>
+                                                    {invitation.responseDate && (
+                                                        <span>• Réponse le {new Date(invitation.responseDate).toLocaleDateString('fr-FR')}</span>
+                                                    )}
+                                                </div>
+
+                                                {invitation.guests && invitation.guests.length > 0 && (
+                                                    <div className="flex flex-wrap gap-2 mt-2 sm:mt-3">
+                                                        <div className="text-xs sm:text-sm text-white/40 mr-1">Invités :</div>
+                                                        {invitation.guests.map((guest, idx) => (
+                                                            <span key={idx} className="text-xs bg-white/10 text-white/80 px-2 py-0.5 rounded-full border border-white/5">
+                                                                {guest}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {invitation.notes && (
+                                                    <p className="text-xs sm:text-sm text-white/50 mt-2">{invitation.notes}</p>
+                                                )}
+                                            </div>
+
+                                            <div className="flex items-center gap-2 justify-between sm:justify-start">
+                                                <div className="relative">
+                                                    <select
+                                                        value={invitation.status}
+                                                        onChange={(e) => handleUpdateInvitationStatus(invitation.partnerId, e.target.value as InvitationStatus)}
+                                                        className={`appearance-none pl-3 sm:pl-4 pr-8 sm:pr-10 py-1.5 rounded-full text-xs sm:text-sm border font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/20 ${getStatusColor(invitation.status)}`}
+                                                    >
+                                                        <option value="proposed">Proposé</option>
+                                                        <option value="pending">En attente</option>
+                                                        <option value="accepted">Accepté</option>
+                                                        <option value="declined">Refusé</option>
+                                                    </select>
+                                                    <ChevronDown className={`absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-3 h-3 sm:w-3.5 sm:h-3.5 pointer-events-none opacity-70 ${invitation.status === 'accepted' ? 'text-green-300' : invitation.status === 'declined' ? 'text-red-300' : invitation.status === 'pending' ? 'text-orange-300' : 'text-blue-300'}`} />
+                                                </div>
+
+                                                {/* Desktop: Menu button */}
+                                                <Menu as="div" className="hidden sm:block relative">
+                                                    <Menu.Button className="p-2 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-colors">
+                                                        <MoreVertical className="w-4 h-4" />
+                                                    </Menu.Button>
+                                                    <Transition
+                                                        as={Fragment}
+                                                        enter="transition ease-out duration-100"
+                                                        enterFrom="transform opacity-0 scale-95"
+                                                        enterTo="transform opacity-100 scale-100"
+                                                        leave="transition ease-in duration-75"
+                                                        leaveFrom="transform opacity-100 scale-100"
+                                                        leaveTo="transform opacity-0 scale-95"
+                                                    >
+                                                        <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-[#0F172A] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+                                                            <Menu.Item>
+                                                                {({ active }) => (
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setEditingInvitation(invitation);
+                                                                            setIsAddInvitationModalOpen(true);
+                                                                        }}
+                                                                        className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left`}
+                                                                    >
+                                                                        <Edit className="w-4 h-4" />
+                                                                        Modifier
+                                                                    </button>
+                                                                )}
+                                                            </Menu.Item>
+                                                            <Menu.Item>
+                                                                {({ active }) => (
+                                                                    <button
+                                                                        onClick={() => handleRemoveInvitation(invitation.partnerId)}
+                                                                        className={`${active ? 'bg-red-500/10' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:text-red-300 transition-colors text-left border-t border-white/5`}
+                                                                    >
+                                                                        <Trash2 className="w-4 h-4" />
+                                                                        Supprimer
+                                                                    </button>
+                                                                )}
+                                                            </Menu.Item>
+                                                        </Menu.Items>
+                                                    </Transition>
+                                                </Menu>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                ))}
+                            </div>
+                        ) : (
+                            <Card className="p-12 text-center">
+                                <Users className="w-12 h-12 text-white/10 mx-auto mb-4" />
+                                <p className="text-white/40 mb-4">
+                                    Aucune invitation avec le statut &quot;{selectedStatusFilter === 'accepted' ? 'Accepté' : selectedStatusFilter === 'declined' ? 'Refusé' : 'En attente'}&quot;
+                                </p>
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => setSelectedStatusFilter(null)}
+                                >
+                                    Afficher toutes les invitations
+                                </Button>
+                            </Card>
+                        )
                     ) : (
                         <Card className="p-12 text-center">
                             <Users className="w-12 h-12 text-white/10 mx-auto mb-4" />

@@ -54,7 +54,8 @@ export interface Publication {
   partnerId: string;
   publicationDate: string;
   platform: string; // LinkedIn, etc.
-  link: string;
+  links: string[]; // Support multiple links (e.g., Instagram Stories)
+  description?: string; // Optional description for additional context
   lastUpdated?: string; // For manual LinkedIn date updates
   statsReportDate?: string;
   deletedAt?: string;

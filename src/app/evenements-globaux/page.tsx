@@ -150,11 +150,13 @@ export default function GlobalEventsPage() {
         }
 
         // 2. Stats Summary
+        const getInvitationCount = (inv: any) => (inv.guests && inv.guests.length > 0) ? 1 + inv.guests.length : 1;
+
         const stats = {
-            total: event.invitations.length,
-            accepted: event.invitations.filter(i => i.status === 'accepted').length,
-            pending: event.invitations.filter(i => i.status === 'pending' || i.status === 'proposed').length,
-            declined: event.invitations.filter(i => i.status === 'declined').length
+            total: event.invitations.reduce((acc, inv) => acc + getInvitationCount(inv), 0),
+            accepted: event.invitations.filter(i => i.status === 'accepted').reduce((acc, inv) => acc + getInvitationCount(inv), 0),
+            pending: event.invitations.filter(i => i.status === 'pending' || i.status === 'proposed').reduce((acc, inv) => acc + getInvitationCount(inv), 0),
+            declined: event.invitations.filter(i => i.status === 'declined').reduce((acc, inv) => acc + getInvitationCount(inv), 0)
         };
 
         let yPos = 50;
@@ -166,7 +168,7 @@ export default function GlobalEventsPage() {
         yPos += 8;
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
-        doc.text(`Total invités: ${stats.total}`, 14, yPos);
+        doc.text(`Total personnes: ${stats.total}`, 14, yPos);
         doc.setTextColor(34, 197, 94);
         doc.text(`Acceptés: ${stats.accepted}`, 60, yPos);
         doc.setTextColor(249, 115, 22);
@@ -237,10 +239,12 @@ export default function GlobalEventsPage() {
     const activeEvents = globalData.globalEvents.filter(e => !e.deletedAt);
 
     const getEventStats = (event: GlobalEvent) => {
-        const accepted = event.invitations.filter(i => i.status === 'accepted').length;
-        const declined = event.invitations.filter(i => i.status === 'declined').length;
-        const pending = event.invitations.filter(i => i.status === 'pending' || i.status === 'proposed').length;
-        const total = event.invitations.length;
+        const getInvitationCount = (inv: any) => (inv.guests && inv.guests.length > 0) ? 1 + inv.guests.length : 1;
+
+        const accepted = event.invitations.filter(i => i.status === 'accepted').reduce((acc, inv) => acc + getInvitationCount(inv), 0);
+        const declined = event.invitations.filter(i => i.status === 'declined').reduce((acc, inv) => acc + getInvitationCount(inv), 0);
+        const pending = event.invitations.filter(i => i.status === 'pending' || i.status === 'proposed').reduce((acc, inv) => acc + getInvitationCount(inv), 0);
+        const total = event.invitations.reduce((acc, inv) => acc + getInvitationCount(inv), 0);
 
         return { accepted, declined, pending, total };
     };
@@ -310,10 +314,13 @@ export default function GlobalEventsPage() {
                             <div className="p-2 rounded-lg bg-green-400/10">
                                 <CheckCircle className="w-5 h-5 text-green-400" />
                             </div>
-                            <span className="text-white/70 text-sm font-medium">Acceptations Totales</span>
+                            <span className="text-white/70 text-sm font-medium">Acceptations (Personnes)</span>
                         </div>
                         <div className="text-4xl font-bold text-gradient-primary">
-                            {activeEvents.reduce((sum, e) => sum + e.invitations.filter(i => i.status === 'accepted').length, 0)}
+                            {activeEvents.reduce((sum, e) => {
+                                const stats = getEventStats(e);
+                                return sum + stats.accepted;
+                            }, 0)}
                         </div>
                     </Card>
 
@@ -322,10 +329,13 @@ export default function GlobalEventsPage() {
                             <div className="p-2 rounded-lg bg-orange-400/10">
                                 <Clock className="w-5 h-5 text-orange-400" />
                             </div>
-                            <span className="text-white/70 text-sm font-medium">En Attente</span>
+                            <span className="text-white/70 text-sm font-medium">En Attente (Personnes)</span>
                         </div>
                         <div className="text-4xl font-bold text-gradient-primary">
-                            {activeEvents.reduce((sum, e) => sum + e.invitations.filter(i => i.status === 'pending' || i.status === 'proposed').length, 0)}
+                            {activeEvents.reduce((sum, e) => {
+                                const stats = getEventStats(e);
+                                return sum + stats.pending;
+                            }, 0)}
                         </div>
                     </Card>
                 </div>
