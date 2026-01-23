@@ -13,7 +13,7 @@ export async function getAllPartnerships(): Promise<PartnershipData[]> {
     const client = supabase // Non-null assertion after check
 
     const { data: partners, error: partnersError } = await client
-        .from('partners')
+        .from('partenariats_partners')
         .select('*')
         .order('created_at', { ascending: false })
 
@@ -26,12 +26,12 @@ export async function getAllPartnerships(): Promise<PartnershipData[]> {
     const partnershipsData: PartnershipData[] = await Promise.all(
         partners.map(async (partner) => {
             const [introductions, events, publications, statistics, quarterlyReports, monthlyCheckIns] = await Promise.all([
-                client.from('introductions').select('*').eq('partner_id', partner.id),
-                client.from('events').select('*').eq('partner_id', partner.id),
-                client.from('publications').select('*').eq('partner_id', partner.id),
-                client.from('statistics').select('*').eq('partner_id', partner.id),
-                client.from('quarterly_reports').select('*').eq('partner_id', partner.id),
-                client.from('monthly_check_ins').select('*').eq('partner_id', partner.id),
+                client.from('partenariats_introductions').select('*').eq('partner_id', partner.id),
+                client.from('partenariats_events').select('*').eq('partner_id', partner.id),
+                client.from('partenariats_publications').select('*').eq('partner_id', partner.id),
+                client.from('partenariats_statistics').select('*').eq('partner_id', partner.id),
+                client.from('partenariats_quarterly_reports').select('*').eq('partner_id', partner.id),
+                client.from('partenariats_monthly_check_ins').select('*').eq('partner_id', partner.id),
             ])
 
             return {
@@ -81,7 +81,7 @@ export async function createPartnership(partnershipData: PartnershipData): Promi
 
     // Insert partner
     const { data: insertedPartner, error: partnerError } = await client
-        .from('partners')
+        .from('partenariats_partners')
         .insert({
             id: partner.id,
             name: partner.name,
@@ -109,7 +109,7 @@ export async function createPartnership(partnershipData: PartnershipData): Promi
 
     // Insert related data if provided
     if (introductions && introductions.length > 0) {
-        await client.from('introductions').insert(
+        await client.from('partenariats_introductions').insert(
             introductions.map((intro) => ({
                 id: intro.id,
                 partner_id: partner.id,
@@ -123,7 +123,7 @@ export async function createPartnership(partnershipData: PartnershipData): Promi
     }
 
     if (events && events.length > 0) {
-        await client.from('events').insert(
+        await client.from('partenariats_events').insert(
             events.map((event) => ({
                 id: event.id,
                 partner_id: partner.id,
@@ -138,7 +138,7 @@ export async function createPartnership(partnershipData: PartnershipData): Promi
     }
 
     if (publications && publications.length > 0) {
-        await client.from('publications').insert(
+        await client.from('partenariats_publications').insert(
             publications.map((pub) => ({
                 id: pub.id,
                 partner_id: partner.id,
@@ -152,7 +152,7 @@ export async function createPartnership(partnershipData: PartnershipData): Promi
     }
 
     if (quarterlyReports && quarterlyReports.length > 0) {
-        await client.from('quarterly_reports').insert(
+        await client.from('partenariats_quarterly_reports').insert(
             quarterlyReports.map((report) => ({
                 id: report.id,
                 partner_id: partner.id,
@@ -163,7 +163,7 @@ export async function createPartnership(partnershipData: PartnershipData): Promi
     }
 
     if (monthlyCheckIns && monthlyCheckIns.length > 0) {
-        await client.from('monthly_check_ins').insert(
+        await client.from('partenariats_monthly_check_ins').insert(
             monthlyCheckIns.map((checkIn) => ({
                 id: checkIn.id,
                 partner_id: partner.id,
@@ -189,7 +189,7 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
     // Update partner info if provided
     if (updates.partner) {
         const { error } = await client
-            .from('partners')
+            .from('partenariats_partners')
             .update({
                 name: updates.partner.name,
                 duration: updates.partner.duration,
@@ -216,14 +216,14 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
 
     // Update introductions if provided
     if (updates.introductions) {
-        const { error: deleteError } = await client.from('introductions').delete().eq('partner_id', partnerId)
+        const { error: deleteError } = await client.from('partenariats_introductions').delete().eq('partner_id', partnerId)
         if (deleteError) {
             console.error('Error deleting introductions:', deleteError)
             throw deleteError
         }
 
         if (updates.introductions.length > 0) {
-            const { error: insertError } = await client.from('introductions').insert(
+            const { error: insertError } = await client.from('partenariats_introductions').insert(
                 updates.introductions.map((intro) => ({
                     id: intro.id,
                     partner_id: partnerId,
@@ -245,7 +245,7 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
     // Update events if provided
     if (updates.events) {
         console.log('[UPDATE] Updating events for partner:', partnerId, 'Count:', updates.events.length)
-        const { error: deleteError } = await client.from('events').delete().eq('partner_id', partnerId)
+        const { error: deleteError } = await client.from('partenariats_events').delete().eq('partner_id', partnerId)
         if (deleteError) {
             console.error('[UPDATE] Error deleting events:', deleteError)
             throw deleteError
@@ -254,7 +254,7 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
 
         if (updates.events.length > 0) {
             console.log('[UPDATE] Inserting', updates.events.length, 'events')
-            const { error: insertError } = await client.from('events').insert(
+            const { error: insertError } = await client.from('partenariats_events').insert(
                 updates.events.map((event) => ({
                     id: event.id,
                     partner_id: partnerId,
@@ -278,7 +278,7 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
     // Update publications if provided
     if (updates.publications) {
         console.log('[UPDATE] Updating publications for partner:', partnerId, 'Count:', updates.publications.length)
-        const { error: deleteError } = await client.from('publications').delete().eq('partner_id', partnerId)
+        const { error: deleteError } = await client.from('partenariats_publications').delete().eq('partner_id', partnerId)
         if (deleteError) {
             console.error('[UPDATE] Error deleting publications:', deleteError)
             throw deleteError
@@ -287,7 +287,7 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
 
         if (updates.publications.length > 0) {
             console.log('[UPDATE] Inserting', updates.publications.length, 'publications')
-            const { error: insertError } = await client.from('publications').insert(
+            const { error: insertError } = await client.from('partenariats_publications').insert(
                 updates.publications.map((pub) => ({
                     id: pub.id,
                     partner_id: partnerId,
@@ -309,14 +309,14 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
 
     // Update quarterly reports if provided
     if (updates.quarterlyReports) {
-        const { error: deleteError } = await client.from('quarterly_reports').delete().eq('partner_id', partnerId)
+        const { error: deleteError } = await client.from('partenariats_quarterly_reports').delete().eq('partner_id', partnerId)
         if (deleteError) {
             console.error('Error deleting quarterly_reports:', deleteError)
             throw deleteError
         }
 
         if (updates.quarterlyReports.length > 0) {
-            const { error: insertError } = await client.from('quarterly_reports').insert(
+            const { error: insertError } = await client.from('partenariats_quarterly_reports').insert(
                 updates.quarterlyReports.map((report) => ({
                     id: report.id,
                     partner_id: partnerId,
@@ -334,9 +334,9 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
 
     // Update monthly check-ins if provided
     if (updates.monthlyCheckIns) {
-        await client.from('monthly_check_ins').delete().eq('partner_id', partnerId)
+        await client.from('partenariats_monthly_check_ins').delete().eq('partner_id', partnerId)
         if (updates.monthlyCheckIns.length > 0) {
-            await client.from('monthly_check_ins').insert(
+            await client.from('partenariats_monthly_check_ins').insert(
                 updates.monthlyCheckIns.map((checkIn) => ({
                     id: checkIn.id,
                     partner_id: partnerId,
@@ -354,7 +354,7 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
 export async function getGlobalEvents(): Promise<GlobalEvent[]> {
     if (!supabase) return []
     const { data, error } = await supabase
-        .from('global_events')
+        .from('partenariats_global_events')
         .select('*')
         .order('event_date', { ascending: false })
 
@@ -369,7 +369,7 @@ export async function getGlobalEvents(): Promise<GlobalEvent[]> {
 export async function createGlobalEvent(event: GlobalEvent): Promise<GlobalEvent> {
     if (!supabase) throw new Error('Supabase not initialized')
     const { data, error } = await supabase
-        .from('global_events')
+        .from('partenariats_global_events')
         .insert({
             id: event.id,
             event_name: event.eventName,
@@ -394,7 +394,7 @@ export async function createGlobalEvent(event: GlobalEvent): Promise<GlobalEvent
 export async function updateGlobalEvent(event: GlobalEvent): Promise<GlobalEvent> {
     if (!supabase) throw new Error('Supabase not initialized')
     const { data, error } = await supabase
-        .from('global_events')
+        .from('partenariats_global_events')
         .update({
             event_name: event.eventName,
             event_date: event.eventDate,
@@ -418,7 +418,7 @@ export async function updateGlobalEvent(event: GlobalEvent): Promise<GlobalEvent
 export async function deleteGlobalEvent(id: string): Promise<void> {
     if (!supabase) throw new Error('Supabase not initialized')
     const { error } = await supabase
-        .from('global_events')
+        .from('partenariats_global_events')
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', id)
 
@@ -433,7 +433,7 @@ export async function deleteGlobalEvent(id: string): Promise<void> {
 export async function softDeletePartner(id: string): Promise<void> {
     if (!supabase) throw new Error('Supabase not initialized')
     const { error } = await supabase
-        .from('partners')
+        .from('partenariats_partners')
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', id)
 
@@ -446,7 +446,7 @@ export async function softDeletePartner(id: string): Promise<void> {
 export async function restorePartner(id: string): Promise<void> {
     if (!supabase) throw new Error('Supabase not initialized')
     const { error } = await supabase
-        .from('partners')
+        .from('partenariats_partners')
         .update({ deleted_at: null })
         .eq('id', id)
 
@@ -463,7 +463,7 @@ export async function permanentDeletePartner(id: string): Promise<void> {
     // For safety, let's just delete the partner. 
     // If FK constraints are set to CASCADE, related records will be gone.
     const { error } = await supabase
-        .from('partners')
+        .from('partenariats_partners')
         .delete()
         .eq('id', id)
 
@@ -477,7 +477,7 @@ export async function emptyRecycleBin(): Promise<void> {
     if (!supabase) throw new Error('Supabase not initialized')
 
     const { error } = await supabase
-        .from('partners')
+        .from('partenariats_partners')
         .delete()
         .not('deleted_at', 'is', null)
 
@@ -492,7 +492,7 @@ export async function emptyRecycleBin(): Promise<void> {
 export async function getLightweightPartners(): Promise<LightweightPartner[]> {
     if (!supabase) return []
     const { data, error } = await supabase
-        .from('lightweight_partners')
+        .from('partenariats_lightweight_partners')
         .select('*')
         .order('name', { ascending: true })
 
@@ -507,7 +507,7 @@ export async function getLightweightPartners(): Promise<LightweightPartner[]> {
 export async function createLightweightPartner(partner: LightweightPartner): Promise<LightweightPartner> {
     if (!supabase) throw new Error('Supabase not initialized')
     const { data, error } = await supabase
-        .from('lightweight_partners')
+        .from('partenariats_lightweight_partners')
         .insert({
             id: partner.id,
             name: partner.name,

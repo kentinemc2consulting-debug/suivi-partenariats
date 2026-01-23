@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ScrollToTop from "@/components/ui/ScrollToTop";
+import { ToastProvider } from "@/lib/toast";
 
 export const metadata: Metadata = {
     title: "Suivi Partenariats | E=MC² Consulting",
@@ -15,15 +16,17 @@ export default function RootLayout({
     return (
         <html lang="fr" suppressHydrationWarning>
             <body className="antialiased">
-                {/* Fixed background for all devices */}
-                <div
-                    className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none"
-                    style={{ backgroundImage: 'url(/background.png)' }}
-                />
-                <div className="relative z-10 min-h-screen">
-                    {children}
-                </div>
-                <ScrollToTop />
+                <ToastProvider>
+                    {/* Fixed background for all devices */}
+                    <div
+                        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none"
+                        style={{ backgroundImage: 'url(/background.png)' }}
+                    />
+                    <div className="relative z-10 min-h-screen">
+                        {children}
+                    </div>
+                    <ScrollToTop />
+                </ToastProvider>
             </body>
         </html>
     );

@@ -11,6 +11,8 @@ import AddPublicationModal from '@/components/partenaires/AddPublicationModal';
 import AddEventModal from '@/components/partenaires/AddEventModal';
 import AddQuarterlyReportModal from '@/components/partenaires/AddQuarterlyReportModal';
 import AddMonthlyCheckInModal from '@/components/partenaires/AddMonthlyCheckInModal';
+import APIStatusModal from '@/components/diagnostics/APIStatusModal';
+import { useToast } from '@/lib/toast';
 import * as XLSX from 'xlsx';
 import {
     Plus,
@@ -41,6 +43,7 @@ import { formatDate, toSafeDate } from '@/lib/date-utils';
 export default function PartnerDetailPage() {
     const params = useParams();
     const router = useRouter();
+    const { showToast } = useToast();
     const [partnership, setPartnership] = useState<PartnershipData | null>(null);
     const [loading, setLoading] = useState(true);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -82,9 +85,8 @@ export default function PartnerDetailPage() {
     const [editedSummary, setEditedSummary] = useState('');
     const [invitedGlobalEvents, setInvitedGlobalEvents] = useState<GlobalEvent[]>([]);
 
-    // API Test State
-    const [isTestingAPI, setIsTestingAPI] = useState(false);
-    const [apiTestResult, setApiTestResult] = useState<string | null>(null);
+    // API Status Modal
+    const [isAPIStatusModalOpen, setIsAPIStatusModalOpen] = useState(false);
 
     // PDF Generation State
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
@@ -585,9 +587,10 @@ export default function PartnerDetailPage() {
             });
             if (!res.ok) throw new Error('Failed to save publication');
             setPartnership(prev => prev ? { ...prev, publications: updatedPubs } : null);
+            showToast('success', 'Publication enregistrée avec succès');
         } catch (error) {
             console.error('Error saving publication:', error);
-            alert('Erreur lors de la sauvegarde');
+            showToast('error', 'Erreur lors de l\'enregistrement de la publication');
         }
     };
 
@@ -611,9 +614,10 @@ export default function PartnerDetailPage() {
             });
             if (!res.ok) throw new Error('Failed to save event');
             setPartnership(prev => prev ? { ...prev, events: updatedEvents } : null);
+            showToast('success', 'Événement enregistré avec succès');
         } catch (error) {
             console.error('Error saving event:', error);
-            alert('Erreur lors de la sauvegarde');
+            showToast('error', 'Erreur lors de l\'enregistrement de l\'événement');
         }
     };
 
@@ -668,9 +672,10 @@ export default function PartnerDetailPage() {
             });
             if (!res.ok) throw new Error('Failed to save report');
             setPartnership(prev => prev ? { ...prev, quarterlyReports: updatedReports } : null);
+            showToast('success', 'Rapport trimestriel enregistré avec succès');
         } catch (error) {
             console.error('Error saving report:', error);
-            alert('Erreur lors de la sauvegarde');
+            showToast('error', 'Erreur lors de l\'enregistrement du rapport');
         }
     };
 
@@ -694,9 +699,10 @@ export default function PartnerDetailPage() {
             });
             if (!res.ok) throw new Error('Failed to save monthly check-in');
             setPartnership(prev => prev ? { ...prev, monthlyCheckIns: updatedCheckIns } : null);
+            showToast('success', 'Point mensuel enregistré avec succès');
         } catch (error) {
             console.error('Error saving monthly check-in:', error);
-            alert('Erreur lors de la sauvegarde');
+            showToast('error', 'Erreur lors de l\'enregistrement du point mensuel');
         }
     };
 
@@ -835,27 +841,8 @@ export default function PartnerDetailPage() {
         }
     };
 
-    const handleTestAPI = async () => {
-        setIsTestingAPI(true);
-        setApiTestResult(null);
-        try {
-            const res = await fetch('/api/ai/summarize-po', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ poContent: 'Test de connexion API' }),
-            });
-            const data = await res.json();
-            if (res.ok && data.summary) {
-                setApiTestResult('✅ API fonctionnelle !');
-            } else {
-                throw new Error(data.error || 'Erreur inconnue');
-            }
-        } catch (error: any) {
-            setApiTestResult(`❌ Erreur : ${error.message}. Vérifiez votre clé GEMINI_API_KEY.`);
-        } finally {
-            setIsTestingAPI(false);
-            setTimeout(() => setApiTestResult(null), 5000);
-        }
+    const handleOpenAPIStatus = () => {
+        setIsAPIStatusModalOpen(true);
     };
 
     if (loading) {
@@ -990,16 +977,11 @@ export default function PartnerDetailPage() {
 
                             <Button
                                 variant="secondary"
-                                onClick={handleTestAPI}
-                                disabled={isTestingAPI}
+                                onClick={handleOpenAPIStatus}
                                 className="flex items-center justify-center p-2"
-                                title="Tester la connexion à l'API Gemini"
+                                title="Tester les APIs"
                             >
-                                {isTestingAPI ? (
-                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                ) : (
-                                    <Sparkles className="w-4 h-4" />
-                                )}
+                                <Sparkles className="w-4 h-4" />
                             </Button>
                             <Button
                                 variant="secondary"
@@ -2246,6 +2228,10 @@ export default function PartnerDetailPage() {
                     onConfirm={handleConfirmDelete}
                     title="Confirmer la suppression"
                     message={`Êtes-vous sûr de vouloir supprimer "${deleteConfirmation.title}" ? Vous pourrez le restaurer depuis la corbeille.`}
+                />
+                <APIStatusModal
+                    isOpen={isAPIStatusModalOpen}
+                    onClose={() => setIsAPIStatusModalOpen(false)}
                 />
             </div >
 

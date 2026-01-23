@@ -100,6 +100,13 @@ export default function AddInvitationModal({
                     return;
                 }
 
+                // Auto-include contact person as first guest if they have one
+                const guestsList = [...guests];
+                if (partner.partner.contactPerson?.name && !editingInvitation) {
+                    // Add contact person at the beginning if not already editing
+                    guestsList.unshift(partner.partner.contactPerson.name);
+                }
+
                 invitation = {
                     partnerId: partner.partner.id,
                     partnerName: partner.partner.name,
@@ -107,7 +114,7 @@ export default function AddInvitationModal({
                     proposalDate: new Date().toISOString(),
                     responseDate: (status !== 'proposed' && status !== 'pending') ? new Date().toISOString() : undefined,
                     notes: notes || undefined,
-                    guests: guests.length > 0 ? guests : undefined
+                    guests: guestsList.length > 0 ? guestsList : undefined
                 };
             } else {
                 if (!newContact.name) {
