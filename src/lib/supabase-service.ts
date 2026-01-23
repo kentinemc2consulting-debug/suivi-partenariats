@@ -557,13 +557,31 @@ function mapEvent(data: any): Event {
 }
 
 function mapPublication(data: any): Publication {
+    // Parse link string into array (support comma or newline separated)
+    let linksArray: string[] = [];
+    if (data.link) {
+        if (typeof data.link === 'string') {
+            // Try to parse as JSON array first, otherwise split by newlines/commas
+            try {
+                const parsed = JSON.parse(data.link);
+                linksArray = Array.isArray(parsed) ? parsed : [data.link];
+            } catch {
+                // Split by newlines or commas
+                linksArray = data.link.split(/[\n,]/).map((l: string) => l.trim()).filter((l: string) => l.length > 0);
+            }
+        } else if (Array.isArray(data.link)) {
+            linksArray = data.link;
+        }
+    }
+
     return {
         id: data.id,
         partnerId: data.partner_id,
         publicationDate: data.publication_date,
         platform: data.platform,
-        links: data.links || [],
+        links: linksArray,
         statsReportDate: data.stats_report_date,
+        statsReportUrl: data.stats_report_url,
         lastUpdated: data.last_updated,
         deletedAt: data.deleted_at,
     }
