@@ -9,10 +9,12 @@ import { Briefcase, Plus, Filter, ArrowLeft, Loader2, Trash2 } from 'lucide-reac
 import { useRouter } from 'next/navigation';
 import AddPartnerModal from '@/components/partenaires/AddPartnerModal';
 import GlobalRecycleBinModal from '@/components/partenaires/GlobalRecycleBinModal';
+import { useToast } from '@/lib/toast';
 
 
 export default function PartnersPage() {
     const router = useRouter();
+    const { showToast } = useToast();
     const [partnerships, setPartnerships] = useState<PartnershipData[]>([]);
     const [filter, setFilter] = useState<'all' | 'active' | 'archived'>('all');
     const [loading, setLoading] = useState(true);
@@ -42,11 +44,16 @@ export default function PartnersPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newPartnership),
             });
-            if (res.ok) {
-                await fetchPartnerships();
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Failed to create partner');
             }
-        } catch (error) {
+            await fetchPartnerships();
+            showToast('success', 'Partenaire créé avec succès');
+        } catch (error: any) {
             console.error('Error adding partner:', error);
+            showToast('error', error.message || 'Erreur lors de la création du partenaire');
+            throw error; // Re-throw to let modal know it failed
         }
     };
 
