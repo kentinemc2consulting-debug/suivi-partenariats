@@ -93,9 +93,9 @@ export async function createPartnership(partnershipData: PartnershipData): Promi
             is_active: partner.isActive,
             type: partner.type,
             company_hubspot_url: partner.companyHubspotUrl,
-            contact_person_name: partner.contactPerson?.name,
-            contact_person_email: partner.contactPerson?.email,
-            contact_person_hubspot_url: partner.contactPerson?.hubspotUrl,
+            contact_name: partner.contactPerson?.name,
+            contact_email: partner.contactPerson?.email,
+            contact_hubspot_url: partner.contactPerson?.hubspotUrl,
             services_summary: partner.servicesSummary,
             slug: partner.slug || generateSlug(partner.name),
         })
