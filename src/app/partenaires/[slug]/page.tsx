@@ -502,10 +502,10 @@ export default function PartnerDetailPage() {
             });
             if (!res.ok) throw new Error('Failed to update partner');
             setPartnership(prev => prev ? { ...prev, partner: updatedPartner } : null);
-            alert('Modifications enregistrées');
+            showToast('success', 'Modifications enregistrées');
         } catch (error) {
             console.error('Error updating partner:', error);
-            alert('Erreur lors de la sauvegarde');
+            showToast('error', 'Erreur lors de la sauvegarde du partenaire');
         }
     };
 
@@ -530,9 +530,10 @@ export default function PartnerDetailPage() {
             });
             if (!res.ok) throw new Error('Failed to save introduction');
             setPartnership(prev => prev ? { ...prev, introductions: updatedIntros } : null);
+            showToast('success', 'Introduction enregistrée avec succès');
         } catch (error) {
             console.error('Error saving introduction:', error);
-            alert('Erreur lors de la sauvegarde');
+            showToast('error', 'Erreur lors de l\'enregistrement de l\'introduction');
         }
     };
 
@@ -556,9 +557,10 @@ export default function PartnerDetailPage() {
             if (!res.ok) {
                 throw new Error('Failed to update introduction status');
             }
+            showToast('success', 'Statut mis à jour');
         } catch (error) {
             console.error('Error updating introduction status:', error);
-            alert('Erreur lors de la mise à jour du statut');
+            showToast('error', 'Erreur lors de la mise à jour du statut');
             // Revert state if needed
             const res = await fetch('/api/partenaires');
             const data: PartnershipData[] = await res.json();
@@ -641,9 +643,10 @@ export default function PartnerDetailPage() {
             if (!res.ok) {
                 throw new Error('Failed to update event status');
             }
+            showToast('success', 'Statut de l\'événement mis à jour');
         } catch (error) {
             console.error('Error updating event status:', error);
-            alert('Erreur lors de la mise à jour du statut');
+            showToast('error', 'Erreur lors de la mise à jour du statut');
             // Revert state if needed (could re-fetch or use previous state)
             const res = await fetch('/api/partenaires');
             const data: PartnershipData[] = await res.json();
