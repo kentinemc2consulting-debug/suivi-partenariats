@@ -144,8 +144,9 @@ export async function createPartnership(partnershipData: PartnershipData): Promi
                 partner_id: partner.id,
                 publication_date: pub.publicationDate,
                 platform: pub.platform,
-                links: pub.links,
+                link: pub.links,
                 stats_report_date: pub.statsReportDate,
+                stats_report_url: pub.statsReportUrl,
                 last_updated: pub.lastUpdated,
             }))
         )
@@ -293,8 +294,9 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
                     partner_id: partnerId,
                     publication_date: pub.publicationDate,
                     platform: pub.platform,
-                    links: pub.links,
+                    link: pub.links,
                     stats_report_date: pub.statsReportDate,
+                    stats_report_url: pub.statsReportUrl,
                     last_updated: pub.lastUpdated,
                     deleted_at: pub.deletedAt,
                 }))

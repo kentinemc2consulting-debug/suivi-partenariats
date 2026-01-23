@@ -79,6 +79,7 @@ CREATE TABLE IF NOT EXISTS partenariats_publications (
     publication_date DATE,
     link TEXT,
     stats_report_date DATE,
+    stats_report_url TEXT,
     last_updated TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT now(),
     deleted_at TIMESTAMPTZ

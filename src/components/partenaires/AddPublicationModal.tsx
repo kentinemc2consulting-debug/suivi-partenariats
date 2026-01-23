@@ -23,12 +23,14 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
         description: string;
         publicationDate: string;
         statsReportDate?: string;
+        statsReportUrl?: string;
     }>({
         platform: 'LinkedIn',
         links: '',
         description: '',
         publicationDate: new Date().toISOString().split('T')[0],
-        statsReportDate: ''
+        statsReportDate: '',
+        statsReportUrl: ''
     });
 
     useEffect(() => {
@@ -38,7 +40,8 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                 links: (initialData.links || []).join('\n'), // Convert array to textarea format
                 description: initialData.description || '',
                 publicationDate: new Date(initialData.publicationDate).toISOString().split('T')[0],
-                statsReportDate: initialData.statsReportDate ? new Date(initialData.statsReportDate).toISOString().split('T')[0] : ''
+                statsReportDate: initialData.statsReportDate ? new Date(initialData.statsReportDate).toISOString().split('T')[0] : '',
+                statsReportUrl: initialData.statsReportUrl || ''
             });
         } else if (isOpen && !initialData) {
             setFormData({
@@ -46,7 +49,8 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                 links: '',
                 description: '',
                 publicationDate: new Date().toISOString().split('T')[0],
-                statsReportDate: ''
+                statsReportDate: '',
+                statsReportUrl: ''
             });
         }
     }, [isOpen, initialData]);
@@ -80,6 +84,7 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                 description: formData.description.trim() || undefined, // Convert empty string to undefined
                 publicationDate: formData.publicationDate,
                 statsReportDate: formData.statsReportDate || undefined, // Convert empty string to undefined
+                statsReportUrl: formData.statsReportUrl?.trim() || undefined, // Convert empty string to undefined
                 lastUpdated: new Date().toISOString()
             };
             await onSave(pub);
@@ -163,6 +168,19 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                                 value={formData.statsReportDate || ''}
                                 onChange={(date) => setFormData(prev => ({ ...prev, statsReportDate: date }))}
                             />
+                            <div>
+                                <label className="block text-sm font-medium text-white/80 mb-1">
+                                    Lien vers rapport stats (facultatif)
+                                </label>
+                                <input
+                                    type="url"
+                                    name="statsReportUrl"
+                                    value={formData.statsReportUrl || ''}
+                                    onChange={handleChange}
+                                    className="input w-full"
+                                    placeholder="https://..."
+                                />
+                            </div>
 
                             <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/5">
                                 <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>

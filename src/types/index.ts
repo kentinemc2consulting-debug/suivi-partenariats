@@ -58,6 +58,7 @@ export interface Publication {
   description?: string; // Optional description for additional context
   lastUpdated?: string; // For manual LinkedIn date updates
   statsReportDate?: string;
+  statsReportUrl?: string; // Link to statistics report
   deletedAt?: string;
 }
 
