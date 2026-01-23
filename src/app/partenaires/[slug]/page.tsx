@@ -1053,21 +1053,11 @@ export default function PartnerDetailPage() {
                                         <Menu.Item>
                                             {({ active }) => (
                                                 <button
-                                                    onClick={handleTestAPI}
-                                                    disabled={isTestingAPI}
-                                                    className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left border-t border-white/5 disabled:opacity-50`}
+                                                    onClick={handleOpenAPIStatus}
+                                                    className={`${active ? 'bg-white/5' : ''} w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white transition-colors text-left border-t border-white/5`}
                                                 >
-                                                    {isTestingAPI ? (
-                                                        <>
-                                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                            Test API...
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Sparkles className="w-4 h-4" />
-                                                            Tester API
-                                                        </>
-                                                    )}
+                                                    <Sparkles className="w-4 h-4" />
+                                                    Tester API
                                                 </button>
                                             )}
                                         </Menu.Item>
