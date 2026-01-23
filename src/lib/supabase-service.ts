@@ -644,3 +644,29 @@ function mapLightweightPartner(data: any): LightweightPartner {
         isLightweight: true
     }
 }
+
+/**
+ * Upload a screenshot to Supabase Storage
+ */
+export async function uploadScreenshot(file: File): Promise<string> {
+    if (!supabase) throw new Error('Supabase client not initialized');
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+        .from('screenshots')
+        .upload(filePath, file);
+
+    if (uploadError) {
+        console.error('Error uploading screenshot:', uploadError);
+        throw new Error(`Failed to upload screenshot: ${uploadError.message}`);
+    }
+
+    const { data } = supabase.storage
+        .from('screenshots')
+        .getPublicUrl(filePath);
+
+    return data.publicUrl;
+}
