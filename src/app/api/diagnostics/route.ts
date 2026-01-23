@@ -82,7 +82,7 @@ export async function GET() {
             };
         } else {
             // Simple test: check if key format is valid
-            const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiKey}`;
+            const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
 
             const response = await fetch(testUrl, {
                 method: 'POST',
@@ -98,7 +98,7 @@ export async function GET() {
                 results.gemini.status = 'success';
                 results.gemini.message = 'API fonctionnelle';
                 results.gemini.details = {
-                    model: 'gemini-pro',
+                    model: 'gemini-1.5-flash',
                     keyPrefix: geminiKey.substring(0, 10) + '...'
                 };
             } else {
