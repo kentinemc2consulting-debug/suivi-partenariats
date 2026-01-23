@@ -1085,15 +1085,6 @@ export default function PartnerDetailPage() {
                         </div>
                     </div>
 
-                    {apiTestResult && (
-                        <div className={`p-4 rounded-xl border animate-fadeIn ${apiTestResult.includes('✅')
-                            ? 'bg-green-500/10 border-green-500/30 text-green-300'
-                            : 'bg-red-500/10 border-red-500/30 text-red-300'
-                            }`}>
-                            {apiTestResult}
-                        </div>
-                    )}
-
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex-1 min-w-0">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
