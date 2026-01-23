@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS partenariats_publications (
     link TEXT,
     stats_report_date DATE,
     stats_report_url TEXT,
+    screenshot_urls TEXT,
     last_updated TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT now(),
     deleted_at TIMESTAMPTZ

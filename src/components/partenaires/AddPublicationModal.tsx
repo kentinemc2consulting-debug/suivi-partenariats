@@ -24,13 +24,15 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
         publicationDate: string;
         statsReportDate?: string;
         statsReportUrl?: string;
+        screenshotUrls?: string; // Raw textarea input (one URL per line)
     }>({
         platform: 'LinkedIn',
         links: '',
         description: '',
         publicationDate: new Date().toISOString().split('T')[0],
         statsReportDate: '',
-        statsReportUrl: ''
+        statsReportUrl: '',
+        screenshotUrls: ''
     });
 
     useEffect(() => {
@@ -41,7 +43,8 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                 description: initialData.description || '',
                 publicationDate: new Date(initialData.publicationDate).toISOString().split('T')[0],
                 statsReportDate: initialData.statsReportDate ? new Date(initialData.statsReportDate).toISOString().split('T')[0] : '',
-                statsReportUrl: initialData.statsReportUrl || ''
+                statsReportUrl: initialData.statsReportUrl || '',
+                screenshotUrls: (initialData.screenshotUrls || []).join('\n')
             });
         } else if (isOpen && !initialData) {
             setFormData({
@@ -50,7 +53,8 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                 description: '',
                 publicationDate: new Date().toISOString().split('T')[0],
                 statsReportDate: '',
-                statsReportUrl: ''
+                statsReportUrl: '',
+                screenshotUrls: ''
             });
         }
     }, [isOpen, initialData]);
@@ -76,6 +80,12 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                 return;
             }
 
+            // Parse screenshot URLs from textarea
+            const screenshotUrlsArray = (formData.screenshotUrls || '')
+                .split('\n')
+                .map(url => url.trim())
+                .filter(url => url.length > 0);
+
             const pub: Publication = {
                 id: initialData?.id || crypto.randomUUID(),
                 partnerId: partnerId,
@@ -85,6 +95,7 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                 publicationDate: formData.publicationDate,
                 statsReportDate: formData.statsReportDate || undefined, // Convert empty string to undefined
                 statsReportUrl: formData.statsReportUrl?.trim() || undefined, // Convert empty string to undefined
+                screenshotUrls: screenshotUrlsArray.length > 0 ? screenshotUrlsArray : undefined,
                 lastUpdated: new Date().toISOString()
             };
             await onSave(pub);
@@ -180,6 +191,21 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                                     className="input w-full"
                                     placeholder="https://..."
                                 />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-white/80 mb-1">
+                                    Screenshots du post (URLs - Un par ligne) (facultatif)
+                                </label>
+                                <textarea
+                                    name="screenshotUrls"
+                                    value={formData.screenshotUrls || ''}
+                                    onChange={handleChange}
+                                    className="input w-full min-h-[100px] resize-y font-mono text-sm"
+                                    placeholder="https://i.imgur.com/example1.png&#10;https://i.imgur.com/example2.png"
+                                />
+                                <p className="text-xs text-white/50 mt-1">
+                                    {(formData.screenshotUrls || '').split('\n').filter(l => l.trim()).length} screenshot(s) détecté(s)
+                                </p>
                             </div>
 
                             <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/5">

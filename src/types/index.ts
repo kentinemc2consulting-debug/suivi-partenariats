@@ -59,6 +59,7 @@ export interface Publication {
   lastUpdated?: string; // For manual LinkedIn date updates
   statsReportDate?: string;
   statsReportUrl?: string; // Link to statistics report
+  screenshotUrls?: string[]; // URLs of post screenshots
   deletedAt?: string;
 }
 

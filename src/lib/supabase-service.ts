@@ -147,6 +147,7 @@ export async function createPartnership(partnershipData: PartnershipData): Promi
                 link: pub.links,
                 stats_report_date: pub.statsReportDate,
                 stats_report_url: pub.statsReportUrl,
+                screenshot_urls: pub.screenshotUrls ? JSON.stringify(pub.screenshotUrls) : null,
                 last_updated: pub.lastUpdated,
             }))
         )
@@ -297,6 +298,7 @@ export async function updatePartnership(partnerId: string, updates: Partial<Part
                     link: pub.links,
                     stats_report_date: pub.statsReportDate,
                     stats_report_url: pub.statsReportUrl,
+                    screenshot_urls: pub.screenshotUrls ? JSON.stringify(pub.screenshotUrls) : null,
                     last_updated: pub.lastUpdated,
                     deleted_at: pub.deletedAt,
                 }))
@@ -574,6 +576,17 @@ function mapPublication(data: any): Publication {
         }
     }
 
+    // Parse screenshot URLs from JSON string
+    let screenshotUrlsArray: string[] = [];
+    if (data.screenshot_urls) {
+        try {
+            const parsed = JSON.parse(data.screenshot_urls);
+            screenshotUrlsArray = Array.isArray(parsed) ? parsed : [];
+        } catch {
+            screenshotUrlsArray = [];
+        }
+    }
+
     return {
         id: data.id,
         partnerId: data.partner_id,
@@ -582,6 +595,7 @@ function mapPublication(data: any): Publication {
         links: linksArray,
         statsReportDate: data.stats_report_date,
         statsReportUrl: data.stats_report_url,
+        screenshotUrls: screenshotUrlsArray,
         lastUpdated: data.last_updated,
         deletedAt: data.deleted_at,
     }
