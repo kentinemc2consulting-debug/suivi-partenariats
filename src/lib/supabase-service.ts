@@ -104,7 +104,7 @@ export async function createPartnership(partnershipData: PartnershipData): Promi
 
     if (partnerError) {
         console.error('Error creating partner:', partnerError)
-        throw new Error('Failed to create partner')
+        throw new Error(`Failed to create partner: ${partnerError.message} (Code: ${partnerError.code || 'unknown'})`)
     }
 
     // Insert related data if provided
