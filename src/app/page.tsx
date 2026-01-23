@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowRight, Building2, TrendingUp, Users, Loader2, Calendar } from 'lucide-react';
 import { PartnershipData } from '@/types';
 import { LogoutButton } from '@/components/ui/LogoutButton';
+import { BackupButton } from '@/components/BackupButton';
 
 export default function Home() {
     const [partnerships, setPartnerships] = useState<PartnershipData[]>([]);
@@ -36,8 +37,9 @@ export default function Home() {
             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[128px] -z-10 animate-pulse" />
             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-[128px] -z-10 animate-pulse delay-1000" />
 
-            {/* Logout Button - Top Right */}
-            <div className="absolute top-8 right-8 z-20">
+            {/* Top Right Actions */}
+            <div className="absolute top-8 right-8 z-20 flex items-center gap-3">
+                <BackupButton />
                 <LogoutButton />
             </div>
 
