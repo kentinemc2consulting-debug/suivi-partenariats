@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { Dialog } from '@headlessui/react';
-import { X } from 'lucide-react';
+import { X, Upload, Trash2, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Publication } from '@/types';
 import DatePicker from '@/components/ui/DatePicker';
+import { uploadScreenshot } from '@/lib/supabase-service';
 
 interface AddPublicationModalProps {
     isOpen: boolean;
@@ -24,7 +25,7 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
         publicationDate: string;
         statsReportDate?: string;
         statsReportUrl?: string;
-        screenshotUrls?: string; // Raw textarea input (one URL per line)
+        screenshotUrls?: string[]; // Existing URLs
     }>({
         platform: 'LinkedIn',
         links: '',
@@ -32,19 +33,27 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
         publicationDate: new Date().toISOString().split('T')[0],
         statsReportDate: '',
         statsReportUrl: '',
-        screenshotUrls: ''
+        screenshotUrls: []
     });
 
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+
     useEffect(() => {
+        if (isOpen) {
+            setSelectedFiles([]);
+            setPreviewUrls([]);
+        }
+
         if (isOpen && initialData) {
             setFormData({
                 platform: initialData.platform,
-                links: (initialData.links || []).join('\n'), // Convert array to textarea format
+                links: (initialData.links || []).join('\n'),
                 description: initialData.description || '',
                 publicationDate: new Date(initialData.publicationDate).toISOString().split('T')[0],
                 statsReportDate: initialData.statsReportDate ? new Date(initialData.statsReportDate).toISOString().split('T')[0] : '',
                 statsReportUrl: initialData.statsReportUrl || '',
-                screenshotUrls: (initialData.screenshotUrls || []).join('\n')
+                screenshotUrls: initialData.screenshotUrls || []
             });
         } else if (isOpen && !initialData) {
             setFormData({
@@ -54,10 +63,37 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                 publicationDate: new Date().toISOString().split('T')[0],
                 statsReportDate: '',
                 statsReportUrl: '',
-                screenshotUrls: ''
+                screenshotUrls: []
             });
         }
     }, [isOpen, initialData]);
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const newFiles = Array.from(e.target.files);
+            setSelectedFiles(prev => [...prev, ...newFiles]);
+
+            // Create previews
+            const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+            setPreviewUrls(prev => [...prev, ...newPreviews]);
+        }
+    };
+
+    const removeFile = (index: number) => {
+        setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+        setPreviewUrls(prev => {
+            // Revoke URL to prevent memory leaks
+            URL.revokeObjectURL(prev[index]);
+            return prev.filter((_, i) => i !== index);
+        });
+    };
+
+    const removeExistingScreenshot = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            screenshotUrls: prev.screenshotUrls?.filter((_, i) => i !== index)
+        }));
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -80,22 +116,34 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                 return;
             }
 
-            // Parse screenshot URLs from textarea
-            const screenshotUrlsArray = (formData.screenshotUrls || '')
-                .split('\n')
-                .map(url => url.trim())
-                .filter(url => url.length > 0);
+            // Upload new files
+            const uploadedUrls: string[] = [];
+            for (const file of selectedFiles) {
+                try {
+                    const url = await uploadScreenshot(file);
+                    uploadedUrls.push(url);
+                } catch (error) {
+                    console.error('Failed to upload file:', file.name, error);
+                    alert(`Erreur lors de l'upload de ${file.name}`);
+                }
+            }
+
+            // Combine existing URLs and new uploaded URLs
+            const finalScreenshotUrls = [
+                ...(formData.screenshotUrls || []),
+                ...uploadedUrls
+            ];
 
             const pub: Publication = {
                 id: initialData?.id || crypto.randomUUID(),
                 partnerId: partnerId,
                 platform: formData.platform,
                 links: linksArray,
-                description: formData.description.trim() || undefined, // Convert empty string to undefined
+                description: formData.description.trim() || undefined,
                 publicationDate: formData.publicationDate,
-                statsReportDate: formData.statsReportDate || undefined, // Convert empty string to undefined
-                statsReportUrl: formData.statsReportUrl?.trim() || undefined, // Convert empty string to undefined
-                screenshotUrls: screenshotUrlsArray.length > 0 ? screenshotUrlsArray : undefined,
+                statsReportDate: formData.statsReportDate || undefined,
+                statsReportUrl: formData.statsReportUrl?.trim() || undefined,
+                screenshotUrls: finalScreenshotUrls.length > 0 ? finalScreenshotUrls : undefined,
                 lastUpdated: new Date().toISOString()
             };
             await onSave(pub);
@@ -193,19 +241,64 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-white/80 mb-1">
-                                    Screenshots du post (URLs - Un par ligne) (facultatif)
+                                <label className="block text-sm font-medium text-white/80 mb-2">
+                                    Screenshots du post (facultatif)
                                 </label>
-                                <textarea
-                                    name="screenshotUrls"
-                                    value={formData.screenshotUrls || ''}
-                                    onChange={handleChange}
-                                    className="input w-full min-h-[100px] resize-y font-mono text-sm"
-                                    placeholder="https://i.imgur.com/example1.png&#10;https://i.imgur.com/example2.png"
-                                />
-                                <p className="text-xs text-white/50 mt-1">
-                                    {(formData.screenshotUrls || '').split('\n').filter(l => l.trim()).length} screenshot(s) détecté(s)
-                                </p>
+
+                                <div className="space-y-4">
+                                    {/* File Input */}
+                                    <div className="flex items-center gap-4">
+                                        <label className="cursor-pointer">
+                                            <input
+                                                type="file"
+                                                multiple
+                                                accept="image/*"
+                                                onChange={handleFileSelect}
+                                                className="hidden"
+                                            />
+                                            <div className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors text-sm font-medium">
+                                                <Upload className="w-4 h-4" />
+                                                Choisir des images
+                                            </div>
+                                        </label>
+                                        <span className="text-xs text-white/50">
+                                            {selectedFiles.length} fichier(s) sélectionné(s)
+                                        </span>
+                                    </div>
+
+                                    {/* Preview Grid */}
+                                    {(previewUrls.length > 0 || (formData.screenshotUrls && formData.screenshotUrls.length > 0)) && (
+                                        <div className="grid grid-cols-3 gap-2 p-2 bg-black/20 rounded-lg border border-white/5 max-h-[200px] overflow-y-auto">
+                                            {/* Existing URLs */}
+                                            {formData.screenshotUrls?.map((url, idx) => (
+                                                <div key={`existing-${idx}`} className="relative group aspect-square rounded overflow-hidden bg-black/40">
+                                                    <img src={url} alt={`Existing ${idx}`} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeExistingScreenshot(idx)}
+                                                        className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                                    >
+                                                        <Trash2 className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+
+                                            {/* New Files */}
+                                            {previewUrls.map((url, idx) => (
+                                                <div key={`new-${idx}`} className="relative group aspect-square rounded overflow-hidden bg-black/40 border-2 border-primary-500/50">
+                                                    <img src={url} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeFile(idx)}
+                                                        className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                                    >
+                                                        <Trash2 className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/5">
