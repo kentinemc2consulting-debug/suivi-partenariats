@@ -347,7 +347,8 @@ export default function PartnerDetailPage() {
                             }
                         },
                         margin: { top: 20 },
-                        pageBreak: 'auto'
+                        pageBreak: 'auto',
+                        rowPageBreak: 'avoid' // Prevent rows from splitting across pages
                     });
 
                     // Update yPos for next element
