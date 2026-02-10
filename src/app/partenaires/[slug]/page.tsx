@@ -194,7 +194,7 @@ export default function PartnerDetailPage() {
             if (partnership.introductions && partnership.introductions.length > 0) {
                 const activeIntros = partnership.introductions
                     .filter(i => !i.deletedAt)
-                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
                 if (activeIntros.length > 0) {
                     addSectionHeader('Mises en relation');
@@ -217,7 +217,7 @@ export default function PartnerDetailPage() {
                     .sort((a, b) => {
                         const dateA = a.eventDate ? new Date(a.eventDate).getTime() : 0;
                         const dateB = b.eventDate ? new Date(b.eventDate).getTime() : 0;
-                        return dateB - dateA;
+                        return dateA - dateB;
                     });
 
                 if (activeEvents.length > 0) {
@@ -235,10 +235,10 @@ export default function PartnerDetailPage() {
             // --- 3. Publications ---
             let activePubs: Publication[] = [];
             if (partnership.publications && partnership.publications.length > 0) {
-                // Filter and sort by date descending
+                // Filter and sort by date ascending (Oldest -> Newest)
                 activePubs = partnership.publications
                     .filter(p => !p.deletedAt)
-                    .sort((a, b) => new Date(b.publicationDate).getTime() - new Date(a.publicationDate).getTime());
+                    .sort((a, b) => new Date(a.publicationDate).getTime() - new Date(b.publicationDate).getTime());
 
                 if (activePubs.length > 0) {
                     addSectionHeader('Publications');
@@ -358,7 +358,7 @@ export default function PartnerDetailPage() {
             if (partnership.quarterlyReports && partnership.quarterlyReports.length > 0) {
                 const activeReports = partnership.quarterlyReports
                     .filter(r => !r.deletedAt)
-                    .sort((a, b) => new Date(b.reportDate).getTime() - new Date(a.reportDate).getTime());
+                    .sort((a, b) => new Date(a.reportDate).getTime() - new Date(b.reportDate).getTime());
 
                 if (activeReports.length > 0) {
                     addSectionHeader('Rapports Trimestriels');
@@ -374,7 +374,7 @@ export default function PartnerDetailPage() {
             if (partnership.monthlyCheckIns && partnership.monthlyCheckIns.length > 0) {
                 const activeCheckIns = partnership.monthlyCheckIns
                     .filter(c => !c.deletedAt)
-                    .sort((a, b) => new Date(b.checkInDate).getTime() - new Date(a.checkInDate).getTime());
+                    .sort((a, b) => new Date(a.checkInDate).getTime() - new Date(b.checkInDate).getTime());
 
                 if (activeCheckIns.length > 0) {
                     addSectionHeader('Points Mensuels');
@@ -386,20 +386,8 @@ export default function PartnerDetailPage() {
                 }
             }
 
-            // --- 6. Informations de Contact ---
-            addSectionHeader('Informations complémentaires');
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'normal');
-            let contactInfo = [];
-            if (partner.contactPerson?.name) contactInfo.push(`Contact: ${partner.contactPerson.name}`);
-            if (partner.contactPerson?.email) contactInfo.push(`Email: ${partner.contactPerson.email}`);
-            if (partner.commissionClient) contactInfo.push(`Commission Client: ${partner.commissionClient}%`);
-            if (partner.commissionConsulting) contactInfo.push(`Commission Consulting: ${partner.commissionConsulting}%`);
-
-            contactInfo.forEach(line => {
-                doc.text(line, 14, yPos);
-                yPos += 7;
-            });
+            // --- 6. Informations de Contact --- REMOVED per user request
+            // See implementation plan task 41
 
             if (partner.companyHubspotUrl || partner.contactPerson?.hubspotUrl) {
                 yPos += 3;
