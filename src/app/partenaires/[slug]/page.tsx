@@ -246,9 +246,10 @@ export default function PartnerDetailPage() {
                     const pubData = activePubs.map(p => ({
                         date: formatDate(p.publicationDate),
                         platform: p.platform,
-                        link: p.links ? p.links.join('\n') : '',
+                        link: p.links && p.links.length > 0 ? 'Cliquez ici' : '',
                         visual: '',
-                        id: p.id // Hidden ID for lookup
+                        id: p.id, // Hidden ID for lookup
+                        url: p.links && p.links.length > 0 ? p.links[0] : null // URL for click
                     }));
 
                     autoTable(doc, {
@@ -275,19 +276,34 @@ export default function PartnerDetailPage() {
                         columnStyles: {
                             date: { cellWidth: 25 },
                             platform: { cellWidth: 30 },
-                            link: { cellWidth: 70 },
+                            link: { cellWidth: 70, textColor: [0, 0, 255] }, // Blue text for links
                             visual: { cellWidth: 55, minCellHeight: 40 }
                         },
                         didDrawCell: (data) => {
-                            if (data.section === 'body' && data.column.dataKey === 'visual') {
+                            // Handle Link Click
+                            if (data.section === 'body' && data.column.dataKey === 'link') {
+                                const rowData = data.row.raw as any;
+                                if (rowData.url) {
+                                    doc.link(data.cell.x, data.cell.y, data.cell.width, data.cell.height, { url: rowData.url });
+                                }
+                            }
+
+                            // Handle Visual Image
+                            // Defensive check: ensure we are in the body and the correct visual column (index 3)
+                            if (data.section === 'body' && data.column.dataKey === 'visual' && data.column.index === 3) {
                                 const rowData = data.row.raw as any;
                                 const image = pubImages[rowData.id];
 
                                 if (image) {
                                     try {
                                         const imgProps = doc.getImageProperties(image);
-                                        const cellWidth = data.cell.width - 6; // padding
-                                        const cellHeight = data.cell.height - 6;
+                                        // Padding should match styles
+                                        const padding = 3;
+                                        const cellWidth = data.cell.width - (padding * 2);
+                                        const cellHeight = data.cell.height - (padding * 2);
+
+                                        // Skip if cell geometry is invalid (e.g. during calculation passes if any)
+                                        if (cellWidth <= 0 || cellHeight <= 0) return;
 
                                         // Calculate dimensions to fit in cell (contain)
                                         let imgW = cellWidth;
@@ -299,10 +315,14 @@ export default function PartnerDetailPage() {
                                         }
 
                                         // Center image
-                                        const x = data.cell.x + 3 + (cellWidth - imgW) / 2;
-                                        const y = data.cell.y + 3 + (cellHeight - imgH) / 2;
+                                        const x = data.cell.x + padding + (cellWidth - imgW) / 2;
+                                        const y = data.cell.y + padding + (cellHeight - imgH) / 2;
 
-                                        doc.addImage(image, 'JPEG', x, y, imgW, imgH);
+                                        // Extra safety: only draw if within reasonable page bounds
+                                        const pageWidth = doc.internal.pageSize.width;
+                                        if (x >= 0 && x + imgW <= pageWidth) {
+                                            doc.addImage(image, 'JPEG', x, y, imgW, imgH);
+                                        }
                                     } catch (e) {
                                         console.error('Error drawing image', e);
                                     }
