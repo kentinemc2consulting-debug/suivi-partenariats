@@ -101,13 +101,35 @@ export default function PartnerDetailPage() {
         }
     };
 
-    const handleExportPDF = () => {
+    const handleExportPDF = async () => {
         if (!partnership) return;
         setIsGeneratingPDF(true);
 
         try {
             const doc = new jsPDF();
             const partner = partnership.partner;
+
+            // Helper function to convert image URL to base64
+            const getDataUrl = (url: string): Promise<string> => {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.crossOrigin = 'Anonymous';
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        if (ctx) {
+                            ctx.drawImage(img, 0, 0);
+                            resolve(canvas.toDataURL('image/jpeg'));
+                        } else {
+                            reject(new Error('Canvas context not available'));
+                        }
+                    };
+                    img.onerror = (error) => reject(error);
+                    img.src = url;
+                });
+            };
 
             // 1. Header & Branding
             doc.setFillColor(0, 82, 84); // Teal #005254
@@ -131,8 +153,8 @@ export default function PartnerDetailPage() {
             let yPos = 50;
 
             // Helper for Section Headers
-            const addSectionHeader = (title: string) => {
-                if (yPos > 270) {
+            const addSectionHeader = (title: string, forceNewPage = false) => {
+                if (yPos > 250 || forceNewPage) {
                     doc.addPage();
                     yPos = 20;
                 }
@@ -201,8 +223,9 @@ export default function PartnerDetailPage() {
             }
 
             // --- 3. Publications ---
+            let activePubs: Publication[] = [];
             if (partnership.publications && partnership.publications.length > 0) {
-                const activePubs = partnership.publications.filter(p => !p.deletedAt);
+                activePubs = partnership.publications.filter(p => !p.deletedAt);
                 if (activePubs.length > 0) {
                     addSectionHeader('Publications');
                     const pubData = activePubs.map(p => [
@@ -265,6 +288,58 @@ export default function PartnerDetailPage() {
                 if (partner.contactPerson?.hubspotUrl) {
                     doc.text('Lien HubSpot Contact', 14, yPos);
                     yPos += 7;
+                }
+            }
+
+            // --- 7. Screenshots des Publications ---
+            const pubsWithScreenshots = activePubs.filter(p => p.screenshotUrls && p.screenshotUrls.length > 0);
+
+            if (pubsWithScreenshots.length > 0) {
+                addSectionHeader('Captures d\'écran des Publications', true);
+
+                for (const pub of pubsWithScreenshots) {
+                    // Title for the publication group
+                    if (yPos > 260) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+
+                    doc.setFontSize(12);
+                    doc.setTextColor(0, 82, 84);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(`Publication ${pub.platform} du ${formatDate(pub.publicationDate)}`, 14, yPos);
+                    yPos += 10;
+
+                    if (pub.screenshotUrls) {
+                        for (const url of pub.screenshotUrls) {
+                            try {
+                                const base64Img = await getDataUrl(url);
+
+                                // Calculate dimensions to fit page width
+                                const pageWidth = 180; // 210mm - 15mm margins
+                                const imgProps = doc.getImageProperties(base64Img);
+                                const imgHeight = (imgProps.height * pageWidth) / imgProps.width;
+
+                                // Check if image fits on current page
+                                if (yPos + imgHeight > 280) {
+                                    doc.addPage();
+                                    yPos = 20;
+                                }
+
+                                doc.addImage(base64Img, 'JPEG', 15, yPos, pageWidth, imgHeight);
+                                yPos += imgHeight + 10;
+
+                            } catch (e) {
+                                console.error("Could not add image from URL:", url, e);
+                                doc.setFontSize(10);
+                                doc.setTextColor(200, 0, 0);
+                                doc.text(`[Image non disponible: ${url}]`, 14, yPos);
+                                yPos += 10;
+                            }
+                        }
+                    }
+
+                    yPos += 10; // Extra spacing between publications
                 }
             }
 
