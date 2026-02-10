@@ -185,6 +185,7 @@ export default function AddPublicationModal({ isOpen, onClose, onSave, initialDa
                                     <option value="Facebook">Facebook</option>
                                     <option value="TikTok">TikTok</option>
                                     <option value="YouTube">YouTube</option>
+                                    <option value="Newsletter">Newsletter</option>
                                     <option value="Autre">Autre</option>
                                 </select>
                             </div>
