@@ -281,12 +281,14 @@ export default function PartnerDetailPage() {
                             textColor: [255, 255, 255],
                             fontStyle: 'bold'
                         },
+                        bodyStyles: {
+                            minCellHeight: 80 // Enforce minimum height ONLY for body rows
+                        },
                         styles: {
                             fontSize: 9,
                             cellPadding: 3,
                             valign: 'middle',
-                            overflow: 'linebreak',
-                            minCellHeight: 80 // Enforce minimum height for ALL rows
+                            overflow: 'linebreak'
                         },
                         columnStyles: {
                             date: { cellWidth: 25 },
