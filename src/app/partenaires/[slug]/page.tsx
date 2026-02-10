@@ -285,13 +285,14 @@ export default function PartnerDetailPage() {
                             fontSize: 9,
                             cellPadding: 3,
                             valign: 'middle',
-                            overflow: 'linebreak'
+                            overflow: 'linebreak',
+                            minCellHeight: 80 // Enforce minimum height for ALL rows
                         },
                         columnStyles: {
                             date: { cellWidth: 25 },
                             platform: { cellWidth: 30 },
                             link: { cellWidth: 30, textColor: [0, 0, 255], halign: 'center' }, // Blue text, centered
-                            visual: { cellWidth: 95, minCellHeight: 80 } // Double size images
+                            visual: { cellWidth: 95 } // Double size images
                         },
                         didDrawCell: (data) => {
                             // Handle Link Click
