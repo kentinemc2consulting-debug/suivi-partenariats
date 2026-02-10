@@ -192,7 +192,10 @@ export default function PartnerDetailPage() {
 
             // --- 1. Introductions ---
             if (partnership.introductions && partnership.introductions.length > 0) {
-                const activeIntros = partnership.introductions.filter(i => !i.deletedAt);
+                const activeIntros = partnership.introductions
+                    .filter(i => !i.deletedAt)
+                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
                 if (activeIntros.length > 0) {
                     addSectionHeader('Mises en relation');
                     const introData = activeIntros.map(i => [
@@ -209,7 +212,14 @@ export default function PartnerDetailPage() {
 
             // --- 2. Événements ---
             if (partnership.events && partnership.events.length > 0) {
-                const activeEvents = partnership.events.filter(e => !e.deletedAt);
+                const activeEvents = partnership.events
+                    .filter(e => !e.deletedAt)
+                    .sort((a, b) => {
+                        const dateA = a.eventDate ? new Date(a.eventDate).getTime() : 0;
+                        const dateB = b.eventDate ? new Date(b.eventDate).getTime() : 0;
+                        return dateB - dateA;
+                    });
+
                 if (activeEvents.length > 0) {
                     addSectionHeader('Événements');
                     const eventData = activeEvents.map(e => [
@@ -225,7 +235,11 @@ export default function PartnerDetailPage() {
             // --- 3. Publications ---
             let activePubs: Publication[] = [];
             if (partnership.publications && partnership.publications.length > 0) {
-                activePubs = partnership.publications.filter(p => !p.deletedAt);
+                // Filter and sort by date descending
+                activePubs = partnership.publications
+                    .filter(p => !p.deletedAt)
+                    .sort((a, b) => new Date(b.publicationDate).getTime() - new Date(a.publicationDate).getTime());
+
                 if (activePubs.length > 0) {
                     addSectionHeader('Publications');
 
@@ -276,8 +290,8 @@ export default function PartnerDetailPage() {
                         columnStyles: {
                             date: { cellWidth: 25 },
                             platform: { cellWidth: 30 },
-                            link: { cellWidth: 70, textColor: [0, 0, 255] }, // Blue text for links
-                            visual: { cellWidth: 55, minCellHeight: 40 }
+                            link: { cellWidth: 30, textColor: [0, 0, 255], halign: 'center' }, // Blue text, centered
+                            visual: { cellWidth: 95, minCellHeight: 80 } // Double size images
                         },
                         didDrawCell: (data) => {
                             // Handle Link Click
@@ -341,7 +355,10 @@ export default function PartnerDetailPage() {
 
             // --- 4. Rapports Trimestriels ---
             if (partnership.quarterlyReports && partnership.quarterlyReports.length > 0) {
-                const activeReports = partnership.quarterlyReports.filter(r => !r.deletedAt);
+                const activeReports = partnership.quarterlyReports
+                    .filter(r => !r.deletedAt)
+                    .sort((a, b) => new Date(b.reportDate).getTime() - new Date(a.reportDate).getTime());
+
                 if (activeReports.length > 0) {
                     addSectionHeader('Rapports Trimestriels');
                     const reportData = activeReports.map(r => [
@@ -354,7 +371,10 @@ export default function PartnerDetailPage() {
 
             // --- 5. Points Mensuels ---
             if (partnership.monthlyCheckIns && partnership.monthlyCheckIns.length > 0) {
-                const activeCheckIns = partnership.monthlyCheckIns.filter(c => !c.deletedAt);
+                const activeCheckIns = partnership.monthlyCheckIns
+                    .filter(c => !c.deletedAt)
+                    .sort((a, b) => new Date(b.checkInDate).getTime() - new Date(a.checkInDate).getTime());
+
                 if (activeCheckIns.length > 0) {
                     addSectionHeader('Points Mensuels');
                     const checkInData = activeCheckIns.map(c => [
