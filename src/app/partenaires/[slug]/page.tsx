@@ -228,12 +228,96 @@ export default function PartnerDetailPage() {
                 activePubs = partnership.publications.filter(p => !p.deletedAt);
                 if (activePubs.length > 0) {
                     addSectionHeader('Publications');
+
+                    // Pre-fetch images
+                    const pubImages: { [key: string]: string } = {};
+                    for (const pub of activePubs) {
+                        if (pub.screenshotUrls && pub.screenshotUrls.length > 0) {
+                            try {
+                                // Take the first screenshot
+                                const base64 = await getDataUrl(pub.screenshotUrls[0]);
+                                pubImages[pub.id] = base64;
+                            } catch (e) {
+                                console.error('Failed to load image for pub', pub.id, e);
+                            }
+                        }
+                    }
+
                     const pubData = activePubs.map(p => [
+                        formatDate(p.publicationDate).split('').join('\n'), // Vertical text simulation if needed, but here we want normal text, column width fixed
+                        p.platform,
+                        p.links ? p.links.join('\n') : '',
+                        '' // Placeholder for image
+                    ]);
+
+                    // Correction: remove split/join if we solved layout via columnStyles
+                    const correctedPubData = activePubs.map(p => [
                         formatDate(p.publicationDate),
                         p.platform,
-                        p.links ? p.links.join(', ') : ''
+                        p.links ? p.links.join('\n') : '',
+                        ''
                     ]);
-                    createTable(['Date', 'Plateforme', 'Lien'], pubData);
+
+                    autoTable(doc, {
+                        startY: yPos,
+                        head: [['Date', 'Plateforme', 'Lien', 'Visuel']],
+                        body: correctedPubData,
+                        theme: 'grid',
+                        headStyles: {
+                            fillColor: [0, 82, 84],
+                            textColor: [255, 255, 255],
+                            fontStyle: 'bold'
+                        },
+                        styles: {
+                            fontSize: 9,
+                            cellPadding: 3,
+                            valign: 'middle',
+                            overflow: 'linebreak'
+                        },
+                        columnStyles: {
+                            0: { cellWidth: 25 }, // Date
+                            1: { cellWidth: 30 }, // Plateforme
+                            2: { cellWidth: 70 }, // Lien
+                            3: { cellWidth: 55, minCellHeight: 40 } // Visuel
+                        },
+                        didDrawCell: (data) => {
+                            if (data.section === 'body' && data.column.index === 3) {
+                                const pubIndex = data.row.index;
+                                const pub = activePubs[pubIndex];
+                                const image = pubImages[pub.id];
+
+                                if (image) {
+                                    try {
+                                        const imgProps = doc.getImageProperties(image);
+                                        const cellWidth = data.cell.width - 6;
+                                        const cellHeight = data.cell.height - 6;
+
+                                        // Fit image in cell
+                                        let imgW = cellWidth;
+                                        let imgH = (imgProps.height * imgW) / imgProps.width;
+
+                                        if (imgH > cellHeight) {
+                                            imgH = cellHeight;
+                                            imgW = (imgProps.width * imgH) / imgProps.height;
+                                        }
+
+                                        const x = data.cell.x + 3 + (cellWidth - imgW) / 2;
+                                        const y = data.cell.y + 3 + (cellHeight - imgH) / 2;
+
+                                        doc.addImage(image, 'JPEG', x, y, imgW, imgH);
+                                    } catch (e) {
+                                        console.error('Error drawing image', e);
+                                    }
+                                }
+                            }
+                        },
+                        margin: { top: 20 },
+                        pageBreak: 'auto'
+                    });
+
+                    // Update yPos for next element
+                    // @ts-ignore
+                    yPos = doc.lastAutoTable.finalY + 15;
                 }
             }
 
@@ -294,54 +378,6 @@ export default function PartnerDetailPage() {
             // --- 7. Screenshots des Publications ---
             const pubsWithScreenshots = activePubs.filter(p => p.screenshotUrls && p.screenshotUrls.length > 0);
 
-            if (pubsWithScreenshots.length > 0) {
-                addSectionHeader('Captures d\'écran des Publications', true);
-
-                for (const pub of pubsWithScreenshots) {
-                    // Title for the publication group
-                    if (yPos > 260) {
-                        doc.addPage();
-                        yPos = 20;
-                    }
-
-                    doc.setFontSize(12);
-                    doc.setTextColor(0, 82, 84);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text(`Publication ${pub.platform} du ${formatDate(pub.publicationDate)}`, 14, yPos);
-                    yPos += 10;
-
-                    if (pub.screenshotUrls) {
-                        for (const url of pub.screenshotUrls) {
-                            try {
-                                const base64Img = await getDataUrl(url);
-
-                                // Calculate dimensions to fit page width
-                                const pageWidth = 180; // 210mm - 15mm margins
-                                const imgProps = doc.getImageProperties(base64Img);
-                                const imgHeight = (imgProps.height * pageWidth) / imgProps.width;
-
-                                // Check if image fits on current page
-                                if (yPos + imgHeight > 280) {
-                                    doc.addPage();
-                                    yPos = 20;
-                                }
-
-                                doc.addImage(base64Img, 'JPEG', 15, yPos, pageWidth, imgHeight);
-                                yPos += imgHeight + 10;
-
-                            } catch (e) {
-                                console.error("Could not add image from URL:", url, e);
-                                doc.setFontSize(10);
-                                doc.setTextColor(200, 0, 0);
-                                doc.text(`[Image non disponible: ${url}]`, 14, yPos);
-                                yPos += 10;
-                            }
-                        }
-                    }
-
-                    yPos += 10; // Extra spacing between publications
-                }
-            }
 
             // Footer
             const pageCount = (doc as any).internal.getNumberOfPages();
